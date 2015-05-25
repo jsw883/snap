@@ -3,15 +3,13 @@ Amazon product co-purchasing network, March 02 2003
 
 ### Source ###
 
-[SNAP Datasets » amazon0302](https://snap.stanford.edu/data/amazon0302.html)
+[SNAP Datasets » amazon0302](https://snap.stanford.edu/data/amazon0302.html){:target="_blank"}
 
 ### Code ###
 
 ```bash
 wget --user-agent="Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36" https://snap.stanford.edu/data/amazon0302.txt.gz
-
 gunzip amazon0302.txt.gz
-
 mv amazon0302.txt amazon0302.snap
 ```
 
