@@ -1,0 +1,6 @@
+# Large datasets (download instructions provided)
+amazon0302.snap*
+amazon0312.snap*
+
+# Example output directories (any subdirectory in a dataset directory)
+*/*/

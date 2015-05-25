@@ -1,0 +1,7 @@
+# Example executables (need to be specified manually or manually cleaned)
+*/centrality
+*/centrality.exe
+
+# Custom bash scripts for running on datasets
+*/run.DIAN
+*/run.testing
