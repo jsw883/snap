@@ -3,7 +3,7 @@ Amazon product co-purchasing network, March 12 2003
 
 ### Source ###
 
-[SNAP Datasets » amazon0302](https://snap.stanford.edu/data/amazon0302.html){:target="_blank"}
+[SNAP Datasets » amazon0302](https://snap.stanford.edu/data/amazon0302.html)
 
 ### Code ###
 
