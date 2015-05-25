@@ -2,6 +2,8 @@
 
 int main(int argc, char* argv[]) {
   
+  setbuf(stdout, NULL); // disables the buffer so that print statements are not buffered and display immediately (?)
+  
   Env = TEnv(argc, argv, TNotify::StdNotify);
   Env.PrepArgs(TStr::Fmt("Node centrality. build: %s, %s. Time: %s", __TIME__, __DATE__, TExeTm::GetCurTm()));
   
@@ -20,6 +22,7 @@ int main(int argc, char* argv[]) {
   printf(" DONE\n");
   printf("  nodes: %d\n", Graph->GetNodes());
   printf("  edges: %d\n", Graph->GetEdges());
+  printf("  time elapsed: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Declare variables
   TIntIntVH FirstDegVH;
@@ -33,21 +36,29 @@ int main(int argc, char* argv[]) {
   // CENTRALITY (computations)
   
   // First degree distributions
-  printf("\nComputing first degree distributions...");
+  
+  printf("\nComputing degree distributions...");
   TSnap::GetDegVH(Graph, FirstDegVH);
-  printf(" DONE\n");
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Centrality measures
-  printf("Computing centrality measures...");
+  
+  printf("Computing degree centrality...");
   TSnap::GetDegreeCentrVH(Graph, DegCentrVH);
-  EigDiffV = TSnap::GetEigenVectorCentrVH(Graph, EigCentrVH, 1e-4, 100);
-  PgRDiff = TSnap::GetPageRankNew(Graph, PgRH, 0.85, 1e-4, 100);
-  printf(" DONE\n");
-  printf("Eigenvector centrality convergence differences (in / out / undirected)\n");
-  printf("  in: %f\n", double(EigDiffV[0]));
-  printf("  out: %f\n", double(EigDiffV[1]));
-  printf("  undirected: %f\n", double(EigDiffV[2]));
-  printf("PageRank centrality convergence difference: %f\n", double(PgRDiff));
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  
+  printf("Computing eigenvector centrality...");
+  EigDiffV = TSnap::GetEigenVectorCentrVH(Graph, EigCentrVH, 1e-4, 1000);
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf("  convergence differences (in / out / undirected)\n");
+  printf("    %f\n", double(EigDiffV[0]));
+  printf("    %f\n", double(EigDiffV[1]));
+  printf("    %f\n", double(EigDiffV[2]));
+  
+  printf("Computing PageRank centrality...");
+  PgRDiff = TSnap::GetPageRankNew(Graph, PgRH, 0.85, 1e-4, 1000);
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf("  convergence difference: %f\n", double(PgRDiff));
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
@@ -73,7 +84,7 @@ int main(int argc, char* argv[]) {
   } else {
     
     printf("\nSaving %s.deg.centr...", BseFNm.CStr());
-    TSnap::SaveTxt(DegCentrVH, TStr::Fmt("%s.deg.centr", OutFNm.CStr()), "First degree centrality (in / out / undirected)", "NodeId", "InDegCentr\tOutDegCentr\tDegCentr");
+    TSnap::SaveTxt(DegCentrVH, TStr::Fmt("%s.deg.centr", OutFNm.CStr()), "Degree centrality (in / out / undirected)", "NodeId", "InDegCentr\tOutDegCentr\tDegCentr");
     printf(" DONE\n");
     
     printf("Saving %s.eig...", BseFNm.CStr());
@@ -92,7 +103,7 @@ int main(int argc, char* argv[]) {
   
   Catch
   
-  printf("\nrun time: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf("\nTotal run time: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   return 0;
   
 }

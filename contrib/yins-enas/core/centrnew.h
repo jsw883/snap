@@ -12,7 +12,7 @@ typedef enum {edInDirected, edOutDirected, edUnDirected} TEdgeDir;
 namespace TSnap {
 
 /// Computes directed first degree centrality
-template <class PGraph> void GetDirDegreeCentr(const PGraph& Graph, const TEdgeDir& dir, TIntFltH& DegCentrH);
+template <class PGraph> void GetDirDegreeCentr(const PGraph& Graph, TIntFltH& DegCentrH, const TEdgeDir& dir);
 /// Computes first in degree centrality
 template <class PGraph> void GetInDegreeCentr(const PGraph& Graph, TIntFltH& InDegCentrH);
 /// Computes first out degree centrality
@@ -40,7 +40,7 @@ template <class PGraph> double GetPageRankNew(const PGraph& Graph, TIntFltH& PRa
 
 /// Computes first in degree centralities
 template <class PGraph>
-void GetDirDegreeCentr(const PGraph& Graph, const TEdgeDir& dir, TIntFltH& DegCentrH) {
+void GetDirDegreeCentr(const PGraph& Graph, TIntFltH& DegCentrH, const TEdgeDir& dir) {
   typename PGraph::TObj::TNodeI NI;
   DegCentrH.Gen(Graph->GetNodes());
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
@@ -61,20 +61,20 @@ void GetDirDegreeCentr(const PGraph& Graph, const TEdgeDir& dir, TIntFltH& DegCe
 }
 template <class PGraph>
 void GetInDegreeCentr(const PGraph& Graph, TIntFltH& InDegCentrH) {
-  GetDirDegreeCentr(Graph, edInDirected, InDegCentrH);
+  GetDirDegreeCentr(Graph, InDegCentrH, edInDirected);
 }
 template <class PGraph>
 void GetOutDegreeCentr(const PGraph& Graph, TIntFltH& OutDegCentrH) {
-  GetDirDegreeCentr(Graph, edOutDirected, OutDegCentrH);
+  GetDirDegreeCentr(Graph, OutDegCentrH, edOutDirected);
 }
 template <class PGraph>
 void GetDegreeCentr(const PGraph& Graph, TIntFltH& DegCentrH) {
-  GetDirDegreeCentr(Graph, edUnDirected, DegCentrH);
+  GetDirDegreeCentr(Graph, DegCentrH, edUnDirected);
 }
 
 template <class PGraph>
 void GetDegreeCentrVH(const PGraph& Graph, TIntFltVH& DegCentrVH) {
-  typename PNGraph::TObj::TNodeI NI;
+  typename PGraph::TObj::TNodeI NI;
   TFltV DegCentrV;
   TIntFltH InDegCentrH, OutDegCentrH, DegCentrH;
   DegCentrVH.Gen(Graph->GetNodes());
@@ -100,7 +100,7 @@ double GetDirEigenVectorCentr(const PGraph& Graph, TIntFltH& EigCentrH, const TE
   EigCentrH.Gen(NNodes);
   // initialize vector values
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    EigCentrH.AddDat(NI.GetId(), 1.0/NNodes); // uniform distribution initially
+    EigCentrH.AddDat(NI.GetId(), 1.0 / NNodes); // uniform distribution initially
     IAssert(NI.GetId() == EigCentrH.GetKey(EigCentrH.Len() - 1));
   }
   TFltV TmpV(NNodes);
@@ -125,7 +125,7 @@ double GetDirEigenVectorCentr(const PGraph& Graph, TIntFltH& EigCentrH, const TE
     // normalise entire vector by sum of squares rather than each row normalised already (which is PageRank)
     eig = 0;
     for (int i = 0; i < TmpV.Len(); i++) {
-      eig += (pow(TmpV[i], 2.0));
+      eig += pow(TmpV[i], 2.0);
     }
     eig = sqrt(eig);
     for (int i = 0; i < TmpV.Len(); i++) {
@@ -160,20 +160,20 @@ double GetEigenVectorCentr(const PGraph& Graph, TIntFltH& EigCentrH, const doubl
 }
 
 template <class PGraph>
-TFltV GetEigenVectorCentrVH(const PGraph& Graph, TIntFltVH& NIdEigenVH, const double& eps, const int& MaxIter) {
+TFltV GetEigenVectorCentrVH(const PGraph& Graph, TIntFltVH& EigCentrVH, const double& eps, const int& MaxIter) {
   typename PGraph::TObj::TNodeI NI;
-  TIntFltH InEigH, OutEigH, EigH;
+  TIntFltH InEigCentrH, OutEigCentrH, EigCentrH;
   TFltV DiffV, EigV;
   DiffV.Clr();
-  DiffV.Add(GetInEigenVectorCentr(Graph, InEigH, eps, MaxIter));
-  DiffV.Add(GetOutEigenVectorCentr(Graph, OutEigH, eps, MaxIter));
-  DiffV.Add(GetEigenVectorCentr(Graph, EigH, eps, MaxIter));
+  DiffV.Add(GetInEigenVectorCentr(Graph, InEigCentrH, eps, MaxIter));
+  DiffV.Add(GetOutEigenVectorCentr(Graph, OutEigCentrH, eps, MaxIter));
+  DiffV.Add(GetEigenVectorCentr(Graph, EigCentrH, eps, MaxIter));
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     EigV.Clr();
-    EigV.Add(InEigH.GetDat(NI.GetId()));
-    EigV.Add(OutEigH.GetDat(NI.GetId()));
-    EigV.Add(EigH.GetDat(NI.GetId()));
-    NIdEigenVH.AddDat(NI.GetId(), EigV);
+    EigV.Add(InEigCentrH.GetDat(NI.GetId()));
+    EigV.Add(OutEigCentrH.GetDat(NI.GetId()));
+    EigV.Add(EigCentrH.GetDat(NI.GetId()));
+    EigCentrVH.AddDat(NI.GetId(), EigV);
   }
   return(DiffV);
 }
