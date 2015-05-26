@@ -46,3 +46,12 @@ undirected graphs (in / out / undirected), and PageRank centrality is computed
 on the directed graph only, as it is derived. Here first degree centrality
 is simply the first degree normalised by the number of nodes in the graph, as
 weights are not considered.
+
+##### wcentrality #####
+
+Computes weighted node centrality distributions using the new implementation
+of weighted graphs: weighted first degree, ~~weighted 1:k degree~~, weighted degree
+centrality, eigenvector centrality, and PageRank centrality. All centrality
+measures other than PageRank centrality are computed on both the directed and
+undirected graphs (in / out / undirected), and PageRank centrality is computed
+on the directed graph only, as it is formulated.
