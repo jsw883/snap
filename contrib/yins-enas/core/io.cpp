@@ -71,22 +71,6 @@
 //   fclose(F);
 // }
 
-// Specific SaveTxt for TIntFltKdV
-// void TSnap::SaveTxtTIntFltKdV(const TIntFltKdV& IntFltKdV, const TStr& FNm, const TStr& Desc) {
-//   typename TIntFltKdV::TIter IntFltKdI;
-//   FILE *F = fopen(FNm.CStr(), "wt");
-//   if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
-//   fprintf(F, "# Keys:\t%d\n", IntFltKdV.Len());
-//   fprintf(F, "# Key\tVal\n");
-//   for (IntFltKdI = IntFltKdV.BegI(); IntFltKdI < IntFltKdV.EndI(); IntFltKdI++) {
-//     const int Key = IntFltKdI->Key;
-//     const int Val = IntFltKdI->Dat;
-//     fprintf(F, "%d\t%d", Key, Val);
-//     fprintf(F, "\n");
-//   }
-//   fclose(F);
-// }
-
 // Modified SaveTxt for TCnComV
 void TSnap::SaveTxt(const TCnComV& CnComV, const TStr& FNm, const TStr& Desc) {
   typename TIntV::TIter VI;
@@ -106,6 +90,18 @@ void TSnap::SaveTxt(const TCnComV& CnComV, const TStr& FNm, const TStr& Desc) {
   fclose(F);
 }
 
-namespace TSnap {
-
-} // namespace TSnap
+// Specific SaveTxt for TIntFltKdV
+void TSnap::SaveTxtTIntFltKdV(const TIntFltKdV& IntFltKdV, const TStr& FNm, const TStr& Desc, const TStr& KeyNm, const TStr& ValNm) {
+  typename TIntFltKdV::TIter IntFltKdI;
+  FILE *F = fopen(FNm.CStr(), "wt");
+  if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
+  fprintf(F, "# %ss:\t%d\n", KeyNm.CStr(), IntFltKdV.Len());
+  fprintf(F, "# %s\t%s\n", KeyNm.CStr(), ValNm.CStr());
+  for (IntFltKdI = IntFltKdV.BegI(); IntFltKdI < IntFltKdV.EndI(); IntFltKdI++) {
+    const int Key = IntFltKdI->Key;
+    const int Val = IntFltKdI->Dat;
+    fprintf(F, "%d\t%d", Key, Val);
+    fprintf(F, "\n");
+  }
+  fclose(F);
+}

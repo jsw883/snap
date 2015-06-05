@@ -71,12 +71,14 @@ namespace TSnap {
 // void SaveTxtTIntIntVH(const TIntIntVH& IntIntVH, const TStr& FNm, const TStr& Desc = TStr());
 // void SaveTxtTIntFltVH(const TIntFltVH& IntFltVH, const TStr& FNm, const TStr& Desc = TStr());
 
-// Specific SaveTxt for TStrFltH, TIntFltKdV
+// Specific SaveTxt for TStrFltH
 // void SaveTxtTStrFltH(const TStrFltH& StrFltH, const TStr& FNm, const TStr& Desc = TStr());
-// void SaveTxtTIntFltKdV(const TIntFltKdV& IntFltKdV, const TStr& FNm, const TStr& Desc = TStr());
 
 // Modified SaveTxt for TCnComV
 void SaveTxt(const TCnComV& CnComV, const TStr& FNm, const TStr& Desc = TStr());
+
+// Specific SaveTxt for TIntFltKdV
+void SaveTxtTIntFltKdV(const TIntFltKdV& IntFltKdV, const TStr& FNm, const TStr& Desc = TStr(), const TStr& KeyNm = "Key", const TStr& ValNm = "Val");
 
 } // namespace TSnap
 

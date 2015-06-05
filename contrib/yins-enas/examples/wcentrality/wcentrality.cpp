@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   printf("Computing weighted eigenvector centrality...");
-  WEigDiffV = TSnap::GetWEigenVectorCentrVH<TFlt>(WGraph, WEigCentrVH, 1e-4, 100);
+  WEigDiffV = TSnap::GetWEigenVectorCentrVH<TFlt>(WGraph, WEigCentrVH, 1e-4, 1000);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  convergence differences (in / out / undirected)\n");
   printf("    %f\n", double(WEigDiffV[0]));
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
   printf("    %f\n", double(WEigDiffV[2]));
   
   printf("Computing weighted PageRank centrality...");
-  WPgRDiff = TSnap::GetWPageRank<TFlt>(WGraph, WPgRH, 0.85, 1e-4, 100);
+  WPgRDiff = TSnap::GetWPageRank<TFlt>(WGraph, WPgRH, 0.85, 1e-4, 1000);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  convergence difference: %f\n", double(WPgRDiff));
   
