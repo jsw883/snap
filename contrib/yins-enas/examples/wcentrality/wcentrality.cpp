@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
-  PFltWNEGraph WGraph = TSnap::LoadFltWEdgeList(InFNm);
+  PFltWNGraph WGraph = TSnap::LoadFltWEdgeList<TWNGraph>(InFNm);
   printf(" DONE\n");
   printf("  nodes: %d\n", WGraph->GetNodes());
   printf("  edges: %d\n", WGraph->GetEdges());
@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
   TFltV WEigDiffV;
   TIntFltH WPgRH;
   double WPgRDiff;
-  TFltWNEGraph::TNodeI NI;
+  TFltWNGraph::TNodeI NI;
   TFltV::TIter VI;
   
   // CENTRALITY (computations)

@@ -27,12 +27,76 @@ namespace TSnap {
 // }
 
 // Loads the format saved by TSnap::SaveWEdgeList()
-PIntWNEGraph LoadIntWEdgeList(const TStr& InFNm, const int& SrcColId = 0, const int& DstColId = 1, const int& WColId = 2);
-PFltWNEGraph LoadFltWEdgeList(const TStr& InFNm, const int& SrcColId = 0, const int& DstColId = 1, const int& WColId = 2);
+template <template <class> class TGraph> TPt<TGraph<TInt> > LoadIntWEdgeList(const TStr& InFNm, const int& SrcColId = 0, const int& DstColId = 1, const int& WColId = 2);
+template <template <class> class TGraph> TPt<TGraph<TFlt> > LoadFltWEdgeList(const TStr& InFNm, const int& SrcColId = 0, const int& DstColId = 1, const int& WColId = 2);
 
 // Saves a weighted graph into a text file. Each line contains two columns and encodes a single edge: <source node id><tab><destination node id><tab><edge weight>
-void SaveIntWEdgeList(const PIntWNEGraph& Graph, const TStr& OutFNm, const TStr& Desc);
-void SaveFltWEdgeList(const PFltWNEGraph& Graph, const TStr& OutFNm, const TStr& Desc);
+template <template <class> class TGraph> void SaveIntWEdgeList(const TPt<TGraph<TInt> >& Graph, const TStr& OutFNm, const TStr& Desc);
+template <template <class> class TGraph> void SaveFltWEdgeList(const TPt<TGraph<TFlt> >& Graph, const TStr& OutFNm, const TStr& Desc);
+
+// Load and save methods Implemented
+  
+// Loads the format saved by TSnap::SaveWEdgeList()
+template <template <class> class TGraph> 
+TPt<TGraph<TInt> >LoadIntWEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId, const int& WColId) {
+  TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
+  TPt<TGraph<TInt> > Graph = TGraph<TInt>::New();
+  int SrcNId, DstNId;
+  int EdgeW;
+  while (Ss.Next()) {
+    if (! Ss.GetInt(SrcColId, SrcNId) || ! Ss.GetInt(DstColId, DstNId) || ! Ss.GetInt(WColId, EdgeW)) { continue; }
+    if (! Graph->IsNode(SrcNId)) { Graph->AddNode(SrcNId); }
+    if (! Graph->IsNode(DstNId)) { Graph->AddNode(DstNId); }
+    Graph->AddEdge(SrcNId, DstNId, EdgeW);
+  }
+  Graph->Defrag();
+  return Graph;
+}
+template <template <class> class TGraph> 
+TPt<TGraph<TFlt> > LoadFltWEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId, const int& WColId) {
+  TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
+  TPt<TGraph<TFlt> > Graph = TGraph<TFlt>::New();
+  int SrcNId, DstNId;
+  double EdgeW;
+  while (Ss.Next()) {
+    if (! Ss.GetInt(SrcColId, SrcNId) || ! Ss.GetInt(DstColId, DstNId) || ! Ss.GetFlt(WColId, EdgeW)) { continue; }
+    if (! Graph->IsNode(SrcNId)) { Graph->AddNode(SrcNId); }
+    if (! Graph->IsNode(DstNId)) { Graph->AddNode(DstNId); }
+    Graph->AddEdge(SrcNId, DstNId, EdgeW);
+  }
+  Graph->Defrag();
+  return Graph;
+}
+
+// Saves a weighted graph into a text file. Each line contains two columns and encodes a single edge: <source node id><tab><destination node id><tab><edge weight>
+template <template <class> class TGraph> 
+void SaveIntWEdgeList(const TPt<TGraph<TInt> >& Graph, const TStr& OutFNm, const TStr& Desc) {
+  FILE *F = fopen(OutFNm.CStr(), "wt");
+  if (HasGraphFlag(typename TGraph<TInt>, gfDirected)) { fprintf(F, "# Directed graph: %s \n", OutFNm.CStr()); } 
+  else { fprintf(F, "# Undirected graph (each unordered pair of nodes is saved once): %s\n", OutFNm.CStr()); }
+  if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
+  fprintf(F, "# Nodes: %d Edges: %d\n", Graph->GetNodes(), Graph->GetEdges());
+  if (HasGraphFlag(typename TGraph<TInt>, gfDirected)) { fprintf(F, "# SrcNodeId\tDstNodeId\tEdgeW\n"); }
+  else { fprintf(F, "# NodeId\tNodeId\tEdgeW\n"); }
+  for (typename TGraph<TInt>::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    fprintf(F, "%d\t%d\t%d\n", EI.GetSrcNId(), EI.GetDstNId(), int(EI.GetW()));
+  }
+  fclose(F);
+}
+template <template <class> class TGraph>  
+void SaveFltWEdgeList(const TPt<TGraph<TFlt> >& Graph, const TStr& OutFNm, const TStr& Desc) {
+  FILE *F = fopen(OutFNm.CStr(), "wt");
+  if (HasGraphFlag(typename TGraph<TFlt>, gfDirected)) { fprintf(F, "# Directed graph: %s \n", OutFNm.CStr()); } 
+  else { fprintf(F, "# Undirected graph (each unordered pair of nodes is saved once): %s\n", OutFNm.CStr()); }
+  if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
+  fprintf(F, "# Nodes: %d Edges: %d\n", Graph->GetNodes(), Graph->GetEdges());
+  if (HasGraphFlag(typename TGraph<TFlt>, gfDirected)) { fprintf(F, "# SrcNodeId\tDstNodeId\tEdgeW\n"); }
+  else { fprintf(F, "# NodeId\tNodeId\tEdgeW\n"); }
+  for (typename TGraph<TFlt>::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    fprintf(F, "%d\t%d\t%f\n", EI.GetSrcNId(), EI.GetDstNId(), double(EI.GetW()));
+  }
+  fclose(F);
+}
 
 } // namespace TSnap
 

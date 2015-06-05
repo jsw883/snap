@@ -11,37 +11,37 @@ typedef enum {edInDirected, edOutDirected, edUnDirected} TEdgeDir;
 namespace TSnap {
 
 /// Computes directed first degree centrality
-template <class TEdgeW> void GetWDirDegreeCentr(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltH& WDegCentrH, const TEdgeDir& dir, const double& alpha = 1.0);
+template <class TEdgeW, template <class> class TGraph > void GetWDirDegreeCentr(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltH& WDegCentrH, const TEdgeDir& dir, const double& alpha = 1.0);
 /// Computes first in degree centrality
-template <class TEdgeW> void GetWInDegreeCentr(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltH& WInDegCentrH, const double& alpha = 1.0);
+template <class TEdgeW, template <class> class TGraph > void GetWInDegreeCentr(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltH& WInDegCentrH, const double& alpha = 1.0);
 /// Computes first out degree centrality
-template <class TEdgeW> void GetWOutDegreeCentr(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltH& WOutDegCentrH, const double& alpha = 1.0);
+template <class TEdgeW, template <class> class TGraph > void GetWOutDegreeCentr(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltH& WOutDegCentrH, const double& alpha = 1.0);
 /// Computes first degree centrality
-template <class TEdgeW> void GetWDegreeCentr(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltH& WDegCentrH, const double& alpha = 1.0);
+template <class TEdgeW, template <class> class TGraph > void GetWDegreeCentr(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltH& WDegCentrH, const double& alpha = 1.0);
 
 /// Computes first degree centralities (in / out / undirected)
-template <class TEdgeW> void GetWDegreeCentrVH(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltVH& WDegCentrVH, const double& alpha = 1.0);
+template <class TEdgeW, template <class> class TGraph > void GetWDegreeCentrVH(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltVH& WDegCentrVH, const double& alpha = 1.0);
 
 /// Directed eigenvector centrality
-template <class TEdgeW> double GetWDirEigenVectorCentr(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltH& WEigCentrH, const TEdgeDir& dir, const double& eps = 1e-4, const int& MaxIter = 100); 
+template <class TEdgeW, template <class> class TGraph > double GetWDirEigenVectorCentr(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltH& WEigCentrH, const TEdgeDir& dir, const double& eps = 1e-4, const int& MaxIter = 100); 
 /// Directed eigenvector centrality
-template <class TEdgeW> double GetWInEigenVectorCentr(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltH& WInEigCentrH, const double& eps = 1e-4, const int& MaxIter = 100);
+template <class TEdgeW, template <class> class TGraph > double GetWInEigenVectorCentr(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltH& WInEigCentrH, const double& eps = 1e-4, const int& MaxIter = 100);
 /// Directed eigenvector centrality
-template <class TEdgeW> double GetWOutEigenVectorCentr(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltH& WOutEigCentrH, const double& eps = 1e-4, const int& MaxIter = 100);
+template <class TEdgeW, template <class> class TGraph > double GetWOutEigenVectorCentr(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltH& WOutEigCentrH, const double& eps = 1e-4, const int& MaxIter = 100);
 /// Directed eigenvector centrality
-template <class TEdgeW> double GetWEigenVectorCentr(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltH& WEigCentrH, const double& eps = 1e-4, const int& MaxIter = 100);
+template <class TEdgeW, template <class> class TGraph > double GetWEigenVectorCentr(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltH& WEigCentrH, const double& eps = 1e-4, const int& MaxIter = 100);
 
 /// Eigenvector centralities (standard power method)
-template<class TEdgeW> TFltV GetWEigenVectorCentrVH(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltVH& WEigCentrVH, const double& eps = 1e-4, const int& MaxIter = 100);
+template <class TEdgeW, template <class> class TGraph > TFltV GetWEigenVectorCentrVH(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltVH& WEigCentrVH, const double& eps = 1e-4, const int& MaxIter = 100);
 
 /// PageRank centrality (for more info see: http://en.wikipedia.org/wiki/PageRank)
-template <class TEdgeW> double GetWPageRank(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltH& WPRankH, const double& c=0.85, const double& eps=1e-4, const int& MaxIter=100);
+template <class TEdgeW, template <class> class TGraph > double GetWPageRank(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltH& WPRankH, const double& c=0.85, const double& eps=1e-4, const int& MaxIter=100);
 
 
 /// Computes first in degree centralities
-template <class TEdgeW>
-void GetWDirDegreeCentr(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltH& WDegCentrH, const TEdgeDir& dir, const double& alpha) {
-  typename TWNEGraph<TEdgeW>::TNodeI NI;
+template <class TEdgeW, template <class> class TGraph >
+void GetWDirDegreeCentr(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltH& WDegCentrH, const TEdgeDir& dir, const double& alpha) {
+  typename TGraph<TEdgeW>::TNodeI NI;
   WDegCentrH.Gen(WGraph->GetNodes());
   for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
     TEdgeW deg = 0;
@@ -59,22 +59,22 @@ void GetWDirDegreeCentr(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltH& WDegCen
     WDegCentrH.AddDat(NI.GetId(), centr);
   }
 }
-template <class TEdgeW>
-void GetWInDegreeCentr(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltH& WInDegCentrH, const double& alpha) {
+template <class TEdgeW, template <class> class TGraph >
+void GetWInDegreeCentr(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltH& WInDegCentrH, const double& alpha) {
   GetWDirDegreeCentr(WGraph, WInDegCentrH, edInDirected, alpha);
 }
-template <class TEdgeW>
-void GetWOutDegreeCentr(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltH& WOutDegCentrH, const double& alpha) {
+template <class TEdgeW, template <class> class TGraph >
+void GetWOutDegreeCentr(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltH& WOutDegCentrH, const double& alpha) {
   GetWDirDegreeCentr(WGraph, WOutDegCentrH, edOutDirected, alpha);
 }
-template <class TEdgeW>
-void GetWDegreeCentr(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltH& WDegCentrH, const double& alpha) {
+template <class TEdgeW, template <class> class TGraph >
+void GetWDegreeCentr(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltH& WDegCentrH, const double& alpha) {
   GetWDirDegreeCentr(WGraph, WDegCentrH, edUnDirected, alpha);
 }
 
-template <class TEdgeW>
-void GetWDegreeCentrVH(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltVH& WDegCentrVH, const double& alpha) {
-  typename TWNEGraph<TEdgeW>::TNodeI NI;
+template <class TEdgeW, template <class> class TGraph >
+void GetWDegreeCentrVH(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltVH& WDegCentrVH, const double& alpha) {
+  typename TGraph<TEdgeW>::TNodeI NI;
   TFltV WDegCentrV;
   TIntFltH WInDegCentrH, WOutDegCentrH, WDegCentrH;
   WDegCentrVH.Gen(WGraph->GetNodes());
@@ -91,9 +91,9 @@ void GetWDegreeCentrVH(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltVH& WDegCen
 }
 
 // Standard power method for computing leading eigenvector and eigenvalue
-template <class TEdgeW>
-double GetWDirEigenVectorCentr(const TPt<TWNEGraph<TEdgeW> >& Graph, TIntFltH& WEigCentrH, const TEdgeDir& dir, const double& eps, const int& MaxIter) {
-  typename TWNEGraph<TEdgeW>::TNodeI NI;
+template <class TEdgeW, template <class> class TGraph >
+double GetWDirEigenVectorCentr(const TPt<TGraph<TEdgeW> >& Graph, TIntFltH& WEigCentrH, const TEdgeDir& dir, const double& eps, const int& MaxIter) {
+  typename TGraph<TEdgeW>::TNodeI NI;
   const int NNodes = Graph->GetNodes();
   int deg = 0;
   double eig = 0.0, diff = 0.0;
@@ -146,22 +146,22 @@ double GetWDirEigenVectorCentr(const TPt<TWNEGraph<TEdgeW> >& Graph, TIntFltH& W
   }
   return(diff); // didn't converge return(-1) (?)
 }
-template <class TEdgeW>
-double GetWInEigenVectorCentr(const TPt<TWNEGraph<TEdgeW> >& Graph, TIntFltH& InWEigCentrH, const double& eps, const int& MaxIter) {
+template <class TEdgeW, template <class> class TGraph >
+double GetWInEigenVectorCentr(const TPt<TGraph<TEdgeW> >& Graph, TIntFltH& InWEigCentrH, const double& eps, const int& MaxIter) {
   return GetWDirEigenVectorCentr(Graph, InWEigCentrH, edInDirected, eps, MaxIter);
 }
-template <class TEdgeW>
-double GetWOutEigenVectorCentr(const TPt<TWNEGraph<TEdgeW> >& Graph, TIntFltH& OutWEigCentrH, const double& eps, const int& MaxIter) {
+template <class TEdgeW, template <class> class TGraph >
+double GetWOutEigenVectorCentr(const TPt<TGraph<TEdgeW> >& Graph, TIntFltH& OutWEigCentrH, const double& eps, const int& MaxIter) {
   return GetWDirEigenVectorCentr(Graph, OutWEigCentrH, edOutDirected, eps, MaxIter);
 }
-template <class TEdgeW>
-double GetWEigenVectorCentr(const TPt<TWNEGraph<TEdgeW> >& Graph, TIntFltH& WEigCentrH, const double& eps, const int& MaxIter) {
+template <class TEdgeW, template <class> class TGraph >
+double GetWEigenVectorCentr(const TPt<TGraph<TEdgeW> >& Graph, TIntFltH& WEigCentrH, const double& eps, const int& MaxIter) {
   return GetWDirEigenVectorCentr(Graph, WEigCentrH, edUnDirected, eps, MaxIter);
 }
 
-template <class TEdgeW>
-TFltV GetWEigenVectorCentrVH(const TPt<TWNEGraph<TEdgeW> >& Graph, TIntFltVH& WEigCentrVH, const double& eps, const int& MaxIter) {
-  typename TWNEGraph<TEdgeW>::TNodeI NI;
+template <class TEdgeW, template <class> class TGraph >
+TFltV GetWEigenVectorCentrVH(const TPt<TGraph<TEdgeW> >& Graph, TIntFltVH& WEigCentrVH, const double& eps, const int& MaxIter) {
+  typename TGraph<TEdgeW>::TNodeI NI;
   TIntFltH WInEigCentrH, WOutEigCentrH, WEigCentrH;
   TFltV DiffV, WEigV;
   DiffV.Clr();
@@ -179,9 +179,9 @@ TFltV GetWEigenVectorCentrVH(const TPt<TWNEGraph<TEdgeW> >& Graph, TIntFltVH& WE
 }
 
 // Berkhin Algorithm 1 -- P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
-template<class TEdgeW>
-double GetWPageRank(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltH& WPRankH, const double& c, const double& eps, const int& MaxIter) {
-  typename TWNEGraph<TEdgeW>::TNodeI NI;
+template <class TEdgeW, template <class> class TGraph >
+double GetWPageRank(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltH& WPRankH, const double& c, const double& eps, const int& MaxIter) {
+  typename TGraph<TEdgeW>::TNodeI NI;
   const int NNodes = WGraph->GetNodes();
   double diff = 0.0; 
   WPRankH.Gen(NNodes);
@@ -197,8 +197,7 @@ double GetWPageRank(const TPt<TWNEGraph<TEdgeW> >& WGraph, TIntFltH& WPRankH, co
       TmpV[j] = 0;
       for (int edge = 0; edge < NI.GetInDeg(); edge++) {
         const int InNId = NI.GetInNId(edge);
-        const int InEId = NI.GetInEId(edge);
-        const TEdgeW EdgeW = WGraph->GetEI(InEId).GetW();
+        const TEdgeW EdgeW = NI.GetInEW(edge);
         const TEdgeW InNOutWDeg = WGraph->GetNI(InNId).GetWOutDeg();
         // cast TEdgeW to double for transition matrix probability
         if (InNOutWDeg > 0) { // is this needed (?)
