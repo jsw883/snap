@@ -1,5 +1,6 @@
 // Headers (?)
 
+#include "stdafx.h"
 #include "io.h"
 
 // Specific SaveTxt for TIntV

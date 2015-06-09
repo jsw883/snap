@@ -1,9 +1,9 @@
-#ifndef yins_io_h
-#define yins_io_h
+#ifndef core_io
+#define core_io
 
 // Headers (?)
 
-#include "Snap.h"
+// #include "Snap.h"
 
 namespace TSnap {
 
@@ -16,7 +16,7 @@ void SaveTxt(const TVec<TVal>& GenV, const TStr& FNm, const TStr& Desc = TStr(),
   fprintf(F, "# %ss:\t%d\n", ValNm.CStr(), GenV.Len());
   fprintf(F, "# %s\n", ValNm.CStr());
   for (VI = GenV.BegI(); VI < GenV.EndI(); VI++) {
-    fprintf(F, "%s", VI->Val.GetStr().CStr());
+    fprintf(F, "%s", VI->GetStr().CStr());
     fprintf(F, "\n");
   }
   fclose(F);

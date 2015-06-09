@@ -14,6 +14,7 @@ int main(int argc, char* argv[]) {
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
+  const int k = Env.GetIfArgPrefixInt("-k:", 1, "depth of degree distributions (1 / 2 / ...)");
   const bool c = Env.GetIfArgPrefixBool("-c:", false, "collate centralities into matrix (T / F)");
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
@@ -26,6 +27,7 @@ int main(int argc, char* argv[]) {
   
   // Declare variables
   TIntIntVH FirstDegVH;
+  TIntIntVH kInDegVH, kOutDegVH, kDegVH;
   TIntFltVH DegCentrVH, EigCentrVH;
   TFltV EigDiffV;
   TIntFltH PgRH;
@@ -39,6 +41,18 @@ int main(int argc, char* argv[]) {
   
   printf("\nComputing degree distributions...");
   TSnap::GetDegVH(Graph, FirstDegVH);
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  
+  // 1:k degree distributions
+  printf("Computing egonet degrees for k = 1 to %d (in / out / undirected)\n", k);
+  printf("  ...");
+  TSnap::GetkInDegSeqH(Graph, kInDegVH, k);
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf("  ...");
+  TSnap::GetkOutDegSeqH(Graph, kOutDegVH, k);
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf("  ...");
+  TSnap::GetkDegSeqH(Graph, kDegVH, k);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Centrality measures
