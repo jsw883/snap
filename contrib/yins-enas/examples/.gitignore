@@ -5,6 +5,8 @@
 */statistics.exe
 */wcentrality
 */wcentrality.exe
+*/wstatistics
+*/wstatistics.exe
 
 # Custom bash scripts for running on datasets
 */run.DIAN

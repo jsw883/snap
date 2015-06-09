@@ -4,8 +4,8 @@
 
 MAIN = statistics
 DEPH = \
-    $(YINSCORE)/statnew.h \
+    $(YINSCORE)/stats.h \
     $(YINSCORE)/io.h
 DEPCPP = \
-    $(YINSCORE)/statnew.cpp \
+    $(YINSCORE)/stats.cpp \
     $(YINSCORE)/io.cpp

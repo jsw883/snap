@@ -4,5 +4,7 @@
 
 #include "Snap.h"
 
-#include "stats.h"
+#include "wgraph.h"
+#include "wgio.h"
+#include "wstats.h"
 #include "io.h"

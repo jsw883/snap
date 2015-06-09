@@ -5,7 +5,7 @@ int main(int argc, char* argv[]) {
   setbuf(stdout, NULL); // disables the buffer so that print statements are not buffered and display immediately (?)
   
   Env = TEnv(argc, argv, TNotify::StdNotify);
-  Env.PrepArgs(TStr::Fmt("Node centrality. build: %s, %s. Time: %s", __TIME__, __DATE__, TExeTm::GetCurTm()));
+  Env.PrepArgs(TStr::Fmt("Graph statistics. build: %s, %s. Time: %s", __TIME__, __DATE__, TExeTm::GetCurTm()));
   
   TExeTm ExeTm;
   
@@ -34,7 +34,6 @@ int main(int argc, char* argv[]) {
   TStrFltH StatsV;
   
   // STATISTICS (computations)
-  
   
   // Computes nodes, edges, average degree, and density
   printf("\nComputing nodes, edges, average degree, and density...");
