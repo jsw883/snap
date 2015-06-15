@@ -41,5 +41,5 @@ well. For makefiles, compile the code with `make all`.
 ```bash
 rm -r ../../datasets/USairport2010/USairport2010/centrality
 mkdir ../../datasets/USairport2010/USairport2010/centrality
-centrality -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/USairport2010/centrality/USairport2010 -c:F
+centrality -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/centrality/USairport2010 -c:F
 ```
