@@ -20,6 +20,13 @@ template <class PGraph> void GetFcc(const PGraph& Graph, const PGraph& SubGraph,
 /// Returns the undirected connected component (BCC) of a graph from a subgraph using a directed DFS starting from subgraph nodes.
 template <class PGraph> void GetUcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom);
 
+/// Returns the backward connected component (BCC) of a graph from a subgraph using a directed BFS starting from subgraph nodes and depth limited to k edges.
+template <class PGraph> void GetBcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int k);
+/// Returns the forward connected component (BCC) of a graph from a subgraph using a directed BFS starting from subgraph nodes and depth limited to k edges.
+template <class PGraph> void GetFcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int k);
+/// Returns the undirected connected component (BCC) of a graph from a subgraph using a directed BFS starting from subgraph nodes and depth limited to k edges.
+template <class PGraph> void GetUcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int k);
+
 } // namespace TSnap
 
 /// Depth first search from a subgraph of a graph with direction specified and depth limited
@@ -84,18 +91,6 @@ void GetDfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visito
       }
     }
   }
-}
-template <class PGraph, class TVisitor>
-void GetBDfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visitor) {
-  GetDfsVisitor(Graph, SubGraph, Visitor, edInDirected);
-}
-template <class PGraph, class TVisitor>
-void GetFDfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visitor) {
-  GetDfsVisitor(Graph, SubGraph, Visitor, edOutDirected);
-}
-template <class PGraph, class TVisitor>
-void GetUDfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visitor) {
-  GetDfsVisitor(Graph, SubGraph, Visitor, edUnDirected);
 }
 
 // Breadth first search from a subgraph of a graph with direction specified and depth limited
@@ -162,18 +157,6 @@ void GetBfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visito
     }
   }
 }
-template <class PGraph, class TVisitor>
-void GetBBfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visitor, const int k) {
-  GetBfsVisitor(Graph, SubGraph, Visitor, edInDirected, k);
-}
-template <class PGraph, class TVisitor>
-void GetFBfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visitor, const int k) {
-  GetBfsVisitor(Graph, SubGraph, Visitor, edOutDirected, k);
-}
-template <class PGraph, class TVisitor>
-void GetUBfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visitor, const int k) {
-  GetBfsVisitor(Graph, SubGraph, Visitor, edUnDirected, k);
-}
 
 // Backward / forward visitor (edge methods overloaded to work with either BFS)
 class TDfsCnComVisitor {
@@ -214,19 +197,19 @@ namespace TSnap {
 template <class PGraph>
 void GetBcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom) {
   TDfsCnComVisitor Visitor;
-  GetBDfsVisitor(Graph, SubGraph, Visitor);
+  GetDfsVisitor(Graph, SubGraph, Visitor, edInDirected);
   CnCom = Visitor.CnCom;
 }
 template <class PGraph>
 void GetFcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom) {
   TDfsCnComVisitor Visitor;
-  GetFDfsVisitor(Graph, SubGraph, Visitor);
+  GetDfsVisitor(Graph, SubGraph, Visitor, edOutDirected);
   CnCom = Visitor.CnCom;
 }
 template <class PGraph>
 void GetUcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom) {
   TDfsCnComVisitor Visitor;
-  GetUDfsVisitor(Graph, SubGraph, Visitor);
+  GetDfsVisitor(Graph, SubGraph, Visitor, edUnDirected);
   CnCom = Visitor.CnCom;
 }
 
@@ -236,26 +219,27 @@ void GetUcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom) {
 template <class PGraph>
 void GetBcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int k) {
   TBfsCnComVisitor Visitor;
-  GetBBfsVisitor(Graph, SubGraph, Visitor, k);
+  GetBfsVisitor(Graph, SubGraph, Visitor, edInDirected, k);
   CnCom = Visitor.CnCom;
 }
 template <class PGraph>
 void GetFcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int k) {
   TBfsCnComVisitor Visitor;
-  GetFBfsVisitor(Graph, SubGraph, Visitor, k);
+  GetBfsVisitor(Graph, SubGraph, Visitor, edOutDirected, k);
   CnCom = Visitor.CnCom;
 }
 template <class PGraph>
 void GetUcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int k) {
   TBfsCnComVisitor Visitor;
-  GetUBfsVisitor(Graph, SubGraph, Visitor, k);
+  GetBfsVisitor(Graph, SubGraph, Visitor, edUnDirected, k);
   CnCom = Visitor.CnCom;
 }
 
 } // namespace TSnap
 
 //#//////////////////////////////////////////////
-/// Fixed memory DFS and BFS algorithms (white / grey / black)
+/// Fixed memory DFS and BFS base class
+/// For efficient iterative egonet traversal of graphs that are very large or have a high density.
 
 namespace TSnap { // should this be TSnapDetail (?)
 

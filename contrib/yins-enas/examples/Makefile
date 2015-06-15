@@ -6,16 +6,14 @@ all: make-examples
 
 make-examples:
 	$(MAKE) -C centrality
-	# $(MAKE) -C connectivity
-	# $(MAKE) -C egonets
-	# $(MAKE) -C statistics
-	# $(MAKE) -C wcentrality
-	# $(MAKE) -C wstatistics
+	$(MAKE) -C connectivity
+	$(MAKE) -C statistics
+	$(MAKE) -C wcentrality
+	$(MAKE) -C wstatistics
 
 clean:
 	$(MAKE) clean -C centrality
-	# $(MAKE) clean -C connectivity
-	# $(MAKE) clean -C egonets
-	# $(MAKE) clean -C statistics
-	# $(MAKE) clean -C wcentrality
-	# $(MAKE) clean -C wstatistics
+	$(MAKE) clean -C connectivity
+	$(MAKE) clean -C statistics
+	$(MAKE) clean -C wcentrality
+	$(MAKE) clean -C wstatistics
