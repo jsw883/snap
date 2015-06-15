@@ -6,7 +6,7 @@
 
 // Headers (?)
 
-#include "Snap.h"
+// #include "Snap.h"
 
 //#//////////////////////////////////////////////
 /// Weighted directed graphs
@@ -38,7 +38,7 @@ typedef TPt<TFltWNGraph> PFltWNGraph;
 // or when edges are deleted.
 
 // NOTE: In order to define smart pointers, TEdgeW needs to be defined (C++98)
-template<class TEdgeW> class TWNEGraph;
+template <class TEdgeW> class TWNEGraph;
 
 /// Integer weighted directed graph (TWNEGraph<TInt>)
 typedef TWNEGraph<TInt> TIntWNEGraph;

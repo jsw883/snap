@@ -3,11 +3,9 @@
 
 // Headers (?)
 
-// #include "Snap.h"
+#include "enums.h"
 
 // Edge direction enumerators (for specifying in / out / undirected algorithms)
-
-typedef enum {edInDirected, edOutDirected, edUnDirected} TEdgeDir;
 
 namespace TSnap {
 

@@ -46,14 +46,23 @@ int main(int argc, char* argv[]) {
   // 1:k degree distributions
   printf("Computing egonet degrees for k = 1 to %d (in / out / undirected)\n", k);
   printf("  ...");
-  TSnap::GetkInDegSeqH(Graph, kInDegVH, k);
+  TSnap::newGetkInDegSeqH(Graph, kInDegVH, k);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  ...");
-  TSnap::GetkOutDegSeqH(Graph, kOutDegVH, k);
+  TSnap::newGetkOutDegSeqH(Graph, kOutDegVH, k);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  ...");
-  TSnap::GetkDegSeqH(Graph, kDegVH, k);
+  TSnap::newGetkDegSeqH(Graph, kDegVH, k);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  // printf("  ...");
+  // TSnap::GetkInDegSeqH(Graph, kInDegVH, k);
+  // printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  // printf("  ...");
+  // TSnap::GetkOutDegSeqH(Graph, kOutDegVH, k);
+  // printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  // printf("  ...");
+  // TSnap::GetkDegSeqH(Graph, kDegVH, k);
+  // printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Centrality measures
   
@@ -113,6 +122,18 @@ int main(int argc, char* argv[]) {
   
   printf("Saving %s.deg...", BseFNm.CStr());
   TSnap::SaveTxt(FirstDegVH, TStr::Fmt("%s.deg", OutFNm.CStr()), "First degree distributions (in / out / undirected)", "NodeId", "InDeg\tOutDeg\tDeg");
+  printf(" DONE\n");
+  
+  printf("Saving %s.kdeg.IN...", BseFNm.CStr());
+  TSnap::SaveTxt(kInDegVH, TStr::Fmt("%s.kdeg.IN", OutFNm.CStr()), TStr::Fmt("1 to %d in degree distributions (kdeg.IN)", k), "NodeId", "InDeg\tOutDeg\tDeg");
+  printf(" DONE\n");
+  
+  printf("Saving %s.kdeg.OUT...", BseFNm.CStr());
+  TSnap::SaveTxt(kOutDegVH, TStr::Fmt("%s.kdeg.OUT", OutFNm.CStr()), TStr::Fmt("1 to %d out degree distributions (kdeg.OUT)", k), "NodeId", "InDeg\tOutDeg\tDeg");
+  printf(" DONE\n");
+  
+  printf("Saving %s.kdeg...", BseFNm.CStr());
+  TSnap::SaveTxt(kDegVH, TStr::Fmt("%s.kdeg", OutFNm.CStr()), TStr::Fmt("1 to %d degree distributions (kdeg)", k), "NodeId", "InDeg\tOutDeg\tDeg");
   printf(" DONE\n");
   
   Catch

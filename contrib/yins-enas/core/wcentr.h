@@ -3,10 +3,7 @@
 
 // Headers (?)
 
-// #include "Snap.h"
-// #include "wgraph.h"
-
-typedef enum {edInDirected, edOutDirected, edUnDirected} TEdgeDir;
+#include "enums.h"
 
 namespace TSnap {
 
