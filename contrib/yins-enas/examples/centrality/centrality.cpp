@@ -46,23 +46,14 @@ int main(int argc, char* argv[]) {
   // 1:k degree distributions
   printf("Computing egonet degrees for k = 1 to %d (in / out / undirected)\n", k);
   printf("  ...");
-  TSnap::newGetkInDegSeqH(Graph, kInDegVH, k);
+  TSnap::GetkInDegSeqH(Graph, kInDegVH, k);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  ...");
-  TSnap::newGetkOutDegSeqH(Graph, kOutDegVH, k);
+  TSnap::GetkOutDegSeqH(Graph, kOutDegVH, k);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  ...");
-  TSnap::newGetkDegSeqH(Graph, kDegVH, k);
+  TSnap::GetkDegSeqH(Graph, kDegVH, k);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  // printf("  ...");
-  // TSnap::GetkInDegSeqH(Graph, kInDegVH, k);
-  // printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  // printf("  ...");
-  // TSnap::GetkOutDegSeqH(Graph, kOutDegVH, k);
-  // printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  // printf("  ...");
-  // TSnap::GetkDegSeqH(Graph, kDegVH, k);
-  // printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Centrality measures
   
