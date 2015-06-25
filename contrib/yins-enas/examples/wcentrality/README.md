@@ -37,7 +37,7 @@ well. For makefiles, compile the code with `make all`.
 ### Usage ###
 
 ```bash
-rm -r ../../datasets/USairport2010/USairport2010/wcentrality
-mkdir ../../datasets/USairport2010/USairport2010/wcentrality
+rm -r ../../datasets/USairport2010/wcentrality
+mkdir ../../datasets/USairport2010/wcentrality
 wcentrality -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/wcentrality/USairport2010 -c:F
 ```

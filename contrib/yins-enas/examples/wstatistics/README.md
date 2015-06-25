@@ -21,7 +21,7 @@ well. For makefiles, compile the code with `make all`.
 ### Usage ###
 
 ```bash
-rm -r ../../datasets/USairport2010/USairport2010/wstatistics
-mkdir ../../datasets/USairport2010/USairport2010/wstatistics
+rm -r ../../datasets/USairport2010/wstatistics
+mkdir ../../datasets/USairport2010/wstatistics
 wstatistics -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/wstatistics/USairport2010
 ```
