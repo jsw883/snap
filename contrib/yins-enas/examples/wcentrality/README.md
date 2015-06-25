@@ -2,7 +2,7 @@ wcentrality (weighted vertex distributions)
 -------------------------------------------
 
 Computes weighted node centrality distributions using the new implementation
-of weighted graphs: weighted first degree, ~~weighted 1:k degree~~, weighted degree
+of weighted graphs: weighted first degree, weighted 1:k degree, weighted degree
 centrality, eigenvector centrality, and PageRank centrality. All centrality
 measures other than PageRank centrality are computed on both the directed and
 undirected graphs (in / out / undirected), and PageRank centrality is computed
@@ -11,7 +11,7 @@ on the directed graph only, as it is formulated.
 Weighted node centrality measures / distributions (in / out / undirected):
 
   - weighted first degrees
-  - ~~weighted 1:k degrees~~
+  - weighted 1:k degrees
   - weighted degree centrality
   - eigenvector centrality
 
@@ -31,7 +31,7 @@ well. For makefiles, compile the code with `make all`.
 
   - -i:input graph (tab separated list of edges)
   - -o:output prefix (filename extensions added)
-  - ~~-k:depth of degree distributions (1 / 2 / ...)~~
+  - -k:depth of degree distributions (1 / 2 / ...)
   - -c:collate centralities into matrix (T / F)
 
 ### Usage ###
