@@ -72,6 +72,20 @@
 //   fclose(F);
 // }
 
+// Generic SaveTxt for TVec template class using GetStr()
+void SaveTxt(const TFltV& GenV, const TStr& FNm, const TStr& Desc, const TStr& ValNm, const int& Width, const int& Prec) {
+  typename TFltV::TIter VI;
+  FILE *F = fopen(FNm.CStr(), "wt");
+  if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
+  fprintf(F, "# %ss:\t%d\n", ValNm.CStr(), GenV.Len());
+  fprintf(F, "# %s\n", ValNm.CStr());
+  for (VI = GenV.BegI(); VI < GenV.EndI(); VI++) {
+    fprintf(F, "%s", TFlt::GetStr(VI->Val, Width, Prec).CStr());
+    fprintf(F, "\n");
+  }
+  fclose(F);
+}
+
 // Modified SaveTxt for TCnComV
 void TSnap::SaveTxt(const TCnComV& CnComV, const TStr& FNm, const TStr& Desc) {
   typename TIntV::TIter VI;

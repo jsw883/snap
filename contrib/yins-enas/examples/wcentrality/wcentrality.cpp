@@ -14,6 +14,7 @@ int main(int argc, char* argv[]) {
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
+  const int k = Env.GetIfArgPrefixInt("-k:", 1, "depth of weighted degree distributions (1 / 2 / ...)");
   const bool c = Env.GetIfArgPrefixBool("-c:", false, "collate centralities into matrix (T / F)");
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
@@ -25,7 +26,8 @@ int main(int argc, char* argv[]) {
   printf("  time elapsed: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Declare variables
-  TIntFltVH WDegVH;
+  TIntFltVH FirstWDegVH;
+  TIntIntVH kWInDegVH, kWOutDegVH, kWDegVH;
   TIntFltVH WDegCentrVH, WEigCentrVH;
   TFltV WEigDiffV;
   TIntFltH WPgRH;
@@ -38,7 +40,19 @@ int main(int argc, char* argv[]) {
   // Weighted first degree distributions
   
   printf("\nComputing weighted degree distributions...");
-  TSnap::GetWDegVH(WGraph, WDegVH);
+  TSnap::GetWDegVH(WGraph, FirstWDegVH);
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  
+  // 1:k degree distributions
+  printf("Computing egonet degrees for k = 1 to %d (in / out / undirected)\n", k);
+  printf("  ...");
+  TSnap::GetkWInDegSeqH(WGraph, kWInDegVH, k);
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf("  ...");
+  TSnap::GetkWOutDegSeqH(WGraph, kWOutDegVH, k);
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf("  ...");
+  TSnap::GetkWDegSeqH(WGraph, kWDegVH, k);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Centrality measures
@@ -98,7 +112,19 @@ int main(int argc, char* argv[]) {
   }
   
   printf("Saving %s.wdeg...", BseFNm.CStr());
-  TSnap::SaveTxt(WDegVH, TStr::Fmt("%s.wdeg", OutFNm.CStr()), "Weighted degree distributions (in / out / undirected)", "NodeId", "WInDeg\tWOutDeg\tWDeg");
+  TSnap::SaveTxt(FirstWDegVH, TStr::Fmt("%s.wdeg", OutFNm.CStr()), "Weighted degree distributions (in / out / undirected)", "NodeId", "WInDeg\tWOutDeg\tWDeg");
+  printf(" DONE\n");
+  
+  printf("Saving %s.kwdeg.IN...", BseFNm.CStr());
+  TSnap::SaveTxt(kWInDegVH, TStr::Fmt("%s.kwdeg.IN", OutFNm.CStr()), TStr::Fmt("1 to %d weighted in degree distributions (kdeg.IN)", k), "NodeId", "kWInDegH");
+  printf(" DONE\n");
+  
+  printf("Saving %s.kwdeg.OUT...", BseFNm.CStr());
+  TSnap::SaveTxt(kWOutDegVH, TStr::Fmt("%s.kwdeg.OUT", OutFNm.CStr()), TStr::Fmt("1 to %d weighted out degree distributions (kdeg.OUT)", k), "NodeId", "kWOutDegH");
+  printf(" DONE\n");
+  
+  printf("Saving %s.kwdeg...", BseFNm.CStr());
+  TSnap::SaveTxt(kWDegVH, TStr::Fmt("%s.kwdeg", OutFNm.CStr()), TStr::Fmt("1 to %d weighted degree distributions (kdeg)", k), "NodeId", "kWDegH");
   printf(" DONE\n");
   
   Catch

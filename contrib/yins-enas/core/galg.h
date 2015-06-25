@@ -48,9 +48,9 @@ void GetDfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visito
       ColorH.AddDat(U, 1); 
       Visitor.DiscoverNode(U);       // discover
       switch(dir) {
-        case edInDirected: Deg = Graph->GetNI(U).GetInDeg();  break;
+        case edInDirected: Deg = Graph->GetNI(U).GetInDeg(); break;
         case edOutDirected: Deg = Graph->GetNI(U).GetOutDeg(); break;
-        case edUnDirected: Deg = Graph->GetNI(U).GetDeg();    break;
+        case edUnDirected: Deg = Graph->GetNI(U).GetDeg(); break;
       }
       Stack.Push(TIntTr(U, 0, Deg));
       while (! Stack.Empty()) {
@@ -60,7 +60,7 @@ void GetDfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visito
         Stack.Pop();
         while (edge != Deg) {
           switch(dir) {
-            case edInDirected: V = UI.GetInNId(edge);  break;
+            case edInDirected: V = UI.GetInNId(edge); break;
             case edOutDirected: V = UI.GetOutNId(edge); break;
             case edUnDirected: V = UI.GetNbrNId(edge); break;
           }
@@ -74,9 +74,9 @@ void GetDfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visito
             UI = Graph->GetNI(U);
             edge = 0;
             switch(dir) {
-              case edInDirected: Deg = UI.GetInDeg();  break;
+              case edInDirected: Deg = UI.GetInDeg(); break;
               case edOutDirected: Deg = UI.GetOutDeg(); break;
-              case edUnDirected: Deg = UI.GetDeg();    break;
+              case edUnDirected: Deg = UI.GetDeg(); break;
             }
           }
           else if (ColorH.GetDat(V) == 1) {
@@ -106,9 +106,9 @@ void GetBfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visito
     if (! ColorH.IsKey(U)) { // is unvisited node
       ColorH.AddDat(U, 1);
       switch(dir) {
-        case edInDirected: Deg = Graph->GetNI(U).GetInDeg();  break;
+        case edInDirected: Deg = Graph->GetNI(U).GetInDeg(); break;
         case edOutDirected: Deg = Graph->GetNI(U).GetOutDeg(); break;
-        case edUnDirected: Deg = Graph->GetNI(U).GetDeg();    break;
+        case edUnDirected: Deg = Graph->GetNI(U).GetDeg(); break;
       }
       Queue.Push(TIntTr(U, depth, Deg));
       Visitor.DiscoverNode(U, depth); // discover node
@@ -120,7 +120,7 @@ void GetBfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visito
         Queue.Pop();
         while (edge != Deg) { // for all edges
           switch(dir) {
-            case edInDirected: V = UI.GetInNId(edge);  break;
+            case edInDirected: V = UI.GetInNId(edge); break;
             case edOutDirected: V = UI.GetOutNId(edge); break;
             case edUnDirected: V = UI.GetNbrNId(edge); break;
           }
@@ -136,9 +136,9 @@ void GetBfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visito
             Visitor.TreeEdge(U, V); // tree edge
             if (peekdepth < k) {
               switch(dir) {
-                case edInDirected: VDeg = Graph->GetNI(V).GetInDeg();  break;
+                case edInDirected: VDeg = Graph->GetNI(V).GetInDeg(); break;
                 case edOutDirected: VDeg = Graph->GetNI(V).GetOutDeg(); break;
-                case edUnDirected: VDeg = Graph->GetNI(V).GetDeg();    break;
+                case edUnDirected: VDeg = Graph->GetNI(V).GetDeg(); break;
               }
               Queue.Push(TIntTr(V, peekdepth, VDeg));
             }
@@ -280,9 +280,9 @@ void TFixedMemoryBFS<PGraph>::GetBfsVisitor(const PGraph& SubGraph, TVisitor& Vi
     if (! Color.IsKey(U)) { // is unvisited node
       Color.AddDat(U, 1);
       switch(dir) {
-        case edInDirected: Deg = Graph->GetNI(U).GetInDeg();  break;
+        case edInDirected: Deg = Graph->GetNI(U).GetInDeg(); break;
         case edOutDirected: Deg = Graph->GetNI(U).GetOutDeg(); break;
-        case edUnDirected: Deg = Graph->GetNI(U).GetDeg();    break;
+        case edUnDirected: Deg = Graph->GetNI(U).GetDeg(); break;
       }
       Queue.Push(TIntTr(U, depth, Deg));
       Visitor.DiscoverNode(U, depth); // discover node
@@ -294,29 +294,29 @@ void TFixedMemoryBFS<PGraph>::GetBfsVisitor(const PGraph& SubGraph, TVisitor& Vi
         Queue.Pop();
         while (edge != Deg) { // for all edges
           switch(dir) {
-            case edInDirected: V = UI.GetInNId(edge);  break;
+            case edInDirected: V = UI.GetInNId(edge); break;
             case edOutDirected: V = UI.GetOutNId(edge); break;
             case edUnDirected: V = UI.GetNbrNId(edge); break;
           }
-          Visitor.ExamineEdge(U, V); // examine edge
+          Visitor.ExamineEdge(U, edge, V); // examine edge
           if (!Color.IsKey(V)) { // V has not been discovered
             Color.AddDat(V, 1);
             Visitor.DiscoverNode(V, depth + 1); // discover node
-            Visitor.TreeEdge(U, V); // tree edge
+            Visitor.TreeEdge(U, edge, V); // tree edge
             if (k == -1 || depth + 1 < k) {
               switch(dir) {
-                case edInDirected: VDeg = Graph->GetNI(V).GetInDeg();  break;
+                case edInDirected: VDeg = Graph->GetNI(V).GetInDeg(); break;
                 case edOutDirected: VDeg = Graph->GetNI(V).GetOutDeg(); break;
-                case edUnDirected: VDeg = Graph->GetNI(V).GetDeg();    break;
+                case edUnDirected: VDeg = Graph->GetNI(V).GetDeg(); break;
               }
               Queue.Push(TIntTr(V, depth + 1, VDeg));
             }
           }
           else if (Color.GetDat(V) == 1) { // V has been discovered
-            Visitor.BackEdge(U,V);
+            Visitor.BackEdge(U, edge, V);
           }
           else {
-            Visitor.FwdEdge(U,V);
+            Visitor.ForwardEdge(U, edge, V);
           }
           ++edge;
         }

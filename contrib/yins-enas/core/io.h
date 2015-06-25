@@ -7,6 +7,9 @@
 
 namespace TSnap {
 
+//#//////////////////////////////////////////////
+/// Generic SaveTxt methods
+
 /// Generic SaveTxt for TVec template class using GetStr()
 template<class TVal>
 void SaveTxt(const TVec<TVal>& GenV, const TStr& FNm, const TStr& Desc = TStr(), const TStr& ValNm = "Val") {
@@ -60,6 +63,48 @@ void SaveTxt(const THash<TKey, TVec<TVal> >& GenVH, const TStr& FNm, const TStr&
   fclose(F);
 }
 
+//#//////////////////////////////////////////////
+/// Generic SaveTxt methods
+
+/// Specialized SaveTxt for THash template class with TFlt values using GetStr()
+template<class TKey>
+void SaveTxt(const THash<TKey, TFlt>& GenH, const TStr& FNm, const TStr& Desc = TStr(), const TStr& KeyNm = "Key", const TStr& ValNm = "Val", const int& Width = -1, const int& Prec = -1) {
+  typename THash<TKey, TFlt>::TIter GenI;
+  FILE *F = fopen(FNm.CStr(), "wt");
+  if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
+  fprintf(F, "# %ss:\t%d\n", KeyNm.CStr(), GenH.Len());
+  fprintf(F, "# %s\t%s\n", KeyNm.CStr(), ValNm.CStr());
+  for (GenI = GenH.BegI(); GenI < GenH.EndI(); GenI++) {
+    const TKey Key = GenI.GetKey();
+    const TFlt Val = GenI.GetDat();
+    fprintf(F, "%s\t%s", Key.GetStr().CStr(), TFlt::GetStr(Val, Width, Prec).CStr());
+    fprintf(F, "\n");
+  }
+  fclose(F);
+}
+
+/// Specialized SaveTxt for THash template class with TFlt values using GetStr()
+template<class TKey>
+void SaveTxt(const THash<TKey, TFltV>& GenVH, const TStr& FNm, const TStr& Desc = TStr(), const TStr& KeyNm = "Key", const TStr& ValNm = "Val", const int& Width = -1, const int& Prec = -1) {
+  typename THash<TKey, TFltV>::TIter GenVI;
+  typename TFltV::TIter DI;
+  FILE *F = fopen(FNm.CStr(), "wt");
+  if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
+  fprintf(F, "# %ss:\t%d\n", KeyNm.CStr(), GenVH.Len());
+  fprintf(F, "# %s\t%s\n", KeyNm.CStr(), ValNm.CStr());
+  for (GenVI = GenVH.BegI(); GenVI < GenVH.EndI(); GenVI++) {
+    const TKey Key = GenVI.GetKey();
+    fprintf(F, "%s", Key.GetStr().CStr());
+    const TFltV ValV = GenVI.GetDat();
+    for (DI = ValV.BegI(); DI < ValV.EndI(); DI++) {
+      fprintf(F, "\t%s", TFlt::GetStr(DI->Val, Width, Prec).CStr());
+    }
+    fprintf(F, "\n");
+  }
+  fclose(F);
+}
+
+
 } // namespace TSnap
 
 namespace TSnap {
@@ -73,6 +118,9 @@ namespace TSnap {
 
 // Specific SaveTxt for TStrFltH
 // void SaveTxtTStrFltH(const TStrFltH& StrFltH, const TStr& FNm, const TStr& Desc = TStr());
+
+/// Specialized SaveTxt for TFltV using GetStr()
+void SaveTxt(const TFltV& GenV, const TStr& FNm, const TStr& Desc = TStr(), const TStr& ValNm = "Val", const int& Width = -1, const int& Prec = -1);
 
 // Modified SaveTxt for TCnComV
 void SaveTxt(const TCnComV& CnComV, const TStr& FNm, const TStr& Desc = TStr());

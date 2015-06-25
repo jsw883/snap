@@ -116,15 +116,15 @@ int main(int argc, char* argv[]) {
   printf(" DONE\n");
   
   printf("Saving %s.kdeg.IN...", BseFNm.CStr());
-  TSnap::SaveTxt(kInDegVH, TStr::Fmt("%s.kdeg.IN", OutFNm.CStr()), TStr::Fmt("1 to %d in degree distributions (kdeg.IN)", k), "NodeId", "InDeg\tOutDeg\tDeg");
+  TSnap::SaveTxt(kInDegVH, TStr::Fmt("%s.kdeg.IN", OutFNm.CStr()), TStr::Fmt("1 to %d in degree distributions (kdeg.IN)", k), "NodeId", "kInDegVH");
   printf(" DONE\n");
   
   printf("Saving %s.kdeg.OUT...", BseFNm.CStr());
-  TSnap::SaveTxt(kOutDegVH, TStr::Fmt("%s.kdeg.OUT", OutFNm.CStr()), TStr::Fmt("1 to %d out degree distributions (kdeg.OUT)", k), "NodeId", "InDeg\tOutDeg\tDeg");
+  TSnap::SaveTxt(kOutDegVH, TStr::Fmt("%s.kdeg.OUT", OutFNm.CStr()), TStr::Fmt("1 to %d out degree distributions (kdeg.OUT)", k), "NodeId", "kOutDegVH");
   printf(" DONE\n");
   
   printf("Saving %s.kdeg...", BseFNm.CStr());
-  TSnap::SaveTxt(kDegVH, TStr::Fmt("%s.kdeg", OutFNm.CStr()), TStr::Fmt("1 to %d degree distributions (kdeg)", k), "NodeId", "InDeg\tOutDeg\tDeg");
+  TSnap::SaveTxt(kDegVH, TStr::Fmt("%s.kdeg", OutFNm.CStr()), TStr::Fmt("1 to %d degree distributions (kdeg)", k), "NodeId", "kOutDegVH");
   printf(" DONE\n");
   
   Catch

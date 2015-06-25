@@ -94,7 +94,7 @@ public:
     bool IsInNId(const int& NId) const { int NodeN; return IsInNId(NId, NodeN); }
     bool IsOutNId(const int& NId, int& NodeN) const;
     bool IsOutNId(const int& NId) const { int NodeN; return IsOutNId(NId, NodeN); }
-    bool IsNbrNId(const int& NId, int& NodeN) const { if (IsOutNId(NId, NodeN)) { return true; } else if (IsInNId(NId, NodeN)) { NodeN += GetOutDeg(); return true; } }
+    bool IsNbrNId(const int& NId, int& NodeN) const { if (IsOutNId(NId, NodeN)) { return true; } else if (IsInNId(NId, NodeN)) { NodeN += GetOutDeg(); return true; } else { return false; } }
     bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     
     void PackInNIdEdgeW() { InNIdEdgeWV.Pack(); }
@@ -165,7 +165,7 @@ public:
     int CurEdge;
   public:
     TEdgeI() : CurNode(), EndNode(), CurEdge(0) { }
-    TEdgeI(const TNodeI& NodeI, const TNodeI& EndNodeI, const int& EdgeN=0) : CurNode(NodeI), EndNode(EndNodeI), CurEdge(EdgeN) { }
+    TEdgeI(const TNodeI& NodeI, const TNodeI& EndNodeI, const int& EdgeN = 0) : CurNode(NodeI), EndNode(EndNodeI), CurEdge(EdgeN) { }
     TEdgeI(const TEdgeI& EdgeI) : CurNode(EdgeI.CurNode), EndNode(EdgeI.EndNode), CurEdge(EdgeI.CurEdge) { }
     TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { CurNode=EdgeI.CurNode; EndNode=EdgeI.EndNode; CurEdge=EdgeI.CurEdge; }  return *this; }
     /// Increment iterator.
@@ -258,8 +258,15 @@ public:
   /// Returns an iterator referring to the past-the-end edge in the graph.
   TEdgeI EndEI() const { return TEdgeI(EndNI(), EndNI()); }
   /// Returns an iterator referring to edge (SrcNId, DstNId) in the graph.
-  TEdgeI GetEI(const int& SrcNId, const int& DstNId) const;
-  
+  TEdgeI GetEI(const int& SrcNId, const int& DstNId) const {
+    const TNode& SrcNode = GetNode(SrcNId);
+    int EdgeN;
+    SrcNode.IsOutNId(DstNId, EdgeN);
+    return(TEdgeI(GetNI(SrcNode), EndNI(), EdgeN));
+  }
+    
+  /// Returns the edge weight corresponding to the edge SrcNId and DstNId.
+  TEdgeW GetEW(const int& SrcNId, const int& DstNId);
   /// Returns the total weight in the graph.
   TEdgeW GetTotalW();
   /// Returns the maximum edge weight in the graph.
@@ -440,6 +447,14 @@ bool TWNGraph<TEdgeW>::IsEdge(const int& SrcNId, const int& DstNId, const bool& 
   if (! IsNode(SrcNId) || ! IsNode(DstNId)) { return false; }
   if (IsDir) { return GetNode(SrcNId).IsOutNId(DstNId); }
   else { return GetNode(SrcNId).IsOutNId(DstNId) || GetNode(DstNId).IsOutNId(SrcNId); }
+}
+
+template <class TEdgeW>
+TEdgeW TWNGraph<TEdgeW>::GetEW(const int& SrcNId, const int& DstNId) {
+  const TNode& SrcNode = GetNode(SrcNId);
+  int EdgeN;
+  SrcNode.IsOutNId(DstNId, EdgeN);
+  return(SrcNode.GetOutEW(EdgeN));
 }
 
 template <class TEdgeW>

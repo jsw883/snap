@@ -80,10 +80,10 @@ public:
       Deg++;
     }
     void FinishNode(const int& NId, int depth) { }
-    void ExamineEdge(const int& NId1, const int& NId2) { }
-    void TreeEdge(const int& NId1, const int& NId2) { }
-    void BackEdge(const int& NId1, const int& NId2) { }
-    void FwdEdge(const int& NId1, const int& NId2) { }
+    void ExamineEdge(const int& SrcNId, const int& edge, const int& DstNId) { }
+    void TreeEdge(const int& SrcNId, const int& edge, const int& DstNId) { }
+    void BackEdge(const int& SrcNId, const int& edge, const int& DstNId) { }
+    void ForwardEdge(const int& SrcNId, const int& edge, const int& DstNId) { }
     void Clr() {
       Deg = -1;
     }
