@@ -66,24 +66,23 @@ void GetWDegVH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TVec<TEdgeW> >& W
 namespace TSnap {
 
 /// Returns k in degree distribution using fixed memory BFS
-template <class PGraph> void GetkWInDegSeqH(const PGraph& WGraph, TIntIntVH& WDegVH, const int k);
+template <class TEdgeW, template <class> class TGraph > void GetkWInDegSeqH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TVec<TEdgeW> >& WDegVH, const int k);
 /// Returns k out degree distribution using fixed memory BFS
-template <class PGraph> void GetkWOutDegSeqH(const PGraph& WGraph, TIntIntVH& WDegVH, const int k);
+template <class TEdgeW, template <class> class TGraph > void GetkWOutDegSeqH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TVec<TEdgeW> >& WDegVH, const int k);
 /// Returns k degree distribution using fixed memory BFS
-template <class PGraph> void GetkWDegSeqH(const PGraph& WGraph, TIntIntVH& WDegVH, const int k);
+template <class TEdgeW, template <class> class TGraph > void GetkWDegSeqH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TVec<TEdgeW> >& WDegVH, const int k);
 
-template <class PGraph>
-class TFixedMemorykWDeg : public TFixedMemoryBFS<PGraph> {
+template <class TEdgeW, template <class> class TGraph >
+class TFixedMemorykWDeg : public TFixedMemoryBFS<TPt<TGraph<TEdgeW> > > {
 public:
   // Backward / forward visitor (degree only)
   class TkWDegVisitor {
   public:
-    PGraph Graph;
+    TPt<TGraph<TEdgeW> > Graph;
     TEdgeDir Dir;
     int WDeg;
-    TIntTrV EdgeV;
   public:
-    TkWDegVisitor(const PGraph& GraphArg) : Graph(GraphArg), Dir(edUnDirected), WDeg(0) { }
+    TkWDegVisitor(const TPt<TGraph<TEdgeW> >& GraphArg) : Graph(GraphArg), Dir(edUnDirected), WDeg(0) { }
     void SetEdgeDir(const TEdgeDir& DirArg) { Dir = DirArg; }
     void AddW(const int& SrcNId, const int& edge, const int& DstNId) {
       switch(Dir) {
@@ -112,45 +111,45 @@ public:
 private:
   TkWDegVisitor Visitor;
 public:
-  TFixedMemorykWDeg(const PGraph& GraphArg) : TFixedMemoryBFS<PGraph>(GraphArg), Visitor(TkWDegVisitor(GraphArg)) { }
+  TFixedMemorykWDeg(const TPt<TGraph<TEdgeW> >& GraphArg) : TFixedMemoryBFS<TPt<TGraph<TEdgeW> > >(GraphArg), Visitor(TkWDegVisitor(GraphArg)) { }
   int GetkWInDeg(const int NId, const int k);
   int GetkWOutDeg(const int NId, const int k);
   int GetkWDeg(const int NId, const int k);
-  void GetkWInDegSeqH(TIntIntVH& WDegVH, const int k);
-  void GetkWOutDegSeqH(TIntIntVH& WDegVH, const int k);
-  void GetkWDegSeqH(TIntIntVH& WDegVH, const int k);
+  void GetkWInDegSeqH(THash<TInt, TVec<TEdgeW> >& WDegVH, const int k);
+  void GetkWOutDegSeqH(THash<TInt, TVec<TEdgeW> >& WDegVH, const int k);
+  void GetkWDegSeqH(THash<TInt, TVec<TEdgeW> >& WDegVH, const int k);
   void Clr(const bool& DoDel = false);
 };
 
-template <class PGraph>
-int TFixedMemorykWDeg<PGraph>::GetkWInDeg(const int NId, const int k) {
-  PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId); // this might be inefficient (?)
+template <class TEdgeW, template <class> class TGraph >
+int TFixedMemorykWDeg<TEdgeW, TGraph>::GetkWInDeg(const int NId, const int k) {
+  TPt<TGraph<TEdgeW> > Ego = TGraph<TEdgeW>::New(); Ego->AddNode(NId); // this might be inefficient (?)
   Visitor.Clr(); // resets the degree visitor to the initial 0
   Visitor.SetEdgeDir(edInDirected);
   this->GetBfsVisitor<TkWDegVisitor>(Ego, Visitor, edInDirected, k);
   return(Visitor.WDeg);
 }
-template <class PGraph>
-int TFixedMemorykWDeg<PGraph>::GetkWOutDeg(const int NId, const int k) {
-  PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId); // this might be inefficient (?)
+template <class TEdgeW, template <class> class TGraph >
+int TFixedMemorykWDeg<TEdgeW, TGraph>::GetkWOutDeg(const int NId, const int k) {
+  TPt<TGraph<TEdgeW> > Ego = TGraph<TEdgeW>::New(); Ego->AddNode(NId); // this might be inefficient (?)
   Visitor.Clr(); // resets the degree visitor to the initial 0
   Visitor.SetEdgeDir(edOutDirected);
   this->GetBfsVisitor<TkWDegVisitor>(Ego, Visitor, edOutDirected, k);
   return(Visitor.WDeg);
 }
-template <class PGraph>
-int TFixedMemorykWDeg<PGraph>::GetkWDeg(const int NId, const int k) {
-  PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId); // this might be inefficient (?)
+template <class TEdgeW, template <class> class TGraph >
+int TFixedMemorykWDeg<TEdgeW, TGraph>::GetkWDeg(const int NId, const int k) {
+  TPt<TGraph<TEdgeW> > Ego = TGraph<TEdgeW>::New(); Ego->AddNode(NId); // this might be inefficient (?)
   Visitor.Clr(); // resets the degree visitor to the initial 0
   Visitor.SetEdgeDir(edUnDirected);
   this->GetBfsVisitor<TkWDegVisitor>(Ego, Visitor, edUnDirected, k);
   return(Visitor.WDeg);
 }
 
-template <class PGraph>
-void TFixedMemorykWDeg<PGraph>::GetkWInDegSeqH(TIntIntVH& WDegVH, const int k) {
-  typename PGraph::TObj::TNodeI NI;
-  TIntV WDegV;
+template <class TEdgeW, template <class> class TGraph >
+void TFixedMemorykWDeg<TEdgeW, TGraph>::GetkWInDegSeqH(THash<TInt, TVec<TEdgeW> >& WDegVH, const int k) {
+  typename TGraph<TEdgeW>::TNodeI NI;
+  TVec<TEdgeW> WDegV;
   WDegVH.Gen(this->Graph->GetNodes());
   for (NI = this->Graph->BegNI(); NI < this->Graph->EndNI(); NI++) {
     WDegV.Clr();
@@ -160,10 +159,10 @@ void TFixedMemorykWDeg<PGraph>::GetkWInDegSeqH(TIntIntVH& WDegVH, const int k) {
     WDegVH.AddDat(NI.GetId(), WDegV);
   }
 }
-template <class PGraph>
-void TFixedMemorykWDeg<PGraph>::GetkWOutDegSeqH(TIntIntVH& WDegVH, const int k) {
-  typename PGraph::TObj::TNodeI NI;
-  TIntV WDegV;
+template <class TEdgeW, template <class> class TGraph >
+void TFixedMemorykWDeg<TEdgeW, TGraph>::GetkWOutDegSeqH(THash<TInt, TVec<TEdgeW> >& WDegVH, const int k) {
+  typename TGraph<TEdgeW>::TNodeI NI;
+  TVec<TEdgeW> WDegV;
   WDegVH.Gen(this->Graph->GetNodes());
   for (NI = this->Graph->BegNI(); NI < this->Graph->EndNI(); NI++) {
     WDegV.Clr();
@@ -173,10 +172,10 @@ void TFixedMemorykWDeg<PGraph>::GetkWOutDegSeqH(TIntIntVH& WDegVH, const int k) 
     WDegVH.AddDat(NI.GetId(), WDegV);
   }
 }
-template <class PGraph>
-void TFixedMemorykWDeg<PGraph>::GetkWDegSeqH(TIntIntVH& WDegVH, const int k) {
-  typename PGraph::TObj::TNodeI NI;
-  TIntV WDegV;
+template <class TEdgeW, template <class> class TGraph >
+void TFixedMemorykWDeg<TEdgeW, TGraph>::GetkWDegSeqH(THash<TInt, TVec<TEdgeW> >& WDegVH, const int k) {
+  typename TGraph<TEdgeW>::TNodeI NI;
+  TVec<TEdgeW> WDegV;
   WDegVH.Gen(this->Graph->GetNodes());
   for (NI = this->Graph->BegNI(); NI < this->Graph->EndNI(); NI++) {
     WDegV.Clr();
@@ -187,25 +186,25 @@ void TFixedMemorykWDeg<PGraph>::GetkWDegSeqH(TIntIntVH& WDegVH, const int k) {
   }
 }
 
-template <class PGraph>
-void TFixedMemorykWDeg<PGraph>::Clr(const bool& DoDel) {
-  TFixedMemoryBFS<PGraph>::Clr(DoDel);
+template <class TEdgeW, template <class> class TGraph >
+void TFixedMemorykWDeg<TEdgeW, TGraph>::Clr(const bool& DoDel) {
+  TFixedMemoryBFS<TPt<TGraph<TEdgeW> > >::Clr(DoDel);
   Visitor.Clr(); // resets the degree visitor to the initial -1
 }
 
-template <class PGraph>
-void GetkWInDegSeqH(const PGraph& WGraph, TIntIntVH& WDegVH, const int k) {
-  TFixedMemorykWDeg<PGraph> FixedMemorykWDeg(WGraph);
+template <class TEdgeW, template <class> class TGraph > 
+void GetkWInDegSeqH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TVec<TEdgeW> >& WDegVH, const int k) {
+  TFixedMemorykWDeg<TEdgeW, TGraph> FixedMemorykWDeg(WGraph);
   FixedMemorykWDeg.GetkWInDegSeqH(WDegVH, k);
 }
-template <class PGraph>
-void GetkWOutDegSeqH(const PGraph& WGraph, TIntIntVH& WDegVH, const int k) {
-  TFixedMemorykWDeg<PGraph> FixedMemorykWDeg(WGraph);
+template <class TEdgeW, template <class> class TGraph > 
+void GetkWOutDegSeqH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TVec<TEdgeW> >& WDegVH, const int k) {
+  TFixedMemorykWDeg<TEdgeW, TGraph> FixedMemorykWDeg(WGraph);
   FixedMemorykWDeg.GetkWOutDegSeqH(WDegVH, k);
 }
-template <class PGraph>
-void GetkWDegSeqH(const PGraph& WGraph, TIntIntVH& WDegVH, const int k) {
-  TFixedMemorykWDeg<PGraph> FixedMemorykWDeg(WGraph);
+template <class TEdgeW, template <class> class TGraph > 
+void GetkWDegSeqH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TVec<TEdgeW> >& WDegVH, const int k) {
+  TFixedMemorykWDeg<TEdgeW, TGraph> FixedMemorykWDeg(WGraph);
   FixedMemorykWDeg.GetkWDegSeqH(WDegVH, k);
 }
 

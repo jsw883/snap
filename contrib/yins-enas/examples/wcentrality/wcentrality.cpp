@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
   
   // Declare variables
   TIntFltVH FirstWDegVH;
-  TIntIntVH kWInDegVH, kWOutDegVH, kWDegVH;
+  TIntFltVH kWInDegVH, kWOutDegVH, kWDegVH;
   TIntFltVH WDegCentrVH, WEigCentrVH;
   TFltV WEigDiffV;
   TIntFltH WPgRH;
