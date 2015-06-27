@@ -73,30 +73,34 @@ public:
   // Backward / forward visitor (degree only)
   class TkDegVisitor {
   public:
-    int Deg;
+    TIntV DegV;
   public:
-    TkDegVisitor() : Deg(-1) { }
-    void Start() { }
+    TkDegVisitor(const int& k) : DegV(k) { }
+    void Start() {
+      DegV[0] = -1;
+    }
     void DiscoverNode(const int& NId, const int& depth) { 
-      Deg++;
+      DegV[depth]++;
     }
     void FinishNode(const int& NId, const int& depth) { }
     void ExamineEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) { }
     void TreeEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) { }
     void BackEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) { }
     void ForwardEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) { }
-    void Finish() { }
+    void Finish() {
+      for (int i = 1; i < DegV.Len(); i++) { DegV[i] += DegV[i - 1]; };
+    }
     void Clr() {
-      Deg = -1;
+      for (int i = 0; i < DegV.Len(); i++) { DegV[i] = 0; };
     }
   };
 private:
   TkDegVisitor Visitor;
 public:
-  TFixedMemorykDeg(const PGraph& GraphArg) : TFixedMemoryBFS<PGraph>(GraphArg), Visitor(TkDegVisitor()) { }
-  int GetkInDeg(const int& NId, const int& k);
-  int GetkOutDeg(const int& NId, const int& k);
-  int GetkDeg(const int& NId, const int& k);
+  TFixedMemorykDeg(const PGraph& GraphArg, const int& k) : TFixedMemoryBFS<PGraph>(GraphArg), Visitor(TkDegVisitor(k)) { }
+  void GetkInDegV(const int& NId, TIntV& DegV, const int& k);
+  void GetkOutDegV(const int& NId, TIntV& DegV, const int& k);
+  void GetkDegV(const int& NId, TIntV& DegV, const int& k);
   void GetkInDegSeqH(TIntIntVH& DegVH, const int& k);
   void GetkOutDegSeqH(TIntIntVH& DegVH, const int& k);
   void GetkDegSeqH(TIntIntVH& DegVH, const int& k);
@@ -104,25 +108,25 @@ public:
 };
 
 template <class PGraph>
-int TFixedMemorykDeg<PGraph>::GetkInDeg(const int& NId, const int& k) {
+void TFixedMemorykDeg<PGraph>::GetkInDegV(const int& NId, TIntV& DegV, const int& k) {
   PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId); // this might be inefficient (?)
   Visitor.Clr(); // resets the degree visitor to the initial -1
   this->GetBfsVisitor<TkDegVisitor>(Ego, Visitor, edInDirected, k);
-  return(Visitor.Deg);
+  DegV = Visitor.DegV;
 }
 template <class PGraph>
-int TFixedMemorykDeg<PGraph>::GetkOutDeg(const int& NId, const int& k) {
+void TFixedMemorykDeg<PGraph>::GetkOutDegV(const int& NId, TIntV& DegV, const int& k) {
   PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId); // this might be inefficient (?)
   Visitor.Clr(); // resets the degree visitor to the initial -1
   this->GetBfsVisitor<TkDegVisitor>(Ego, Visitor, edOutDirected, k);
-  return(Visitor.Deg);
+  DegV = Visitor.DegV;
 }
 template <class PGraph>
-int TFixedMemorykDeg<PGraph>::GetkDeg(const int& NId, const int& k) {
+void TFixedMemorykDeg<PGraph>::GetkDegV(const int& NId, TIntV& DegV, const int& k) {
   PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId); // this might be inefficient (?)
   Visitor.Clr(); // resets the degree visitor to the initial -1
   this->GetBfsVisitor<TkDegVisitor>(Ego, Visitor, edUnDirected, k);
-  return(Visitor.Deg);
+  DegV = Visitor.DegV;
 }
 
 template <class PGraph>
@@ -132,9 +136,7 @@ void TFixedMemorykDeg<PGraph>::GetkInDegSeqH(TIntIntVH& DegVH, const int& k) {
   DegVH.Gen(this->Graph->GetNodes());
   for (NI = this->Graph->BegNI(); NI < this->Graph->EndNI(); NI++) {
     DegV.Clr();
-    for (int i = 1; i <= k; i++) {
-      DegV.Add(GetkInDeg(NI.GetId(), i));
-    }
+    GetkInDegV(NI.GetId(), DegV, k);
     DegVH.AddDat(NI.GetId(), DegV);
   }
 }
@@ -145,9 +147,7 @@ void TFixedMemorykDeg<PGraph>::GetkOutDegSeqH(TIntIntVH& DegVH, const int& k) {
   DegVH.Gen(this->Graph->GetNodes());
   for (NI = this->Graph->BegNI(); NI < this->Graph->EndNI(); NI++) {
     DegV.Clr();
-    for (int i = 1; i <= k; i++) {
-      DegV.Add(GetkOutDeg(NI.GetId(), i));
-    }
+    GetkOutDegV(NI.GetId(), DegV, k);
     DegVH.AddDat(NI.GetId(), DegV);
   }
 }
@@ -158,9 +158,7 @@ void TFixedMemorykDeg<PGraph>::GetkDegSeqH(TIntIntVH& DegVH, const int& k) {
   DegVH.Gen(this->Graph->GetNodes());
   for (NI = this->Graph->BegNI(); NI < this->Graph->EndNI(); NI++) {
     DegV.Clr();
-    for (int i = 1; i <= k; i++) {
-      DegV.Add(GetkDeg(NI.GetId(), i));
-    }
+    GetkDegV(NI.GetId(), DegV, k);
     DegVH.AddDat(NI.GetId(), DegV);
   }
 }
@@ -173,17 +171,17 @@ void TFixedMemorykDeg<PGraph>::Clr(const bool& DoDel) {
 
 template <class PGraph>
 void GetkInDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int& k) {
-  TFixedMemorykDeg<PGraph> FixedMemorykDeg(Graph);
+  TFixedMemorykDeg<PGraph> FixedMemorykDeg(Graph, k);
   FixedMemorykDeg.GetkInDegSeqH(DegVH, k);
 }
 template <class PGraph>
 void GetkOutDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int& k) {
-  TFixedMemorykDeg<PGraph> FixedMemorykDeg(Graph);
+  TFixedMemorykDeg<PGraph> FixedMemorykDeg(Graph, k);
   FixedMemorykDeg.GetkOutDegSeqH(DegVH, k);
 }
 template <class PGraph>
 void GetkDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int& k) {
-  TFixedMemorykDeg<PGraph> FixedMemorykDeg(Graph);
+  TFixedMemorykDeg<PGraph> FixedMemorykDeg(Graph, k);
   FixedMemorykDeg.GetkDegSeqH(DegVH, k);
 }
 
