@@ -61,11 +61,11 @@ void GetDegVH(const PGraph& Graph, TIntIntVH& DegVH) {
 namespace TSnap {
 
 /// Returns k in degree distribution using fixed memory BFS
-template <class PGraph> void GetkInDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int k);
+template <class PGraph> void GetkInDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int& k);
 /// Returns k out degree distribution using fixed memory BFS
-template <class PGraph> void GetkOutDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int k);
+template <class PGraph> void GetkOutDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int& k);
 /// Returns k degree distribution using fixed memory BFS
-template <class PGraph> void GetkDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int k);
+template <class PGraph> void GetkDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int& k);
 
 template <class PGraph>
 class TFixedMemorykDeg : public TFixedMemoryBFS<PGraph> {
@@ -76,14 +76,16 @@ public:
     int Deg;
   public:
     TkDegVisitor() : Deg(-1) { }
-    void DiscoverNode(int NId, int depth) { 
+    void Start() { }
+    void DiscoverNode(const int& NId, const int& depth) { 
       Deg++;
     }
-    void FinishNode(const int& NId, int depth) { }
-    void ExamineEdge(const int& SrcNId, const int& edge, const int& DstNId) { }
-    void TreeEdge(const int& SrcNId, const int& edge, const int& DstNId) { }
-    void BackEdge(const int& SrcNId, const int& edge, const int& DstNId) { }
-    void ForwardEdge(const int& SrcNId, const int& edge, const int& DstNId) { }
+    void FinishNode(const int& NId, const int& depth) { }
+    void ExamineEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) { }
+    void TreeEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) { }
+    void BackEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) { }
+    void ForwardEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) { }
+    void Finish() { }
     void Clr() {
       Deg = -1;
     }
@@ -92,31 +94,31 @@ private:
   TkDegVisitor Visitor;
 public:
   TFixedMemorykDeg(const PGraph& GraphArg) : TFixedMemoryBFS<PGraph>(GraphArg), Visitor(TkDegVisitor()) { }
-  int GetkInDeg(const int NId, const int k);
-  int GetkOutDeg(const int NId, const int k);
-  int GetkDeg(const int NId, const int k);
-  void GetkInDegSeqH(TIntIntVH& DegVH, const int k);
-  void GetkOutDegSeqH(TIntIntVH& DegVH, const int k);
-  void GetkDegSeqH(TIntIntVH& DegVH, const int k);
+  int GetkInDeg(const int& NId, const int& k);
+  int GetkOutDeg(const int& NId, const int& k);
+  int GetkDeg(const int& NId, const int& k);
+  void GetkInDegSeqH(TIntIntVH& DegVH, const int& k);
+  void GetkOutDegSeqH(TIntIntVH& DegVH, const int& k);
+  void GetkDegSeqH(TIntIntVH& DegVH, const int& k);
   void Clr(const bool& DoDel = false);
 };
 
 template <class PGraph>
-int TFixedMemorykDeg<PGraph>::GetkInDeg(const int NId, const int k) {
+int TFixedMemorykDeg<PGraph>::GetkInDeg(const int& NId, const int& k) {
   PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId); // this might be inefficient (?)
   Visitor.Clr(); // resets the degree visitor to the initial -1
   this->GetBfsVisitor<TkDegVisitor>(Ego, Visitor, edInDirected, k);
   return(Visitor.Deg);
 }
 template <class PGraph>
-int TFixedMemorykDeg<PGraph>::GetkOutDeg(const int NId, const int k) {
+int TFixedMemorykDeg<PGraph>::GetkOutDeg(const int& NId, const int& k) {
   PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId); // this might be inefficient (?)
   Visitor.Clr(); // resets the degree visitor to the initial -1
   this->GetBfsVisitor<TkDegVisitor>(Ego, Visitor, edOutDirected, k);
   return(Visitor.Deg);
 }
 template <class PGraph>
-int TFixedMemorykDeg<PGraph>::GetkDeg(const int NId, const int k) {
+int TFixedMemorykDeg<PGraph>::GetkDeg(const int& NId, const int& k) {
   PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId); // this might be inefficient (?)
   Visitor.Clr(); // resets the degree visitor to the initial -1
   this->GetBfsVisitor<TkDegVisitor>(Ego, Visitor, edUnDirected, k);
@@ -124,7 +126,7 @@ int TFixedMemorykDeg<PGraph>::GetkDeg(const int NId, const int k) {
 }
 
 template <class PGraph>
-void TFixedMemorykDeg<PGraph>::GetkInDegSeqH(TIntIntVH& DegVH, const int k) {
+void TFixedMemorykDeg<PGraph>::GetkInDegSeqH(TIntIntVH& DegVH, const int& k) {
   typename PGraph::TObj::TNodeI NI;
   TIntV DegV;
   DegVH.Gen(this->Graph->GetNodes());
@@ -137,7 +139,7 @@ void TFixedMemorykDeg<PGraph>::GetkInDegSeqH(TIntIntVH& DegVH, const int k) {
   }
 }
 template <class PGraph>
-void TFixedMemorykDeg<PGraph>::GetkOutDegSeqH(TIntIntVH& DegVH, const int k) {
+void TFixedMemorykDeg<PGraph>::GetkOutDegSeqH(TIntIntVH& DegVH, const int& k) {
   typename PGraph::TObj::TNodeI NI;
   TIntV DegV;
   DegVH.Gen(this->Graph->GetNodes());
@@ -150,7 +152,7 @@ void TFixedMemorykDeg<PGraph>::GetkOutDegSeqH(TIntIntVH& DegVH, const int k) {
   }
 }
 template <class PGraph>
-void TFixedMemorykDeg<PGraph>::GetkDegSeqH(TIntIntVH& DegVH, const int k) {
+void TFixedMemorykDeg<PGraph>::GetkDegSeqH(TIntIntVH& DegVH, const int& k) {
   typename PGraph::TObj::TNodeI NI;
   TIntV DegV;
   DegVH.Gen(this->Graph->GetNodes());
@@ -170,17 +172,17 @@ void TFixedMemorykDeg<PGraph>::Clr(const bool& DoDel) {
 }
 
 template <class PGraph>
-void GetkInDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int k) {
+void GetkInDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int& k) {
   TFixedMemorykDeg<PGraph> FixedMemorykDeg(Graph);
   FixedMemorykDeg.GetkInDegSeqH(DegVH, k);
 }
 template <class PGraph>
-void GetkOutDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int k) {
+void GetkOutDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int& k) {
   TFixedMemorykDeg<PGraph> FixedMemorykDeg(Graph);
   FixedMemorykDeg.GetkOutDegSeqH(DegVH, k);
 }
 template <class PGraph>
-void GetkDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int k) {
+void GetkDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int& k) {
   TFixedMemorykDeg<PGraph> FixedMemorykDeg(Graph);
   FixedMemorykDeg.GetkDegSeqH(DegVH, k);
 }

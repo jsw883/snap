@@ -21,18 +21,18 @@ template <class PGraph> void GetFcc(const PGraph& Graph, const PGraph& SubGraph,
 template <class PGraph> void GetUcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom);
 
 /// Returns the backward connected component (BCC) of a graph from a subgraph using a directed BFS starting from subgraph nodes and depth limited to k edges.
-template <class PGraph> void GetBcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int k);
+template <class PGraph> void GetBcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int& k);
 /// Returns the forward connected component (BCC) of a graph from a subgraph using a directed BFS starting from subgraph nodes and depth limited to k edges.
-template <class PGraph> void GetFcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int k);
+template <class PGraph> void GetFcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int& k);
 /// Returns the undirected connected component (BCC) of a graph from a subgraph using a directed BFS starting from subgraph nodes and depth limited to k edges.
-template <class PGraph> void GetUcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int k);
+template <class PGraph> void GetUcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int& k);
 
 } // namespace TSnap
 
 /// Depth first search from a subgraph of a graph with direction specified and depth limited
 template <class PGraph, class TVisitor> void GetDfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir);
 /// Breadth first search from a subgraph of a graph with direction specified and depth limited
-template <class PGraph, class TVisitor> void GetBfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir, const int k = -1);
+template <class PGraph, class TVisitor> void GetBfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir, const int& k = -1);
 
 // Depth first search from a subgraph of a graph with direction specified and depth limited
 template <class PGraph, class TVisitor>
@@ -95,7 +95,7 @@ void GetDfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visito
 
 // Breadth first search from a subgraph of a graph with direction specified and depth limited
 template <class PGraph, class TVisitor>
-void GetBfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir, const int k) {
+void GetBfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir, const int& k) {
   const int Nodes = Graph->GetNodes();
   TQQueue<TIntTr> Queue(Nodes); // it might be inefficient reinitializing the queue every BFS
   int depth = 0, peekdepth = 0, edge = 0, Deg = 0, U = 0, V = 0, VDeg = 0;
@@ -217,19 +217,19 @@ void GetUcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom) {
 // UCC) of a graph from a subgraph by traversing the graph using a directed BFS
 // starting from subgraph nodes and depth limited to k edges.
 template <class PGraph>
-void GetBcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int k) {
+void GetBcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int& k) {
   TBfsCnComVisitor Visitor;
   GetBfsVisitor(Graph, SubGraph, Visitor, edInDirected, k);
   CnCom = Visitor.CnCom;
 }
 template <class PGraph>
-void GetFcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int k) {
+void GetFcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int& k) {
   TBfsCnComVisitor Visitor;
   GetBfsVisitor(Graph, SubGraph, Visitor, edOutDirected, k);
   CnCom = Visitor.CnCom;
 }
 template <class PGraph>
-void GetUcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int k) {
+void GetUcc(const PGraph& Graph, const PGraph& SubGraph, TCnCom& CnCom, const int& k) {
   TBfsCnComVisitor Visitor;
   GetBfsVisitor(Graph, SubGraph, Visitor, edUnDirected, k);
   CnCom = Visitor.CnCom;
@@ -255,7 +255,7 @@ protected:
 public:
   TFixedMemoryBFS(const PGraph& GraphArg) : Graph(GraphArg), Queue(Graph->GetNodes()), Color(Graph->GetNodes()) { }
   void SetGraph(const PGraph& GraphArg);
-  template <class TVisitor> void GetBfsVisitor(const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir, const int k);
+  template <class TVisitor> void GetBfsVisitor(const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir, const int& k);
   void Clr(const bool& DoDel = false);
 };
 
@@ -269,10 +269,10 @@ void TFixedMemoryBFS<PGraph>::SetGraph(const PGraph& GraphArg) {
 
 template <class PGraph> // still need to specify (?)
 template <class TVisitor>
-void TFixedMemoryBFS<PGraph>::GetBfsVisitor(const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir, const int k) {
-  // const int Nodes = Graph->GetNodes();
+void TFixedMemoryBFS<PGraph>::GetBfsVisitor(const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir, const int& k) {
   Queue.Clr(false);
   Color.Clr(false);
+  Visitor.Start();
   int depth = 0, edge = 0, Deg = 0, U = 0, V = 0, VDeg = 0;
   typename PGraph::TObj::TNodeI NI, UI;
   for (NI = SubGraph->BegNI(); NI < SubGraph->EndNI(); NI++) {
@@ -298,11 +298,11 @@ void TFixedMemoryBFS<PGraph>::GetBfsVisitor(const PGraph& SubGraph, TVisitor& Vi
             case edOutDirected: V = UI.GetOutNId(edge); break;
             case edUnDirected: V = UI.GetNbrNId(edge); break;
           }
-          Visitor.ExamineEdge(U, edge, V); // examine edge
+          Visitor.ExamineEdge(U, depth, edge, V); // examine edge
           if (!Color.IsKey(V)) { // V has not been discovered
             Color.AddDat(V, 1);
             Visitor.DiscoverNode(V, depth + 1); // discover node
-            Visitor.TreeEdge(U, edge, V); // tree edge
+            Visitor.TreeEdge(U, depth, edge, V); // tree edge
             if (k == -1 || depth + 1 < k) {
               switch(dir) {
                 case edInDirected: VDeg = Graph->GetNI(V).GetInDeg(); break;
@@ -313,10 +313,10 @@ void TFixedMemoryBFS<PGraph>::GetBfsVisitor(const PGraph& SubGraph, TVisitor& Vi
             }
           }
           else if (Color.GetDat(V) == 1) { // V has been discovered
-            Visitor.BackEdge(U, edge, V);
+            Visitor.BackEdge(U, depth, edge, V);
           }
           else {
-            Visitor.ForwardEdge(U, edge, V);
+            Visitor.ForwardEdge(U, depth, edge, V);
           }
           ++edge;
         }
@@ -325,7 +325,7 @@ void TFixedMemoryBFS<PGraph>::GetBfsVisitor(const PGraph& SubGraph, TVisitor& Vi
       }
     }
   }
-  
+  Visitor.Finish();
 }
 
 template <class PGraph>
