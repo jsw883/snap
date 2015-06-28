@@ -44,15 +44,17 @@ int main(int argc, char* argv[]) {
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // 1:k degree distributions
+  
   printf("Computing egonet degrees for k = 1 to %d (in / out / undirected)\n", k);
+  TSnap::TFixedMemorykWDeg<TFlt, TWNGraph> FixedMemorykWDeg(WGraph, k);
   printf("  ...");
-  TSnap::GetkWInDegSeqH(WGraph, kWInDegVH, k);
+  FixedMemorykWDeg.GetkWInDegSeqH(kWInDegVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  ...");
-  TSnap::GetkWOutDegSeqH(WGraph, kWOutDegVH, k);
+  FixedMemorykWDeg.GetkWOutDegSeqH(kWOutDegVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  ...");
-  TSnap::GetkWDegSeqH(WGraph, kWDegVH, k);
+  FixedMemorykWDeg.GetkWDegSeqH(kWDegVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Centrality measures

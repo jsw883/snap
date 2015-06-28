@@ -253,16 +253,16 @@ protected:
   TSnapQueue<TIntTr> Queue;
   TIntH Color;
 public:
-  TFixedMemoryBFS(const PGraph& GraphArg) : Graph(GraphArg), Queue(Graph->GetNodes()), Color(Graph->GetNodes()) { }
-  void SetGraph(const PGraph& GraphArg);
+  TFixedMemoryBFS(const PGraph& Graph) : Graph(Graph), Queue(Graph->GetNodes()), Color(Graph->GetNodes()) { }
+  void SetGraph(const PGraph& Graph);
   template <class TVisitor> void GetBfsVisitor(const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir, const int& k);
   void Clr(const bool& DoDel = false);
 };
 
 template<class PGraph>
-void TFixedMemoryBFS<PGraph>::SetGraph(const PGraph& GraphArg) {
-  Graph = GraphArg;
-  const int N = GraphArg->GetNodes();
+void TFixedMemoryBFS<PGraph>::SetGraph(const PGraph& Graph) {
+  Graph = Graph;
+  const int N = Graph->GetNodes();
   if (Queue.Reserved() < N) { Queue.Gen(N); }
   if (Color.GetReservedKeyIds() < N) { Color.Gen(N); }
 }
