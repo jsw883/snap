@@ -14,7 +14,8 @@ and auxiliary functions (reading, writing, etc...).
 
 Makefiles are provided for compilation under Windows with Cygwin and gcc, and
 under Mac OS X, Linux, and other Unix operating systems with gcc as well. For
-makefiles, compile the code with `make all`.
+makefiles, compile the code with `make all`, either from the root [examples](examples)
+directory or in each example directory.
 
 ### Usage ###
 
