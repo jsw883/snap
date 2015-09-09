@@ -57,7 +57,7 @@ double GetGlobClustCf(PGraph& Graph, int SampleNodes) {
 }
 
 // Computes average clustering coefficient (need to check this for method)
-template<class PGraph> double GetAvClustCf(PGraph& Graph, int SampleNodes = -1) {
+template<class PGraph> double GetAvClustCf(PGraph& Graph, int SampleNodes) {
   return GetClustCf(Graph, SampleNodes = -1);
 }
 
