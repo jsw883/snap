@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
   
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output network name(filename extensions added)");
-  const float a = Env.GetIfArgPrefixInt("-a:", 2, "level of significance alpha");
+  const float alpha = Env.GetIfArgPrefixInt("-a:", 2, "level of significance alpha");
 
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
 
     // If the edge meets the criterion for either the source or the destination,
     // add it to the backbone graph. 
-    if (((1 - (EI.GetW() / SrcWSumH.GetDat(EI.GetSrcNId()))**(degSrc - 1)) < ((a - 1) / (degSrc - 1))) || ((1 - (EI.GetW() / DstWSumH.GetDat(EI.GetSrcNId()))**(degDst - 1)) < ((a - 1) / (degDst - 1)))) {
+    if (((1 - EI.GetW() / SrcWSumH.GetDat(EI.GetSrcNId)) ** (degSrc - 1) < alpha) || ((1 - EI.GetW() / DstWSumH.GetDat(EI.GetDstNId)) ** (degDst - 1)) < alpha) {
       WGraphBkbn.AddEdge(EI.GetSrcNId(), EI.GetDstNId(), EI.GetW())
     }
 
