@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
   
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output network name(filename extensions added)");
-  const float alpha = Env.GetIfArgPrefixInt("-a:", 2, "level of significance alpha");
+  const float alpha = Env.GetIfArgPrefixInt("-a:", 0.01, "level of significance alpha");
 
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
@@ -31,20 +31,23 @@ int main(int argc, char* argv[]) {
   printf("  nodes: %d\n", WGraph->GetNodes());
   printf("  edges: %d\n", WGraph->GetEdges());
   printf("  time elapsed: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  
-  // Declare variables
+)  // Declare variables
   // New graph that keeps surviving backbone edges
   PFltWNGraph WGraphBkbn;
   // Hashtables for source and destination weight sums
-  TIntFltVH SrcWSumH, DstWSumH;
-  
+  TIntFltVH OutWDegH, InWDegH;
+  // Replace these hashtables with GetWInDegH and GetWOutDegH from wgraph.h
+  // GetWInDegH corresponds to InWDegHt
+  // GetWOutDegH corresponds to OutWDegH
+
+
   // Part A: Get weight sums
 
   printf("\nComputing source and destination weight sums...");
-  TSnap::GetWSumsH(WGraph, SrcWSumH, DstWSumH);
+  TSnap::GetWSumsH(WGraph, OutWDegH, InWDegH);
   // Computes weight sums (source & destination)
   template <class TEdgeW, template <class> class TGraph >
-  void GetWSumsH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TVec<TEdgeW> >& SrcWSumH, THash<TInt, TVec<TEdgeW> >& DstWSumH) {
+  void GetWSumsH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TVec<TEdgeW> >& OutWDegH, THash<TInt, TVec<TEdgeW> >& InWDegH) {
     typename TGraph<TEdgeW>::TEdgeI EI;
     // Initialize hashtables with NodeIds
     // Is this what this does?  I'm not sure.
@@ -52,17 +55,17 @@ int main(int argc, char* argv[]) {
     // Also, would it be update the sums on every iteration
     // if I implemented one hashtable of vectors?
     // That would require less memory 
-    SrcWSumH.Gen(WGraph->GetNodes());
-    DstWSumH.Gen(WGraph->GetNodes());
+    OutWDegH.Gen(WGraph->GetNodes());
+    InWDegH.Gen(WGraph->GetNodes());
 
     for (EI = WGraph->BegEI(); EI < WGraph->EndEI(); EI++) {
       // Does AddDat update the data?  
       // If not, what does?  
       // Update sum weight for corresponding source node
-      SrcWSumH.AddDat(EI.GetId(), SrcWSumH.GetDat(EI.GetSrcNId()) + EI.GetW());
+      OutWDegH.AddDat(EI.GetSrcNId(), OutWDegH.GetDat(EI.GetSrcNId()) + EI.GetW());
 
       // Update sum weight for corresponding destination node
-      DstWSumH.AddDat(EI.GetId(), DstWSumH.GetDat(EI.GetDstNId()) + EI.GetW());
+      InWDegH.AddDat(EI.GetSrcNId(), InWDegH.GetDat(EI.GetDstNId()) + EI.GetW());
     }
   }
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
@@ -72,16 +75,24 @@ int main(int argc, char* argv[]) {
   printf("\n Applying the disparity filter...");
 
   for (EI = WGraph->BegEI(); EI < WGraph->EndEI(); EI++) {
-    int degSrc; // degree of source node
-    int degDst; // degree of destination node
+
+    // Use GetInDegSeqH and GetOutDegSeqH at the beginning
     // Is it possible to GetOutDeg and GetInDeg with NodeId?
     // Otherwise my plan is to implement two more hastables
     // Iterate over all the nodes once to fill in the in and out degrees
 
     // If the edge meets the criterion for either the source or the destination,
     // add it to the backbone graph. 
-    if (((1 - EI.GetW() / SrcWSumH.GetDat(EI.GetSrcNId)) ** (degSrc - 1) < alpha) || ((1 - EI.GetW() / DstWSumH.GetDat(EI.GetDstNId)) ** (degDst - 1)) < alpha) {
-      WGraphBkbn.AddEdge(EI.GetSrcNId(), EI.GetDstNId(), EI.GetW());
+
+    // If we were computing this on the fly, WGraph.GetNI(EI.GetSrcNId).GetOutWDeg(); replaces the 
+    // hashtable lookup for WDeg of Source Node ID
+    // This is if the calculation is not iteration independent (this command only works if
+    // we are removing edges in place.)
+    if (!
+      ((1 - EI.GetW() / OutWDegH.GetDat(EI.GetSrcNId)) ** (OutDegH.GetDat(EI.GetSrcNId) - 1) < alpha) || 
+      ((1 - EI.GetW() / InWDegH.GetDat(EI.GetDstNId)) ** (DegH.GetDat(EI.GetDstNId) - 1) < alpha)
+      ) {
+      WGraph.DelEdge(EI.GetSrcNId(), EI.GetDstNId());
     }
 
   }
@@ -91,7 +102,7 @@ int main(int argc, char* argv[]) {
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
   printf("\nSaving %s...", BseFNm.CStr());
-  WGraphBkbn.SaveFltWEdgeList(WGraphBkbn, OutFNm);
+  WGraph.SaveFltWEdgeList(WGraphBkbn, OutFNm);
   printf(" DONE\n");
 
   
