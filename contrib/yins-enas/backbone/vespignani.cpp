@@ -59,10 +59,10 @@ int main(int argc, char* argv[]) {
       // Does AddDat update the data?  
       // If not, what does?  
       // Update sum weight for corresponding source node
-      SrcWSumH.AddDat(EI.GetId(), SrcWSumH.GetDat(EI.GetSrcNId()) + EI.GetW())
+      SrcWSumH.AddDat(EI.GetId(), SrcWSumH.GetDat(EI.GetSrcNId()) + EI.GetW());
 
       // Update sum weight for corresponding destination node
-      DstWSumH.AddDat(EI.GetId(), DstWSumH.GetDat(EI.GetDstNId()) + EI.GetW())
+      DstWSumH.AddDat(EI.GetId(), DstWSumH.GetDat(EI.GetDstNId()) + EI.GetW());
     }
   }
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
@@ -72,8 +72,8 @@ int main(int argc, char* argv[]) {
   printf("\n Applying the disparity filter...");
 
   for (EI = WGraph->BegEI(); EI < WGraph->EndEI(); EI++) {
-    int degSrc // degree of source node
-    int degDst // degree of destination node
+    int degSrc; // degree of source node
+    int degDst; // degree of destination node
     // Is it possible to GetOutDeg and GetInDeg with NodeId?
     // Otherwise my plan is to implement two more hastables
     // Iterate over all the nodes once to fill in the in and out degrees
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
     // If the edge meets the criterion for either the source or the destination,
     // add it to the backbone graph. 
     if (((1 - EI.GetW() / SrcWSumH.GetDat(EI.GetSrcNId)) ** (degSrc - 1) < alpha) || ((1 - EI.GetW() / DstWSumH.GetDat(EI.GetDstNId)) ** (degDst - 1)) < alpha) {
-      WGraphBkbn.AddEdge(EI.GetSrcNId(), EI.GetDstNId(), EI.GetW())
+      WGraphBkbn.AddEdge(EI.GetSrcNId(), EI.GetDstNId(), EI.GetW());
     }
 
   }
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
   printf("\nSaving %s...", BseFNm.CStr());
-  WGraphBkbn.SaveFltWEdgeList(WGraphBkbn, OutFNm)
+  WGraphBkbn.SaveFltWEdgeList(WGraphBkbn, OutFNm);
   printf(" DONE\n");
 
   
