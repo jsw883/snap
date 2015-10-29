@@ -22,7 +22,7 @@ void GetInDegSeqH(const PGraph& Graph, TIntFltH& InDegH) {
   typename PGraph::TObj::TNodeI NI;
   InDegH.Gen(Graph->GetNodes());
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    InDegH.AddDat(NI.GetId(), NI.GetWInDeg());
+    InDegH.AddDat(NI.GetId(), NI.GetInDeg());
   }
 }
 template<class PGraph>
@@ -30,7 +30,7 @@ void GetOutDegSeqH(const PGraph& Graph, TIntIntH& OutDegH) {
   typename PGraph::TObj::TNodeI NI;
   OutDegH.Gen(Graph->GetNodes());
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    OutDegH.AddDat(NI.GetId(), NI.GetWOutDeg());
+    OutDegH.AddDat(NI.GetId(), NI.GetOutDeg());
   }
 }
 template<class PGraph>
@@ -38,7 +38,7 @@ void GetDegSeqH(const PGraph& Graph, TIntIntH& DegH) {
   typename PGraph::TObj::TNodeI NI;
   DegH.Gen(Graph->GetNodes());
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    DegH.AddDat(NI.GetId(), NI.GetWDeg());
+    DegH.AddDat(NI.GetId(), NI.GetDeg());
   }
 }
 
