@@ -1,11 +1,3 @@
-// THIS CODE WILL NOT COMPILE (yet, hopefully)
-// very rough first draft of implementation of backbone extraction method
-// detailed by Serrano, Boguna, and Vespignani
-// for use within the SNAP library, extended by James Williams for use
-// with weight directed graphs.
-//
-// This is a heavily modded version of wcentrality.cpp and wdeg.h by James Williams
-
 #include "stdafx.h"
 
 int main(int argc, char* argv[]) {
@@ -96,11 +88,11 @@ int main(int argc, char* argv[]) {
   }
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
 
+  // OUTPUTTING 
+
   printf("Pruned graph:\n");
   printf("  nodes: %d\n", WGraph->GetNodes());
   printf("  edges: %d\n", WGraph->GetEdges());
-
-  // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
   printf("\nSaving...");
   TSnap::SaveFltWEdgeList(WGraph, OutFNm, "");
