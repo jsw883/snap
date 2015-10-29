@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
   
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output network name(filename extensions added)");
-  const float alpha = Env.GetIfArgPrefixInt("-a:", 0.01, "level of significance alpha");
+  const float alpha = Env.GetIfArgPrefixFlt("-a:", 0.01, "level of significance alpha");
 
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
   TIntFltH OutWDegH, InWDegH;
 
   // Hashtables for binary source and destination degrees
-  TIntFltH OutDegH, InDegH;
+  TIntIntH OutDegH, InDegH;
 
   
   // Part A: Get weight sums
@@ -68,27 +68,27 @@ int main(int argc, char* argv[]) {
     // we are removing edges in place.)
 
     // Check whether this is the only out-edge for the source node
-    if ((OutDegH.GetDat(EI.GetSrcNId()) == 1) && (InDegH.GetDat(EI.GetDstNId()) != 1)) {
+    if ((OutDegH.GetDat(EI.GetSrcNId()) == 1) && (InDegH.GetDat(EI.GetDstNId()) > 1)) {
       // If so, remove edge only if not significant for destination node
       if (!(pow((1 - EI.GetW() / InWDegH.GetDat(EI.GetDstNId())), (InDegH.GetDat(EI.GetDstNId()) - 1)) < alpha)) {
-        WGraph.DelEdge(EI.GetSrcNId(), EI.GetDstNId());
+        WGraph->DelEdge(EI.GetSrcNId(), EI.GetDstNId());
       }
     }
     // Check whether this is the only in-edge for the destination node
-    else if ((OutDegH.GetDat(EI.GetSrcNId()) != 1) && (InDegH.GetDat(EI.GetDstNId()) == 1)) {
+    else if ((OutDegH.GetDat(EI.GetSrcNId()) > 1) && (InDegH.GetDat(EI.GetDstNId()) == 1)) {
       // If so, remove edge only if not significant for source node
       if (!(pow((1 - EI.GetW() / OutWDegH.GetDat(EI.GetSrcNId())), (OutDegH.GetDat(EI.GetSrcNId()) - 1)) < alpha)) {
-        WGraph.DelEdge(EI.GetSrcNId(), EI.GetDstNId());
+        WGraph->DelEdge(EI.GetSrcNId(), EI.GetDstNId());
       }
     }
     // Check whether this is not the only out-edge for source and not the only in-edge for destination
-    else if ((OutDegH.GetDat(EI.GetSrcNId()) != 1) && (InDegH.GetDat(EI.GetDstNId()) != 1)) {
+    else if ((OutDegH.GetDat(EI.GetSrcNId()) > 1) && (InDegH.GetDat(EI.GetDstNId()) > 1)) {
       // If so, remove edge only if not significant for either side.
       if (!
-        (pow((1 - EI.GetW() / OutWDegH.GetDat(EI.GetSrcNId())), (OutDegH.GetDat(EI.GetSrcNId()) - 1)) < alpha) || 
-        (pow((1 - EI.GetW() / InWDegH.GetDat(EI.GetDstNId())), (InDegH.GetDat(EI.GetDstNId()) - 1)) < alpha)
+        ((pow((1 - EI.GetW() / OutWDegH.GetDat(EI.GetSrcNId())), (OutDegH.GetDat(EI.GetSrcNId()) - 1)) < alpha) || 
+                (pow((1 - EI.GetW() / InWDegH.GetDat(EI.GetDstNId())), (InDegH.GetDat(EI.GetDstNId()) - 1)) < alpha))
         ) {
-          WGraph.DelEdge(EI.GetSrcNId(), EI.GetDstNId());
+          WGraph->DelEdge(EI.GetSrcNId(), EI.GetDstNId());
       }
     }
     // Implicitly, an edge is kept if it is the only out-edge for the source and only in-edge for destination
@@ -96,11 +96,14 @@ int main(int argc, char* argv[]) {
   }
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
 
+  printf("Pruned graph:\n");
+  printf("  nodes: %d\n", WGraph->GetNodes());
+  printf("  edges: %d\n", WGraph->GetEdges());
 
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
   printf("\nSaving...");
-  WGraph.SaveFltWEdgeList(WGraph, OutFNm);
+  TSnap::SaveFltWEdgeList(WGraph, OutFNm, "");
   printf(" DONE\n");
 
   
