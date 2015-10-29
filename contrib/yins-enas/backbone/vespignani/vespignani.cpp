@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output network name(filename extensions added)");
   const float alpha = Env.GetIfArgPrefixFlt("-a:", 0.01, "level of significance alpha");
 
-  int neg = 0;
+  int edgesCleared = 0;
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
   PFltWNGraph WGraph = TSnap::LoadFltWEdgeList<TWNGraph>(InFNm);
@@ -49,12 +49,19 @@ int main(int argc, char* argv[]) {
 
   printf("\n Applying the disparity filter...");
   typename PFltWNGraph::TObj::TEdgeI EI;
-  for (EI = WGraph->BegEI(); EI < WGraph->EndEI();) {
-  	if (true) {
+  for (EI = WGraph->BegEI(); EI < WGraph->EndEI(); ) {
+  	if (WGraph->GetEdges() == 0) {
+  		break;
+  	} else if (true){
+  		EI--;
+		printf("%i\n", WGraph->GetNI(EI.GetSrcNId()).GetOutDeg());
 		WGraph->DelEdge(EI.GetSrcNId(), EI.GetDstNId());
-	} else {
-		EI++;
-	}
+		printf("%i\n", WGraph->GetNI(EI.GetSrcNId()).GetOutDeg());
+		edgesCleared++;
+		printf("%i\n", edgesCleared);
+  	} else {
+  		EI++;
+  	}
   }
 
   //   // If the edge meets the criterion for either the source or the destination,
@@ -115,7 +122,6 @@ int main(int argc, char* argv[]) {
   printf("Pruned graph:\n");
   printf("  nodes: %d\n", WGraph->GetNodes());
   printf("  edges: %d\n", WGraph->GetEdges());
-  printf("negatives: %i\n", neg);
   
   printf("\nSaving...");
   TSnap::SaveFltWEdgeList(WGraph, TStr::Fmt("%s-%.10f", OutFNm.CStr(), alpha), "");
