@@ -1,7 +1,10 @@
 vespignani (multiscale backbone extraction)
 -------------------------------------------
 
-Summagy goes here
+Applies the pruning algorithm documented by Serrano, Boguna, and Vespignani
+in "Extracting the multiscale backbone of complex weighted networks" (2009).
+A hypothesis is performed on each edge examine whether its normalized weight
+suggests the edge is statisically significant and conveys meaningful information.
 
 Makefiles are provided for compilation under Windows with Cygwin and gcc,
 and under Mac OS X, Linux, and other Unix operating systems with gcc as
