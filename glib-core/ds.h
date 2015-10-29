@@ -492,6 +492,8 @@ public:
   void Clr(const bool& DoDel=true, const TSizeTy& NoDelLim=-1);
   /// Truncates the vector's length and capacity to \c _Vals elements. ##TVec::Trunc
   void Trunc(const TSizeTy& _Vals=-1);
+  /// Reduces the vector's length to \c _Vals elements, which must be less than the current length.
+  void Reduce(const TSizeTy& _Vals=-1) {Vals = _Vals;}
   /// The vector reduces its capacity (frees memory) to match its size.
   void Pack();
   /// Takes over the data and the capacity from \c Vec. ##TVec::MoveFrom
@@ -515,6 +517,10 @@ public:
   const TVal& LastLast() const { AssertR(1<Vals, GetXOutOfBoundsErrMsg(Vals-2)); return ValT[Vals-2];}
   /// Returns a reference to the one before last element of the vector.
   TVal& LastLast(){ AssertR(1<Vals, GetXOutOfBoundsErrMsg(Vals-2)); return ValT[Vals-2];}
+  /// Returns a reference to a random element in the vector.
+  const TVal& GetRndVal(TRnd& Rnd=TInt::Rnd) const { return GetVal(Rnd.GetUniDevInt(Len())); }
+  /// Returns a reference to a random element in the vector.
+  TVal& GetRndVal(TRnd& Rnd=TInt::Rnd) { return GetVal(Rnd.GetUniDevInt(Len())); }
   
   /// Returns an iterator pointing to the first element in the vector.
   TIter BegI() const {return ValT;}
@@ -1638,7 +1644,7 @@ template <class TVal, class TSizeTy>
 int TVecPool<TVal, TSizeTy>::AddV(const TValV& ValV) {
   const TSizeTy ValVLen = ValV.Len();
   if (ValVLen == 0) { return 0; }
-  if (MxVals < Vals+ValVLen) { Resize(Vals+max(ValVLen, GrowBy)); }
+  if (MxVals < Vals+ValVLen) { Resize(Vals+MAX(ValVLen, GrowBy)); }
   if (FastCopy) { memcpy(ValBf+Vals, ValV.BegI(), sizeof(TVal)*ValV.Len()); }
   else { for (uint ValN=0; ValN < ValVLen; ValN++) { ValBf[Vals+ValN]=ValV[ValN]; } }
   Vals+=ValVLen;  IdToOffV.Add(Vals);
@@ -1648,7 +1654,7 @@ int TVecPool<TVal, TSizeTy>::AddV(const TValV& ValV) {
 template <class TVal, class TSizeTy>
 int TVecPool<TVal, TSizeTy>::AddEmptyV(const int& ValVLen) {
   if (ValVLen==0){return 0;}
-  if (MxVals < Vals+ValVLen){Resize(Vals+max(TSize(ValVLen), GrowBy)); }
+  if (MxVals < Vals+ValVLen){Resize(Vals+MAX(TSize(ValVLen), GrowBy)); }
   Vals+=ValVLen; IdToOffV.Add(Vals);
   return IdToOffV.Len()-1;
 }
@@ -1877,7 +1883,7 @@ template<class TVal>
 int TVecPool<TVal>::AddV(const TValV& ValV) {
   const ::TSize ValVLen = ValV.Len();
   if (ValVLen == 0) { return 0; }
-  if (MxVals < Vals+ValVLen) { Resize(Vals+max(ValVLen, GrowBy)); }
+  if (MxVals < Vals+ValVLen) { Resize(Vals+MAX(ValVLen, GrowBy)); }
   if (FastCopy) { memcpy(ValBf+Vals, ValV.BegI(), sizeof(TVal)*ValV.Len()); }
   else { for (uint ValN=0; ValN < ValVLen; ValN++) { ValBf[Vals+ValN]=ValV[ValN]; } }
   Vals+=ValVLen;  IdToOffV.Add(Vals);
@@ -1887,7 +1893,7 @@ int TVecPool<TVal>::AddV(const TValV& ValV) {
 template<class TVal>
 int TVecPool<TVal>::AddEmptyV(const int& ValVLen) {
   if (ValVLen==0){return 0;}
-  if (MxVals < Vals+ValVLen){Resize(Vals+max(TSize(ValVLen), GrowBy)); }
+  if (MxVals < Vals+ValVLen){Resize(Vals+MAX(TSize(ValVLen), GrowBy)); }
   Vals+=ValVLen; IdToOffV.Add(Vals);
   return IdToOffV.Len()-1;
 }
