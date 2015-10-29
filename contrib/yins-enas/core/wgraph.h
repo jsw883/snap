@@ -383,7 +383,6 @@ int TWNGraph<TEdgeW>::AddNode(int NId) {
 
 template <class TEdgeW>
 void TWNGraph<TEdgeW>::DelNode(const int& NId) {
-  typedef TPair<TInt, TEdgeW> TNIdEdgeW;
   const TNode& Node = GetNode(NId);
   int node;
   for (int edge = 0; edge < Node.GetOutDeg(); edge++) {
@@ -423,7 +422,6 @@ int TWNGraph<TEdgeW>::AddEdge(const int& SrcNId, const int& DstNId, TEdgeW W) {
 
 template <class TEdgeW>
 void TWNGraph<TEdgeW>::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
-  typedef TPair<TInt, TEdgeW> TNIdEdgeW;
   IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   int node;
   { TNode& N = GetNode(SrcNId);
