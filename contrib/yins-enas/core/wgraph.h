@@ -161,18 +161,18 @@ public:
   /// Edge iterator. Only forward iteration (operator++) is supported.
   class TEdgeI {
   private:
-    TNodeI CurNode, EndNode;
+    TNodeI BegNode, CurNode, EndNode;
     int CurEdge;
   public:
     TEdgeI() : CurNode(), EndNode(), CurEdge(0) { }
-    TEdgeI(const TNodeI& NodeI, const TNodeI& EndNodeI, const int& EdgeN = 0) : CurNode(NodeI), EndNode(EndNodeI), CurEdge(EdgeN) { }
-    TEdgeI(const TEdgeI& EdgeI) : CurNode(EdgeI.CurNode), EndNode(EdgeI.EndNode), CurEdge(EdgeI.CurEdge) { }
+    TEdgeI(const TNodeI& BegNodeI, const TNodeI& NodeI, const TNodeI& EndNodeI, const int& EdgeN = 0) : CurNode(BegNodeI), CurNode(NodeI), EndNode(EndNodeI), CurEdge(EdgeN) { }
+    TEdgeI(const TEdgeI& EdgeI) : BegNode(EdgeI.BegNode), CurNode(EdgeI.CurNode), EndNode(EdgeI.EndNode), CurEdge(EdgeI.CurEdge) { }
     TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { CurNode=EdgeI.CurNode; EndNode=EdgeI.EndNode; CurEdge=EdgeI.CurEdge; }  return *this; }
     /// Increment iterator.
     TEdgeI& operator++ (int) {
       CurEdge++;
       if (CurEdge >= CurNode.GetOutDeg()) {
-        CurEdge=0;
+        CurEdge = 0;
         CurNode++;
         while (CurNode < EndNode && CurNode.GetOutDeg() == 0) {
           CurNode++;
@@ -180,6 +180,21 @@ public:
       }
       return *this;
     }
+    /// Decrement iterator.
+    TEdgeI& operator-- (int) {
+      CurEdge--;
+      if (CurEdge < 0) {
+        CurNode--;
+        CurEdge = CurNode.GetOutDeg();
+        while (CurNode > BegNode && CurNode.GetOutDeg() == 0) {
+          CurNode--;
+        }
+      }
+      return *this;
+    }
+    
+    // TODO: implement random access iterator (?)
+    
     // Methods for ordering.
     bool operator == (const TEdgeI& EdgeI) const { return CurNode == EdgeI.CurNode && CurEdge == EdgeI.CurEdge; }
     bool operator != (const TEdgeI& EdgeI) const { return CurNode != EdgeI.CurNode || CurEdge != EdgeI.CurEdge; }
@@ -254,15 +269,15 @@ public:
   /// Tests whether an edge from node IDs SrcNId to DstNId exists in the graph.
   bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const;
   /// Returns an iterator referring to the first edge in the graph.
-  TEdgeI BegEI() const { TNodeI NI = BegNI(); while(NI < EndNI() && NI.GetOutDeg() == 0){ NI++; } return TEdgeI(NI, EndNI()); }
+  TEdgeI BegEI() const { TNodeI NI = BegNI(); while(NI < EndNI() && NI.GetOutDeg() == 0){ NI++; } return TEdgeI(BegNI(), NI, EndNI()); }
   /// Returns an iterator referring to the past-the-end edge in the graph.
-  TEdgeI EndEI() const { return TEdgeI(EndNI(), EndNI()); }
+  TEdgeI EndEI() const { return TEdgeI(BegNI(), EndNI(), EndNI()); }
   /// Returns an iterator referring to edge (SrcNId, DstNId) in the graph.
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const {
     const TNode& SrcNode = GetNode(SrcNId);
     int EdgeN;
     SrcNode.IsOutNId(DstNId, EdgeN);
-    return(TEdgeI(GetNI(SrcNode), EndNI(), EdgeN));
+    return(TEdgeI(BegNI(), GetNI(SrcNode), EndNI(), EdgeN));
   }
     
   /// Returns the edge weight corresponding to the edge SrcNId and DstNId.
