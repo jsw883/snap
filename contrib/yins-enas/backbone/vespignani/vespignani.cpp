@@ -48,25 +48,30 @@ int main(int argc, char* argv[]) {
 
   printf("\n Applying the disparity filter...");
   typename PFltWNGraph::TObj::TEdgeI EI;
+  // Iterates over the edges, and applies the "skip over empty nodes" (EI--) operator
+  // at the end of each iteration.  This iterates through the nodes until the out-degree
+  // of the current node is zero, or if the end node is reached.  See lines 183 - 189
+  // of wgraph.h
+  // The -- operator was used because I'm not sure what other symbols can be used.
   for (EI = WGraph->BegEI(); EI < WGraph->EndEI(); EI--) {
-
+  	// If there are no edges left, break out of the loop
+  	// This is only possible when alpha = 0; and even then,
+  	// it may not happen (see if-else conditions following)
+  	// Without this break, we get segfault as we're trying
+  	// to iterate over nonexistent nodes
   	if (WGraph->GetEdges() == 0) {
   		break;
   	}
-    // If the edge meets the criterion for either the source or the destination,
-    // add it to the backbone graph. 
-
-    // If we were computing this on the fly, WGraph.GetNI(EI.GetSrcNId).GetOutWDeg(); replaces the 
-    // hashtable lookup for WDeg of Source Node ID
-    // This is if the calculation is not iteration independent (this command only works if
-    // we are removing edges in place.)
 
     // Check whether this is the only out-edge for the source node
     if ((OutDegH.GetDat(EI.GetSrcNId()) == 1) && (InDegH.GetDat(EI.GetDstNId()) > 1)) {
-      // // If so, remove edge only if not significant for destination node
+      // If so, remove edge only if not significant for destination node
       if (!(pow((1 - EI.GetW() / InWDegH.GetDat(EI.GetDstNId())), (InDegH.GetDat(EI.GetDstNId()) - 1)) < alpha)) {
         WGraph->DelEdge(EI.GetSrcNId(), EI.GetDstNId());
+        // Iterating the EI forward isn't necessary as removing 
+        // an edge implicitly iterates the EI to the next edge.
       } else {
+      	// But if we haven't removed an edge, move the EI forward.
       	EI++;
       }
     
@@ -88,12 +93,11 @@ int main(int argc, char* argv[]) {
           } else {
       			EI++;
         }
-    	} else {
-    		EI++;
-    		// WGraph->DelEdge(EI.GetSrcNId(), EI.GetDstNId());
+    // An edge is kept if it is the only out-edge for the source and only in-edge for destination
+    // which aligns with the Vespignani paper.
+    } else {
+    	EI++;
     }
-    // Implicitly, an edge is kept if it is the only out-edge for the source and only in-edge for destination
-    // Which aligns with the Vespignani paper.
   }
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
 
