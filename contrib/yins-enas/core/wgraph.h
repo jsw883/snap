@@ -180,6 +180,13 @@ public:
       }
       return *this;
     }
+    /// Move-past-empty-node iterator.
+    TEdgeI& operator-- (int) {
+      while (CurNode.GetOutDeg() == 0 && CurNode < EndNode) {
+        CurNode++;
+      }
+      return *this;
+    }
     // Methods for ordering.
     bool operator == (const TEdgeI& EdgeI) const { return CurNode == EdgeI.CurNode && CurEdge == EdgeI.CurEdge; }
     bool operator != (const TEdgeI& EdgeI) const { return CurNode != EdgeI.CurNode || CurEdge != EdgeI.CurEdge; }
