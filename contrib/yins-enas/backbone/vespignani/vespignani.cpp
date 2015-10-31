@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
   // of the current node is zero, or if the end node is reached.  See lines 183 - 189
   // of wgraph.h
   // The -- operator was used because I'm not sure what other symbols can be used.
-  for (EI = WGraph->BegEI(); EI < WGraph->EndEI(); EI--) {
+  for (EI = WGraph->BegEI(); EI < WGraph->EndEI(); ) {
   	// If there are no edges left, break out of the loop
   	// This is only possible when alpha = 0; and even then,
   	// it may not happen (see if-else conditions following)

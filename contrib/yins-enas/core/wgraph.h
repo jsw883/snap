@@ -170,23 +170,30 @@ public:
     TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { CurNode=EdgeI.CurNode; EndNode=EdgeI.EndNode; CurEdge=EdgeI.CurEdge; }  return *this; }
     /// Increment iterator.
     TEdgeI& operator++ (int) {
-      CurEdge++;
-      if (CurEdge >= CurNode.GetOutDeg()) {
-        CurEdge=0;
-        CurNode++;
+      if (CurNode.GetOutDeg() != 0) {
+        CurEdge++;
+        if (CurEdge >= CurNode.GetOutDeg()) {
+          CurEdge=0;
+          CurNode++;
+          while (CurNode < EndNode && CurNode.GetOutDeg() == 0) {
+            CurNode++;
+          }
+        }
+        return *this;
+      } else {
         while (CurNode < EndNode && CurNode.GetOutDeg() == 0) {
           CurNode++;
         }
+        return *this;
       }
-      return *this;
     }
     /// Move-past-empty-node iterator.
-    TEdgeI& operator-- (int) {
-      while (CurNode.GetOutDeg() == 0 && CurNode < EndNode) {
-        CurNode++;
-      }
-      return *this;
-    }
+    // TEdgeI& operator-- (int) {
+    //   while (CurNode.GetOutDeg() == 0 && CurNode < EndNode) {
+    //     CurNode++;
+    //   }
+    //   return *this;
+    // }
     // Methods for ordering.
     bool operator == (const TEdgeI& EdgeI) const { return CurNode == EdgeI.CurNode && CurEdge == EdgeI.CurEdge; }
     bool operator != (const TEdgeI& EdgeI) const { return CurNode != EdgeI.CurNode || CurEdge != EdgeI.CurEdge; }
