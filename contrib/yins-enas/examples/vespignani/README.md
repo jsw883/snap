@@ -24,5 +24,5 @@ well. For makefiles, compile the code with `make all`.
 ```bash
 rm -r ../../datasets/USairport2010/vespignani
 mkdir ../../datasets/USairport2010/vespignani
-./vespignani -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/vespignani/USairport2010-backbone
+./vespignani -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/vespignani/USairport2010
 ```

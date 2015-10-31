@@ -8,6 +8,6 @@
 #include "wgio.h"
 #include "wdeg.h"
 #include "wcentr.h"
+#include "wfilter.h"
 #include "io.h"
 #include "deg.h"
-#include "wfilter.h"
