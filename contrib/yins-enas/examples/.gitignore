@@ -11,6 +11,8 @@
 */wcentrality.exe
 */wstatistics
 */wstatistics.exe
+*/vespignani
+*/vespignani.exe
 
 # Custom bash scripts for running on datasets
 */run.DIAN
