@@ -48,11 +48,8 @@ int main(int argc, char* argv[]) {
 
   printf("\n Applying the disparity filter...");
   typename PFltWNGraph::TObj::TEdgeI EI;
-  // Iterates over the edges, and applies the "skip over empty nodes" (EI--) operator
-  // at the end of each iteration.  This iterates through the nodes until the out-degree
-  // of the current node is zero, or if the end node is reached.  See lines 183 - 189
-  // of wgraph.h
-  // The -- operator was used because I'm not sure what other symbols can be used.
+  // Iterates over the edges.  Implicitly iterated forward if an edge
+  // is deleted, else explicitly iterated with EI++
   for (EI = WGraph->BegEI(); EI < WGraph->EndEI(); ) {
   	// If there are no edges left, break out of the loop
   	// This is only possible when alpha = 0; and even then,
