@@ -10,3 +10,4 @@
 #include "wcentr.h"
 #include "io.h"
 #include "deg.h"
+#include "wfilter.h"
