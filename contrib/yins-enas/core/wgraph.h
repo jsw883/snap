@@ -170,6 +170,12 @@ public:
     TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { CurNode=EdgeI.CurNode; EndNode=EdgeI.EndNode; CurEdge=EdgeI.CurEdge; }  return *this; }
     /// Increment iterator.
     TEdgeI& operator++ (int) {
+      // Make sure the current node has nonzero outdegree
+      // before incrementing CurEdge
+      // Otherwise, we run into errors.
+      // This is possible if a pruning algorithm is being
+      // applied, removing edges in place; if no edges are
+      // left, this case will occur.
       if (CurNode.GetOutDeg() != 0) {
         CurEdge++;
         if (CurEdge >= CurNode.GetOutDeg()) {
@@ -180,6 +186,9 @@ public:
           }
         }
         return *this;
+      // This handles the case detailed above by skipping over
+      // empty nodes until it reaches one that has edges to be
+      // iterated over.
       } else {
         while (CurNode < EndNode && CurNode.GetOutDeg() == 0) {
           CurNode++;
@@ -187,13 +196,6 @@ public:
         return *this;
       }
     }
-    /// Move-past-empty-node iterator.
-    // TEdgeI& operator-- (int) {
-    //   while (CurNode.GetOutDeg() == 0 && CurNode < EndNode) {
-    //     CurNode++;
-    //   }
-    //   return *this;
-    // }
     // Methods for ordering.
     bool operator == (const TEdgeI& EdgeI) const { return CurNode == EdgeI.CurNode && CurEdge == EdgeI.CurEdge; }
     bool operator != (const TEdgeI& EdgeI) const { return CurNode != EdgeI.CurNode || CurEdge != EdgeI.CurEdge; }
