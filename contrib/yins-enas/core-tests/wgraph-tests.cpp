@@ -22,7 +22,7 @@ public:
 
 TYPED_TEST_CASE(GraphTest, Graphs);
 
-// Test the default constructor
+// Test default constructor
 TYPED_TEST(GraphTest, DefaultConstructor) {
   
   // typedef typename TypeParam::TypeEdgeW TEdgeW;
@@ -46,22 +46,22 @@ TYPED_TEST(GraphTest, DefaultConstructor) {
   EXPECT_EQ(1, Graph->HasFlag(gfDirected));
 }
 
-// Test node, edge creation
+// Test graph manipulation (create and delete nodes and edges)
 TYPED_TEST(GraphTest, GraphManipulating) {
-  
+
   // typedef typename TypeParam::TypeEdgeW TEdgeW;
   typedef typename TypeParam::TypeGraph TGraph;
   typedef TPt<TGraph> PGraph;
-  
+
   PGraph Graph = TGraph::New();
   
   int Nodes = 10000;
-  int Edges = 100000;
+  int Edges = 1000000;
   // const char *FName = "graph.dat";
 
-  int i;
+  int i, counter;
   int x, y;
-  int Deg, InDeg, OutDeg;
+  // int Deg, InDeg, OutDeg;
 
   // create graph for maniupating
   Graph = TGraph::New();
@@ -72,7 +72,7 @@ TYPED_TEST(GraphTest, GraphManipulating) {
   for (i = 0; i < Nodes; i++) {
     Graph->AddNode(i);
   }
-  
+
   EXPECT_EQ(0, Graph->Empty());
   EXPECT_EQ(1, Graph->IsOk());
   EXPECT_EQ(Nodes, Graph->GetNodes());
@@ -82,7 +82,7 @@ TYPED_TEST(GraphTest, GraphManipulating) {
   EXPECT_EQ(0, Graph->IsNode(Nodes));
 
   // create edges
-  for (i = 0; i < Edges; i++) {
+  for (i = 0; i < Edges; ) {
     x = (long) (Nodes * drand48());
     y = (long) (Nodes * drand48());
     if (x != y  &&  !Graph->IsEdge(x, y)) {
@@ -94,6 +94,30 @@ TYPED_TEST(GraphTest, GraphManipulating) {
   EXPECT_EQ(0, Graph->Empty());
   EXPECT_EQ(1, Graph->IsOk());
   EXPECT_EQ(Edges, Graph->GetEdges());
+
+  // nodes iterator
+  counter = 0;
+  for (typename TGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    counter++;
+  }
+  EXPECT_EQ(Nodes, counter);
+
+  // edges per node iterator
+  counter = 0;
+  for (typename TGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    for (int e = 0; e < NI.GetOutDeg(); e++) {
+      counter++;
+    }
+  }
+  EXPECT_EQ(Edges, counter);
+
+  // edges iterator
+  counter = 0;
+  for (typename TGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    counter++;
+  }
+  EXPECT_EQ(Edges, counter);
+
 
 }
 

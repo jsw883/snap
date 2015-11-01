@@ -30,8 +30,8 @@ all: $(MAIN)
 run: $(MAIN)
 	./$(MAIN)
 
-$(MAIN): $(MAIN).cpp $(TEST_SRCS) $(CSNAP)/Snap.o 
-	$(CC) $(CXXFLAGS) $(CXXOPENMP) -o $(MAIN) $^ -I$(CSNAP) -I$(CGLIB) -I$(CCORE) $(LIBS)
+$(MAIN): $(MAIN).cpp $(TEST_SRCS) $(CSNAP)/Snap.o $(wildcard $(CCORE)/*)
+	$(CC) $(CXXFLAGS) $(CXXOPENMP) -o $(MAIN) $(MAIN).cpp $(TEST_SRCS) $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) -I$(CCORE) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)

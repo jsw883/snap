@@ -165,7 +165,7 @@ public:
     int CurEdge;
   public:
     TEdgeI() : CurNode(), EndNode(), CurEdge(0) { }
-    TEdgeI(const TNodeI& BegNodeI, const TNodeI& NodeI, const TNodeI& EndNodeI, const int& EdgeN = 0) : CurNode(BegNodeI), CurNode(NodeI), EndNode(EndNodeI), CurEdge(EdgeN) { }
+    TEdgeI(const TNodeI& BegNodeI, const TNodeI& NodeI, const TNodeI& EndNodeI, const int& EdgeN = 0) : BegNode(BegNodeI), CurNode(NodeI), EndNode(EndNodeI), CurEdge(EdgeN) { }
     TEdgeI(const TEdgeI& EdgeI) : BegNode(EdgeI.BegNode), CurNode(EdgeI.CurNode), EndNode(EdgeI.EndNode), CurEdge(EdgeI.CurEdge) { }
     TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { CurNode=EdgeI.CurNode; EndNode=EdgeI.EndNode; CurEdge=EdgeI.CurEdge; }  return *this; }
     /// Increment iterator.
@@ -511,10 +511,6 @@ void TWNGraph<TEdgeW>::Defrag(const bool& OnlyNodeLinks) {
   if (! OnlyNodeLinks && ! NodeH.IsKeyIdEqKeyN()) { NodeH.Defrag(); }
 }
 
-
-
-// TODO: Below
-
 template <class TEdgeW>
 bool TWNGraph<TEdgeW>::IsOk(const bool& ThrowExcept) const {
   bool RetVal = true;
@@ -580,7 +576,7 @@ bool TWNGraph<TEdgeW>::IsOk(const bool& ThrowExcept) const {
     for (int e = 0; e < Node.GetInDeg(); e++) {
       int n;
       const TNode& SrcNode = GetNode(Node.GetInNId(e));
-      bool exists = SrcNode.IsInNId(Node.GetId(), n);
+      bool exists = SrcNode.IsOutNId(Node.GetId(), n);
       if (!exists) {
         const TStr Msg = TStr::Fmt("In-edge %d <-- %d not consistent with corresponding out-edge %d --> %d.",
           Node.GetId(), Node.GetInNId(e), SrcNode.GetId(), SrcNode.GetOutNId(n));
