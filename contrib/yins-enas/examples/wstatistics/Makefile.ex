@@ -4,12 +4,12 @@
 
 MAIN = wstatistics
 DEPH = \
-    $(YINSCORE)/wgraph.h \
-    $(YINSCORE)/wgio.h \
-    $(YINSCORE)/wstats.h \
-    $(YINSCORE)/io.h
+    $(EXCORE)/wgraph.h \
+    $(EXCORE)/wgio.h \
+    $(EXCORE)/wstats.h \
+    $(EXCORE)/io.h
 DEPCPP = \
-    $(YINSCORE)/wgraph.cpp \
-    $(YINSCORE)/wgio.cpp \
-    $(YINSCORE)/wstats.cpp \
-    $(YINSCORE)/io.cpp
+    $(EXCORE)/wgraph.cpp \
+    $(EXCORE)/wgio.cpp \
+    $(EXCORE)/wstats.cpp \
+    $(EXCORE)/io.cpp

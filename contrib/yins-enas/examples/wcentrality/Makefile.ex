@@ -4,14 +4,14 @@
 
 MAIN = wcentrality
 DEPH = \
-    $(YINSCORE)/wgraph.h \
-    $(YINSCORE)/wgio.h \
-    $(YINSCORE)/wdeg.h \
-    $(YINSCORE)/wcentr.h \
-    $(YINSCORE)/io.h
+    $(EXCORE)/wgraph.h \
+    $(EXCORE)/wgio.h \
+    $(EXCORE)/wdeg.h \
+    $(EXCORE)/wcentr.h \
+    $(EXCORE)/io.h
 DEPCPP = \
-    $(YINSCORE)/wgraph.cpp \
-    $(YINSCORE)/wgio.cpp \
-    $(YINSCORE)/wdeg.cpp \
-    $(YINSCORE)/wcentr.cpp \
-    $(YINSCORE)/io.cpp
+    $(EXCORE)/wgraph.cpp \
+    $(EXCORE)/wgio.cpp \
+    $(EXCORE)/wdeg.cpp \
+    $(EXCORE)/wcentr.cpp \
+    $(EXCORE)/io.cpp

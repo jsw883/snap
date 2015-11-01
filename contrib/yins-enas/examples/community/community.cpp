@@ -15,9 +15,9 @@ int main(int argc, char* argv[]) {
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
   const double eps = Env.GetIfArgPrefixFlt("-eps:", 1.0e-5, "minimum quality improvement threshold");
-  const double max_iters = Env.GetIfArgPrefixFlt("-iters:", 1.0e+4, "maximum number of iterations");
   const double min_moves = Env.GetIfArgPrefixFlt("-moves:", 1.0e-2, "minimum number of moves required (proportional)");
- 
+  const double max_iters = Env.GetIfArgPrefixFlt("-iters:", 1.0e+4, "maximum number of iterations");
+  
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
   PFltWNGraph WGraph = TSnap::LoadFltWEdgeList<TWNGraph>(InFNm);
@@ -31,6 +31,8 @@ int main(int argc, char* argv[]) {
   // COMMUNITY
   
   // TODO
+  
+  
   
   // Louvain method (modularity objective)
   

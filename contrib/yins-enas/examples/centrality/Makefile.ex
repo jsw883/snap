@@ -4,10 +4,10 @@
 
 MAIN = centrality
 DEPH = \
-    $(YINSCORE)/deg.h \
-    $(YINSCORE)/centrnew.h \
-    $(YINSCORE)/io.h
+    $(EXCORE)/deg.h \
+    $(EXCORE)/centrnew.h \
+    $(EXCORE)/io.h
 DEPCPP = \
-    $(YINSCORE)/deg.cpp \
-    $(YINSCORE)/centrnew.cpp \
-    $(YINSCORE)/io.cpp
+    $(EXCORE)/deg.cpp \
+    $(EXCORE)/centrnew.cpp \
+    $(EXCORE)/io.cpp

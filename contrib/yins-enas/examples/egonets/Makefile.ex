@@ -4,12 +4,12 @@
 
 MAIN = egonets
 DEPH = \
-    $(YINSCORE)/wgraph.h \
-    $(YINSCORE)/wgio.h \
-    $(YINSCORE)/wego.h \
-    $(YINSCORE)/io.h
+    $(EXCORE)/wgraph.h \
+    $(EXCORE)/wgio.h \
+    $(EXCORE)/wego.h \
+    $(EXCORE)/io.h
 DEPCPP = \
-    $(YINSCORE)/wgraph.cpp \
-    $(YINSCORE)/wgio.cpp \
-    $(YINSCORE)/wego.cpp \
-    $(YINSCORE)/io.cpp
+    $(EXCORE)/wgraph.cpp \
+    $(EXCORE)/wgio.cpp \
+    $(EXCORE)/wego.cpp \
+    $(EXCORE)/io.cpp
