@@ -520,11 +520,11 @@ bool TWNGraph<TEdgeW>::IsOk(const bool& ThrowExcept) const {
   bool RetVal = true;
   for (int N = NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
     const TNode& Node = NodeH[N];
-    if (! Node.OutNIdV.IsSorted()) {
+    if (! Node.OutNIdEdgeWV.IsSorted()) {
       const TStr Msg = TStr::Fmt("Out-neighbor list of node %d is not sorted.", Node.GetId());
       if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false;
     }
-    if (! Node.InNIdV.IsSorted()) {
+    if (! Node.InNIdEdgeWV.IsSorted()) {
       const TStr Msg = TStr::Fmt("In-neighbor list of node %d is not sorted.", Node.GetId());
       if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false;
     }
@@ -562,7 +562,7 @@ bool TWNGraph<TEdgeW>::IsOk(const bool& ThrowExcept) const {
     // Check out edge weight consistency
     for (int e = 0; e < Node.GetOutDeg(); e++) {
       int n;
-      TNode& DstNode = GetNode(Node.GetOutNId(e));
+      const TNode& DstNode = GetNode(Node.GetOutNId(e));
       bool exists = DstNode.IsInNId(Node.GetId(), n);
       if (!exists) {
         const TStr Msg = TStr::Fmt("Out-edge %d --> %d not consistent with corresponding in-edge %d <-- %d.",
@@ -572,14 +572,14 @@ bool TWNGraph<TEdgeW>::IsOk(const bool& ThrowExcept) const {
       if (Node.GetOutEW(e) != DstNode.GetInEW(n)) {
         const TStr Msg = TStr::Fmt("Out-edge %d --> %d weight %f not consistent with corresponding in-edge %d <-- %d weight %f.",
           Node.GetId(), Node.GetOutNId(e), double(Node.GetOutEW(e)),
-          DstNode.GetId(), DstNode.GetInNId(n), double(DstNode.GetInEW(n).GetW()));
+          DstNode.GetId(), DstNode.GetInNId(n), double(DstNode.GetInEW(n)));
         if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false;
       }
     }
     // Check in edge weight consistency
     for (int e = 0; e < Node.GetInDeg(); e++) {
       int n;
-      TNode& SrcNode = GetNode(Node.GetInNId(e));
+      const TNode& SrcNode = GetNode(Node.GetInNId(e));
       bool exists = SrcNode.IsInNId(Node.GetId(), n);
       if (!exists) {
         const TStr Msg = TStr::Fmt("In-edge %d <-- %d not consistent with corresponding out-edge %d --> %d.",
@@ -589,7 +589,7 @@ bool TWNGraph<TEdgeW>::IsOk(const bool& ThrowExcept) const {
       if (Node.GetInEW(e) != SrcNode.GetOutEW(n)) {
         const TStr Msg = TStr::Fmt("Out-edge %d --> %d weight %f not consistent with corresponding in-edge %d <-- %d weight %f.",
           Node.GetId(), Node.GetInNId(e), double(Node.GetInEW(e)),
-          SrcNode.GetId(), SrcNode.GetOutNId(n), double(SrcNode.GetOutEW(n).GetW()));
+          SrcNode.GetId(), SrcNode.GetOutNId(n), double(SrcNode.GetOutEW(n)));
         if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false;
       }
     }

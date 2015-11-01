@@ -16,7 +16,8 @@ include ../Makefile.config
 
 LIBS += -lpthread -lgtest
 
-## Main application file
+# Test config
+
 MAIN = run-core-tests
 
 TEST_SRCS = \
@@ -25,20 +26,15 @@ TEST_SRCS = \
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 
 all: $(MAIN)
-run: coretests
 
-# COMPILE
-.cpp.o:
-	$(CC) $(CXXFLAGS) -I$(CSNAP) -I$(CGLIB) -I$(CCORE) $(LDFLAGS) $(LIBS) -c $<
+run: $(MAIN)
+	./$(MAIN)
 
-$(MAIN): $(MAIN).o $(TEST_OBJS) $(CSNAP)/Snap.o 
-	$(CC) $(CXXFLAGS) -o $(MAIN) $^ -I$(CSNAP) -I$(CGLIB) $(LIBS)
+$(MAIN): $(MAIN).cpp $(TEST_SRCS) $(CSNAP)/Snap.o 
+	$(CC) $(CXXFLAGS) $(CXXOPENMP) -o $(MAIN) $^ -I$(CSNAP) -I$(CGLIB) -I$(CCORE) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
-
-coretests: $(MAIN)
-	./$(MAIN)
 
 clean:
 	rm -f *.o $(MAIN) $(MAIN).exe
