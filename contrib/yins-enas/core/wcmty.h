@@ -34,20 +34,31 @@ private:
 namespace TSnap {
 
 template <class Community, class TEdgeW, template <class> class TGraph>
-void LouvainMethod(PGraph& Graph, TIntIntVH& CmtyVH) {
+void LouvainMethod(PGraph& Graph, TIntIntVH& CmtyVH, double& eps, int& min_moves, int& max_iters) {
   
   // Variables needed
   
   Community Cmty; // or Quality (?)
-  double best_improv;
+  double phase_improv = 0.0;
+  bool phase_init = true;
   // ...
   
-  while () { // quality improving
+  while (phase_init || phase_improv > eps) { // quality improving
+    
+    phase_init = false; // TODO: deprecate this with a single initial phase 1
     
     // Phase 1 : MoveNode<Objective<Community> >(Graph, Q, NId)
     // -------
     
-    while () { // quality improving
+    // Variables needed
+    
+    int moves = 0, iters = 0;
+    double iter_improv = 0.0, move_improv = 0.0;
+    bool iter_init = true;
+    
+    while (iter_init || (iter_improv > eps && moves > min_moves && iters < max_iters)) { // quality improving and parameters not exceeded
+      
+      iter_init = false; // TODO: deprecate this with an initial phase 1
       
       // randomly permute nodes (?)
       
@@ -67,7 +78,9 @@ void LouvainMethod(PGraph& Graph, TIntIntVH& CmtyVH) {
     
     // -------
     
-    if () break; // break if not improved
+    // break if not improved
+    
+    if (!(iter_improv > 0.0)) break; // TODO: deprecate this with an initial phase 1
     
     // Phase 2 : CollapseGraph(Graph, CmtyGraph, CmtyV);
     // -------
@@ -91,6 +104,8 @@ void LouvainMethod(PGraph& Graph, TIntIntVH& CmtyVH) {
       }
       
     }
+    
+    // -------
     
   }
   
