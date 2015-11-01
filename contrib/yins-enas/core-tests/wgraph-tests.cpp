@@ -72,14 +72,9 @@ TYPED_TEST(GraphTest, GraphManipulating) {
   for (i = 0; i < Nodes; i++) {
     Graph->AddNode(i);
   }
-
   EXPECT_EQ(0, Graph->Empty());
   EXPECT_EQ(1, Graph->IsOk());
   EXPECT_EQ(Nodes, Graph->GetNodes());
-  for (i = 0; i < Nodes; i++) {
-    EXPECT_EQ(1, Graph->IsNode(i));
-  }
-  EXPECT_EQ(0, Graph->IsNode(Nodes));
 
   // create edges
   for (i = 0; i < Edges; ) {
@@ -90,7 +85,6 @@ TYPED_TEST(GraphTest, GraphManipulating) {
       i++;
     }
   }
-
   EXPECT_EQ(0, Graph->Empty());
   EXPECT_EQ(1, Graph->IsOk());
   EXPECT_EQ(Edges, Graph->GetEdges());
@@ -117,7 +111,6 @@ TYPED_TEST(GraphTest, GraphManipulating) {
     counter++;
   }
   EXPECT_EQ(Edges, counter);
-
 
 }
 
