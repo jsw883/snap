@@ -234,7 +234,9 @@ public:
   /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
   static PNet Load(TSIn& SIn) { return PNet(new TNet(SIn)); }
   /// Allows for run-time checking the type of the graph (see the TGraphFlag for flags).
-  bool HasFlag(const TGraphFlag& Flag) const;
+  bool HasFlag(const TGraphFlag& Flag) const {
+    return HasGraphFlag(TWNGraph::TNet, Flag);
+  }
   TNet& operator = (const TNet& Graph) { if (this != &Graph) { MxNId = Graph.MxNId; NodeH = Graph.NodeH; } return *this; }
   
   /// Returns the number of nodes in the graph.
@@ -804,7 +806,9 @@ public:
   /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
   static PNet Load(TSIn& SIn) { return PNet(new TNet(SIn)); }
   /// Allows for run-time checking the type of the graph (see the TGraphFlag for flags).
-  bool HasFlag(const TGraphFlag& Flag) const;
+  bool HasFlag(const TGraphFlag& Flag) const {
+    return HasGraphFlag(TWNEGraph::TNet, Flag);
+  }
   TNet& operator = (const TNet& Graph) { if (this != &Graph) { MxNId = Graph.MxNId; MxEId = Graph.MxEId;  NodeH = Graph.NodeH; EdgeH = Graph.EdgeH; }  return *this; }
   
   /// Returns the number of nodes in the graph.
@@ -839,7 +843,7 @@ public:
   /// Deletes all edges from node IDs SrcNId to DstNId from the graph. ##TWNEGraph::DelEdge
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
   /// Tests whether an edge with edge ID EId exists in the graph.
-  bool IsEdge(const int& EId) { return EdgeH.IsKey(EId); }
+  bool IsEdge(const int& EId) const { return EdgeH.IsKey(EId); }
   /// Tests whether an edge from node IDs SrcNId to DstNId exists in the graph.
   bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const { int EId; return IsEdge(SrcNId, DstNId, EId, IsDir); }
   /// Tests whether an edge between node IDs SrcNId and DstNId exists in the graph. if an edge exists, return its edge ID in EId.
