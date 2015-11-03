@@ -33,7 +33,6 @@ int main(int argc, char* argv[]) {
 
   
   // Part A: Get degrees, weighted and unweighted
-
   printf("\nGetting weighted source and destination degrees...");
   TSnap::GetWInDegH(WGraph, InWDegH);
   TSnap::GetWOutDegH(WGraph, OutWDegH);
@@ -45,23 +44,18 @@ int main(int argc, char* argv[]) {
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Part B: Disparity Filter
-
   printf("\nApplying the disparity filter...");
   TSnap::GetVespignaniPruned(WGraph, InWDegH, OutWDegH, InDegH, OutDegH, alpha);
-  printf(" DONE")
-  printf("\nPruned graph:\n");
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf("\nPruned graph:");
   printf("\n  nodes: %d", WGraph->GetNodes());
-  printf("\n  edges: %d", WGraph->GetEdges());
+  printf("\n  edges: %d\n", WGraph->GetEdges());
 
-  printf("\n  DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   // OUTPUTTING 
-
-  
   printf("\nSaving...");
   TSnap::SaveFltWEdgeList(WGraph, TStr::Fmt("%s-backbone-%f.snap", OutFNm.CStr(), alpha), "");
   printf(" DONE\n");
 
-  
   Catch
   
   printf("\nrun time: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
