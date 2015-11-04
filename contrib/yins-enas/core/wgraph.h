@@ -279,7 +279,7 @@ public:
     const TNode& SrcNode = GetNode(SrcNId);
     int EdgeN;
     SrcNode.IsOutNId(DstNId, EdgeN);
-    return(TEdgeI(BegNI(), GetNI(SrcNode), EndNI(), EdgeN));
+    return(TEdgeI(BegNI(), GetNI(SrcNId), EndNI(), EdgeN));
   }
     
   /// Returns the edge weight corresponding to the edge SrcNId and DstNId.
@@ -474,9 +474,8 @@ TEdgeW TWNGraph<TEdgeW>::GetEW(const int& SrcNId, const int& DstNId) {
 
 template <class TEdgeW>
 TEdgeW TWNGraph<TEdgeW>::GetTotalW() {
-  TEdgeI EI;
   TEdgeW TotalW = 0;
-  for (EI = BegEI(); EI < EndEI(); EI++) {
+  for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
     TotalW += EI.GetW();
   }
   return TotalW;
@@ -484,9 +483,8 @@ TEdgeW TWNGraph<TEdgeW>::GetTotalW() {
 
 template <class TEdgeW>
 TEdgeW TWNGraph<TEdgeW>::GetMxW() {
-  TEdgeI EI;
   TEdgeW W, MxW = 0;
-  for (EI = BegEI(); EI < EndEI(); EI++) {
+  for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
     W = EI.GetW();
     if (W > MxW) { MxW = W; }
   }
