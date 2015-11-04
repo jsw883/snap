@@ -177,10 +177,12 @@ TYPED_TEST(TWNGraphTest, SpecificGraphFunctionality) {
   // edges forward iterator
   counter = 0;
   for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    EdgeTotalW += EI.GetW();
     counter++;
     EXPECT_TRUE(Graph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()));
   }
   EXPECT_EQ(Edges, counter);
+  EXPECT_FLOAT_EQ(TotalW, EdgeTotalW);
 
   // edges backward iterator
   counter = 0;
@@ -195,26 +197,12 @@ TYPED_TEST(TWNGraphTest, SpecificGraphFunctionality) {
   counter = 0;
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     for (int e = 0; e < NI.GetOutDeg(); e++) {
+      NodeTotalW += NI.GetOutEW(e);
       counter++;
       EXPECT_TRUE(Graph->IsEdge(NI.GetId(), NI.GetOutNId(e)));
     }
   }
   EXPECT_EQ(Edges, counter);
-
-  // CHECK WEIGHTS
-
-  // check edge iterator weights
-  for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
-    EdgeTotalW += EI.GetW();
-  }
-  EXPECT_FLOAT_EQ(TotalW, EdgeTotalW);
-  
-  // check node iterator weights
-  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    for (int e = 0; e < NI.GetOutDeg(); e++) {
-      NodeTotalW += NI.GetOutEW(e);
-    }
-  }
   EXPECT_FLOAT_EQ(TotalW, NodeTotalW);
 
 }
@@ -281,10 +269,12 @@ TYPED_TEST(TWNEGraphTest, SpecificGraphFunctionality) {
   // edges forward iterator
   counter = 0;
   for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    EdgeTotalW += EI.GetW();
     counter++;
     EXPECT_TRUE(Graph->IsEdge(EI.GetId()));
   }
   EXPECT_EQ(Edges, counter);
+  EXPECT_FLOAT_EQ(TotalW, EdgeTotalW);
 
   // edges backward iterator
   counter = 0;
@@ -299,26 +289,12 @@ TYPED_TEST(TWNEGraphTest, SpecificGraphFunctionality) {
   counter = 0;
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     for (int e = 0; e < NI.GetOutDeg(); e++) {
+      NodeTotalW += NI.GetOutEW(e);
       counter++;
       EXPECT_TRUE(Graph->IsEdge(NI.GetOutEId(e)));
     }
   }
   EXPECT_EQ(Edges, counter);
-
-  // CHECK WEIGHTS
-
-  // check edge iterator weights
-  for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
-    EdgeTotalW += EI.GetW();
-  }
-  EXPECT_FLOAT_EQ(TotalW, EdgeTotalW);
-  
-  // check node iterator weights
-  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    for (int e = 0; e < NI.GetOutDeg(); e++) {
-      NodeTotalW += NI.GetOutEW(e);
-    }
-  }
   EXPECT_FLOAT_EQ(TotalW, NodeTotalW);
 
 }
