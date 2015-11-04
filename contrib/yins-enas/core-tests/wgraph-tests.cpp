@@ -44,70 +44,74 @@ TYPED_TEST(GraphTest, DefaultConstructor) {
   EXPECT_EQ(1, Graph->Empty());
   EXPECT_EQ(1, Graph->IsOk());
   EXPECT_EQ(1, Graph->HasFlag(gfDirected));
+
 }
 
 // Test graph manipulation (create and delete nodes and edges)
-TYPED_TEST(GraphTest, NodeEdgeManipulating) {
+TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
 
-  // typedef typename TypeParam::TypeEdgeW TEdgeW;
+  // DECLARATIONS AND INITIALIZATIONS
+
+  typedef typename TypeParam::TypeEdgeW TEdgeW;
   typedef typename TypeParam::TypeGraph TGraph;
   typedef TPt<TGraph> PGraph;
+
+  typename TGraph::TNodeI NI;
+  typename TGraph::TEdgeI EI;
 
   PGraph Graph = TGraph::New();
   
   int Nodes = 10000;
   int Edges = 1000000;
-  // const char *FName = "graph.dat";
 
   int i, counter;
-  int x, y;
-  // int Deg, InDeg, OutDeg;
+  int SrcNId, DstNId;
 
-  EXPECT_EQ(1, Graph->Empty());
-  
+  TEdgeW W = 1;
+
+  EXPECT_TRUE(Graph->Empty());
+
+  // CREATE NODES AND EDGES
+
   // create nodes
   for (i = 0; i < Nodes; i++) {
     Graph->AddNode(i);
   }
-  EXPECT_EQ(0, Graph->Empty());
-  EXPECT_EQ(1, Graph->IsOk());
+  EXPECT_FALSE(Graph->Empty());
+  EXPECT_TRUE(Graph->IsOk());
   EXPECT_EQ(Nodes, Graph->GetNodes());
 
   // create edges (unique)
   for (i = 0; i < Edges; ) {
-    x = (long) (Nodes * drand48());
-    y = (long) (Nodes * drand48());
-    if (x != y  &&  !Graph->IsEdge(x, y)) {
-      Graph->AddEdge(x, y);
+    SrcNId = (long) (Nodes * drand48());
+    DstNId = (long) (Nodes * drand48());
+    if (SrcNId != DstNId  &&  !Graph->IsEdge(SrcNId, DstNId)) {
+      Graph->AddEdge(SrcNId, DstNId, W);
       i++;
     }
   }
-  EXPECT_EQ(0, Graph->Empty());
-  EXPECT_EQ(1, Graph->IsOk());
+  EXPECT_FALSE(Graph->Empty());
+  EXPECT_TRUE(Graph->IsOk());
   EXPECT_EQ(Edges, Graph->GetEdges());
 
-  // nodes iterator
+  // NODE ITERATORS
+
+  // nodes forward iterator
   counter = 0;
-  for (typename TGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     counter++;
+    EXPECT_TRUE(Graph->IsNode(NI.GetId()));
   }
   EXPECT_EQ(Nodes, counter);
 
-  // edges per node iterator
+  // nodes backward iterator
   counter = 0;
-  for (typename TGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    for (int e = 0; e < NI.GetOutDeg(); e++) {
-      counter++;
-    }
-  }
-  EXPECT_EQ(Edges, counter);
-
-  // edges iterator
-  counter = 0;
-  for (typename TGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+  for (NI = Graph->EndNI(); NI > Graph->BegNI(); ) {
+    NI--;
     counter++;
+    EXPECT_TRUE(Graph->IsNode(NI.GetId()));
   }
-  EXPECT_EQ(Edges, counter);
+  EXPECT_EQ(Nodes, counter);
 
 }
 
@@ -125,9 +129,10 @@ public:
 TYPED_TEST_CASE(TWNGraphTest, Weights);
 
 // Test graph edge weight consistency
-TYPED_TEST(TWNGraphTest, EdgeWeights) {
+TYPED_TEST(TWNGraphTest, SpecificGraphFunctionality) {
 
-  // typedef typename TypeParam::TypeEdgeW TEdgeW;
+  // DECLARATIONS AND INITIALIZATIONS
+
   typedef TypeParam TEdgeW;
   typedef TPt<TWNGraph<TEdgeW> > PGraph;
 
@@ -138,39 +143,170 @@ TYPED_TEST(TWNGraphTest, EdgeWeights) {
   
   int Nodes = 10000;
   int Edges = 1000000;
-  // const char *FName = "graph.dat";
 
-  int i, counter;
-  int x, y;
-  // int Deg, InDeg, OutDeg;
+  int counter;
+  int SrcNId, DstNId;
 
-  TEdgeW w, EdgeW;
+  TEdgeW W, EdgeW;
   TEdgeW MxW = 100, TotalW = 0, EdgeTotalW = 0, NodeTotalW = 0;
 
-  // create nodes
-  for (i = 0; i < Nodes; i++) {
-    Graph->AddNode(i);
-  }
-  EXPECT_EQ(1, Graph->IsOk());
+  // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
 
-  // edges created
-  typedef TPair<TInt, TInt> TIntPair;
-  THash<TIntPair, TEdgeW> EdgeH;
+  // create nodes
+  for (counter = 0; counter < Nodes; counter++) {
+    Graph->AddNode(counter);
+  }
+  EXPECT_TRUE(Graph->IsOk());
 
   // create edges (unique with random weights)
-  for (i = 0; i < Edges; ) {
-    x = (long) (Nodes * drand48());
-    y = (long) (Nodes * drand48());
-    w = (TEdgeW) (MxW * drand48() + 1);
-    if (x != y  &&  !Graph->IsEdge(x, y)) {
-      Graph->AddEdge(x, y, w);
-      TotalW += w;
-      EXPECT_DOUBLE_EQ(w, Graph->GetEI(x, y).GetW());
-      i++;
+  for (counter = 0; counter < Edges; ) {
+    SrcNId = (long) (Nodes * drand48());
+    DstNId = (long) (Nodes * drand48());
+    W = (TEdgeW) (MxW * drand48() + 1);
+    if (SrcNId != DstNId  &&  !Graph->IsEdge(SrcNId, DstNId)) {
+      Graph->AddEdge(SrcNId, DstNId, W);
+      TotalW += W;
+      EXPECT_DOUBLE_EQ(W, Graph->GetEI(SrcNId, DstNId).GetW());
+      counter++;
     }
   }
   EXPECT_FLOAT_EQ(TotalW, Graph->GetTotalW());
+
+  // EDGE ITERATORS
+
+  // edges forward iterator
+  counter = 0;
+  for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    counter++;
+    EXPECT_TRUE(Graph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()));
+  }
+  EXPECT_EQ(Edges, counter);
+
+  // edges backward iterator
+  counter = 0;
+  for (EI = Graph->EndEI(); EI > Graph->BegEI(); ) {
+    EI--;
+    counter++;
+    EXPECT_TRUE(Graph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()));
+  }
+  EXPECT_EQ(Edges, counter);
+
+  // count edges (per node)
+  counter = 0;
+  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    for (int e = 0; e < NI.GetOutDeg(); e++) {
+      counter++;
+      EXPECT_TRUE(Graph->IsEdge(NI.GetId(), NI.GetOutNId(e)));
+    }
+  }
+  EXPECT_EQ(Edges, counter);
+
+  // CHECK WEIGHTS
+
+  // check edge iterator weights
+  for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    EdgeTotalW += EI.GetW();
+  }
+  EXPECT_FLOAT_EQ(TotalW, EdgeTotalW);
   
+  // check node iterator weights
+  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    for (int e = 0; e < NI.GetOutDeg(); e++) {
+      NodeTotalW += NI.GetOutEW(e);
+    }
+  }
+  EXPECT_FLOAT_EQ(TotalW, NodeTotalW);
+
+}
+
+//#//////////////////////////////////////////////
+/// Weighted directed multigraphs
+
+typedef ::testing::Types<TInt, TFlt> Weights;
+
+template <class TEdgeW>
+class TWNEGraphTest : public ::testing::Test {
+public:
+  TWNEGraphTest() {}
+};
+
+TYPED_TEST_CASE(TWNEGraphTest, Weights);
+
+// Test graph edge weight consistency
+TYPED_TEST(TWNEGraphTest, SpecificGraphFunctionality) {
+
+  // DECLARATIONS AND INITIALIZATIONS
+
+  typedef TypeParam TEdgeW;
+  typedef TPt<TWNEGraph<TEdgeW> > PGraph;
+
+  typename TWNEGraph<TEdgeW>::TNodeI NI;
+  typename TWNEGraph<TEdgeW>::TEdgeI EI;
+
+  PGraph Graph = TWNEGraph<TEdgeW>::New();
+  
+  int Nodes = 10000;
+  int Edges = 1000000;
+  
+  int counter, EId;
+  int SrcNId, DstNId;
+
+  TEdgeW W, EdgeW;
+  TEdgeW MxW = 100, TotalW = 0, EdgeTotalW = 0, NodeTotalW = 0;
+
+  // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
+
+  // create nodes
+  for (counter = 0; counter < Nodes; counter++) {
+    Graph->AddNode(counter);
+  }
+  EXPECT_TRUE(Graph->IsOk());
+
+  // create edges (unique with random weights)
+  for (counter = 0; counter < Edges; ) {
+    SrcNId = (long) (Nodes * drand48());
+    DstNId = (long) (Nodes * drand48());
+    W = (TEdgeW) (MxW * drand48() + 1);
+    if (SrcNId != DstNId  &&  !Graph->IsEdge(SrcNId, DstNId)) {
+      EId = Graph->AddEdge(SrcNId, DstNId, W);
+      TotalW += W;
+      EXPECT_DOUBLE_EQ(W, Graph->GetEI(EId).GetW());
+      counter++;
+    }
+  }
+  EXPECT_FLOAT_EQ(TotalW, Graph->GetTotalW());
+
+  // EDGE ITERATORS
+
+  // edges forward iterator
+  counter = 0;
+  for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    counter++;
+    EXPECT_TRUE(Graph->IsEdge(EI.GetId()));
+  }
+  EXPECT_EQ(Edges, counter);
+
+  // edges backward iterator
+  counter = 0;
+  for (EI = Graph->EndEI(); EI > Graph->BegEI(); ) {
+    EI--;
+    counter++;
+    EXPECT_TRUE(Graph->IsEdge(EI.GetId()));
+  }
+  EXPECT_EQ(Edges, counter);
+
+  // count edges (per node)
+  counter = 0;
+  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    for (int e = 0; e < NI.GetOutDeg(); e++) {
+      counter++;
+      EXPECT_TRUE(Graph->IsEdge(NI.GetOutEId(e)));
+    }
+  }
+  EXPECT_EQ(Edges, counter);
+
+  // CHECK WEIGHTS
+
   // check edge iterator weights
   for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
     EdgeTotalW += EI.GetW();
@@ -189,87 +325,10 @@ TYPED_TEST(TWNGraphTest, EdgeWeights) {
 
   // // create edges
   // for (i = 0; i < Edges; i++) {
-  //   x = (long) (Nodes * drand48());
-  //   y = (long) (Nodes * drand48());
-  //   while (x == y) {
-  //     y = (long) ( Nodes * drand48());
+  //   SrcNId = (long) (Nodes * drand48());
+  //   DstNId = (long) (Nodes * drand48());
+  //   while (SrcNId == DstNId) {
+  //     DstNId = (long) ( Nodes * drand48());
   //   }
-  //   Graph->AddEdge(x, y);
+  //   Graph->AddEdge(SrcNId, DstNId);
   // }
-
-//#//////////////////////////////////////////////
-/// Weighted directed multigraphs
-
-typedef ::testing::Types<TInt, TFlt> Weights;
-
-template <class TEdgeW>
-class TWNEGraphTest : public ::testing::Test {
-public:
-  TWNEGraphTest() {}
-};
-
-TYPED_TEST_CASE(TWNEGraphTest, Weights);
-
-// Test graph edge weight consistency
-TYPED_TEST(TWNEGraphTest, EdgeWeights) {
-
-  // typedef typename TypeParam::TypeEdgeW TEdgeW;
-  typedef TypeParam TEdgeW;
-  typedef TPt<TWNEGraph<TEdgeW> > PGraph;
-
-  typename TWNEGraph<TEdgeW>::TNodeI NI;
-  typename TWNEGraph<TEdgeW>::TEdgeI EI;
-
-  PGraph Graph = TWNEGraph<TEdgeW>::New();
-  
-  int Nodes = 10000;
-  int Edges = 1000000;
-  
-  int i, counter, EId;
-  int x, y;
-  // int Deg, InDeg, OutDeg;
-
-  TEdgeW w, EdgeW;
-  TEdgeW MxW = 100, TotalW = 0, EdgeTotalW = 0, NodeTotalW = 0;
-
-  // create nodes
-  for (i = 0; i < Nodes; i++) {
-    Graph->AddNode(i);
-  }
-  EXPECT_EQ(1, Graph->IsOk());
-
-  // edges created
-  typedef TPair<TInt, TInt> TIntPair;
-  THash<TIntPair, TEdgeW> EdgeH;
-
-  // create edges (unique with random weights)
-  for (i = 0; i < Edges; ) {
-    x = (long) (Nodes * drand48());
-    y = (long) (Nodes * drand48());
-    w = (TEdgeW) (MxW * drand48() + 1);
-    if (x != y  &&  !Graph->IsEdge(x, y)) {
-      EId = Graph->AddEdge(x, y, w);
-      TotalW += w;
-      EXPECT_DOUBLE_EQ(w, Graph->GetEI(EId).GetW());
-      i++;
-    }
-  }
-  EXPECT_FLOAT_EQ(TotalW, Graph->GetTotalW());
-  
-  // check edge iterator weights
-  for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
-    EdgeTotalW += EI.GetW();
-  }
-  EXPECT_FLOAT_EQ(TotalW, EdgeTotalW);
-  
-  // check node iterator weights
-  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    for (int e = 0; e < NI.GetOutDeg(); e++) {
-      NodeTotalW += NI.GetOutEW(e);
-    }
-  }
-  EXPECT_FLOAT_EQ(TotalW, NodeTotalW);
-
-}
-
-
