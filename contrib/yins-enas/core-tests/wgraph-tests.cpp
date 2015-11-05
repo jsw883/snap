@@ -12,7 +12,7 @@ struct TypePair {
   typedef TGraph<TEdgeW> TypeGraph;
 };
 
-typedef ::testing::Types<TypePair<TInt, TWNGraph>, TypePair<TFlt, TWNGraph>, TypePair<TInt, TWNEGraph>, TypePair<TFlt, TWNEGraph> > Graphs;
+typedef ::testing::Types<TypePair<TInt, TWNGraph> > Graphs; // , TypePair<TFlt, TWNGraph>, TypePair<TInt, TWNEGraph>, TypePair<TFlt, TWNEGraph> > Graphs;
 
 template <class TypePair>
 class GraphTest : public ::testing::Test {
@@ -23,7 +23,7 @@ public:
 TYPED_TEST_CASE(GraphTest, Graphs);
 
 // Test default constructor
-TYPED_TEST(GraphTest, DefaultConstructor) {
+TYPED_TEST(GraphTest, Constructor) {
   
   // typedef typename TypeParam::TypeEdgeW TEdgeW;
   typedef typename TypeParam::TypeGraph TGraph;
@@ -31,20 +31,15 @@ TYPED_TEST(GraphTest, DefaultConstructor) {
   
   PGraph Graph = TGraph::New();
   
+  // empty
   EXPECT_EQ(0, Graph->GetNodes());
   EXPECT_EQ(0, Graph->GetEdges());
 
-  EXPECT_EQ(1, Graph->Empty());
-  EXPECT_EQ(1, Graph->IsOk());
-  EXPECT_EQ(1, Graph->HasFlag(gfDirected));
+  // graph properties
+  EXPECT_TRUE(Graph->Empty());
+  EXPECT_TRUE(Graph->IsOk());
+  EXPECT_TRUE(Graph->HasFlag(gfDirected));
   
-  EXPECT_EQ(0, Graph->GetNodes());
-  EXPECT_EQ(0, Graph->GetEdges());
-
-  EXPECT_EQ(1, Graph->Empty());
-  EXPECT_EQ(1, Graph->IsOk());
-  EXPECT_EQ(1, Graph->HasFlag(gfDirected));
-
 }
 
 // Test graph manipulation (create and delete nodes and edges)
@@ -59,12 +54,14 @@ TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
   typename TGraph::TNodeI NI;
   typename TGraph::TEdgeI EI;
 
-  PGraph Graph = TGraph::New();
-  
-  int Nodes = 10000;
-  int Edges = 1000000;
+  PGraph Graph = TGraph::New(), Clone = TGraph::New(), Copy;
 
-  int counter;
+  const char *FName = "graph.dat";
+  
+  int Nodes = 1000;
+  int Edges = 10000;
+
+  int counter, NId;
   int SrcNId, DstNId;
 
   int InDeg, OutDeg, Deg;
@@ -73,7 +70,7 @@ TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
   TEdgeW TotalWInDeg = 0, TotalWOutDeg = 0, TotalWDeg = 0;  
 
   TEdgeW W, EdgeW;
-  TEdgeW MxW = 100, TotalW = 0;
+  TEdgeW MxW = 100, TotalW = 0, NodeTotalW = 0;
 
   EXPECT_TRUE(Graph->Empty());
 
@@ -117,7 +114,7 @@ TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
     // check node existence
     EXPECT_TRUE(Graph->IsNode(NI.GetId()));
     // degrees
-    InDeg = NI.GetInDeg(); TotalInDeg += InDeg;
+    InDeg = NI.GetInDeg(); TotalInDeg += InDeg;   
     OutDeg = NI.GetOutDeg(); TotalOutDeg += OutDeg;
     Deg = NI.GetDeg(); TotalDeg += Deg;
     EXPECT_EQ(Deg, InDeg + OutDeg);
@@ -148,6 +145,62 @@ TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
     EXPECT_TRUE(Graph->IsNode(NI.GetId()));
   }
   EXPECT_EQ(Nodes, counter);
+
+  // ASSIGNMENT, SAVE, AND LOAD
+
+  *Clone = *Graph;
+
+  // counts and weights
+  EXPECT_EQ(Nodes, Clone->GetNodes());
+  EXPECT_EQ(Edges, Clone->GetEdges());
+  EXPECT_FLOAT_EQ(TotalW, Clone->GetTotalW());
+  // graph properties  
+  EXPECT_FALSE(Clone->Empty());
+  EXPECT_TRUE(Clone->IsOk());
+
+  // save
+  {
+    TFOut FOut(FName);
+    Graph->Save(FOut);
+    FOut.Flush();
+  }
+  // load
+  {
+    TFIn FIn(FName);
+    Copy = TGraph::Load(FIn);
+  }
+  // counts and weights
+  EXPECT_EQ(Nodes, Copy->GetNodes());
+  EXPECT_EQ(Edges, Copy->GetEdges());
+  EXPECT_FLOAT_EQ(TotalW, Copy->GetTotalW());
+  // graph properties
+  EXPECT_FALSE(Copy->Empty());
+  EXPECT_TRUE(Copy->IsOk());
+
+  // delete nodes and edges (randomly)
+  for (counter = 0; counter < Nodes; counter++) {
+    NId = Graph->GetRndNId();
+    Graph->DelNode(NId);
+  }
+
+  // empty
+  EXPECT_EQ(0, Graph->GetNodes());
+  EXPECT_EQ(0, Graph->GetEdges());
+  EXPECT_FLOAT_EQ(0, Graph->GetTotalW());
+  // graph properties
+  EXPECT_TRUE(Graph->Empty());
+  EXPECT_TRUE(Graph->IsOk());
+
+  // clear graph automatically
+  Copy->Clr();
+
+  // counts and weights
+  EXPECT_EQ(0, Copy->GetNodes());
+  EXPECT_EQ(0, Copy->GetEdges());
+  EXPECT_FLOAT_EQ(0, Copy->GetTotalW());
+  // graph properties
+  EXPECT_TRUE(Copy->Empty());
+  EXPECT_TRUE(Copy->IsOk());
 
 }
 

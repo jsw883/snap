@@ -39,5 +39,5 @@ $(CSNAP)/Snap.o:
 clean:
 	rm -f *.o $(MAIN) $(MAIN).exe
 	rm -rf Debug Release
-	rm -rf test*.dat *.Err
+	rm -rf *.dat *.Err
 

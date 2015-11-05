@@ -269,9 +269,21 @@ public:
   /// Tests whether an edge from node IDs SrcNId to DstNId exists in the graph.
   bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const;
   /// Returns an iterator referring to the first edge in the graph.
-  TEdgeI BegEI() const { TNodeI NI = BegNI(); while(NI < EndNI() && NI.GetOutDeg() == 0){ NI++; } return TEdgeI(BegNI(), NI, EndNI()); }
+  TEdgeI BegEI() const {
+    TNodeI NI = BegNI();
+    while(NI < EndNI() && NI.GetOutDeg() == 0) {
+      NI++;
+    }
+    return TEdgeI(BegNI(), NI, EndNI());
+  }
   /// Returns an iterator referring to the past-the-end edge in the graph.
-  TEdgeI EndEI() const { return TEdgeI(BegNI(), EndNI(), EndNI(), EndNI().GetDeg() - 1); }
+  TEdgeI EndEI() const {
+    TNodeI NI = EndNI();
+    while(NI > BegNI() && NI.GetOutDeg() == 0) {
+      NI--;
+    }
+    return TEdgeI(BegNI(), EndNI(), EndNI());
+  }
   /// Returns an iterator referring to edge (SrcNId, DstNId) in the graph.
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const {
     const TNode& SrcNode = GetNode(SrcNId);
