@@ -58,8 +58,8 @@ TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
 
   const char *FName = "graph.dat";
   
-  int Nodes = 1000;
-  int Edges = 10000;
+  int Nodes = 10000;
+  int Edges = 1000000;
 
   int counter, NId;
   int SrcNId, DstNId;
