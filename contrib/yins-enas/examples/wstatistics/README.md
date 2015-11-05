@@ -1,4 +1,4 @@
-wstatistics (wegihted small world properties)
+wstatistics (weighted small world properties)
 ---------------------------------------------
 
 Computes weighted network statistics / small world properties: nodes, edges,
@@ -23,5 +23,5 @@ well. For makefiles, compile the code with `make all`.
 ```bash
 rm -r ../../datasets/USairport2010/wstatistics
 mkdir ../../datasets/USairport2010/wstatistics
-wstatistics -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/wstatistics/USairport2010
+./wstatistics -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/wstatistics/USairport2010
 ```

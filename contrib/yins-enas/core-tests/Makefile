@@ -30,8 +30,8 @@ all: $(MAIN)
 run: $(MAIN)
 	./$(MAIN)
 
-$(MAIN): $(MAIN).cpp $(TEST_SRCS) $(CSNAP)/Snap.o 
-	$(CC) $(CXXFLAGS) $(CXXOPENMP) -o $(MAIN) $^ -I$(CSNAP) -I$(CGLIB) -I$(CCORE) $(LIBS)
+$(MAIN): $(MAIN).cpp $(TEST_SRCS) $(CSNAP)/Snap.o $(wildcard $(CCORE)/*)
+	$(CC) $(CXXFLAGS) $(CXXOPENMP) -o $(MAIN) $(MAIN).cpp $(TEST_SRCS) $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) -I$(CCORE) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
@@ -39,5 +39,5 @@ $(CSNAP)/Snap.o:
 clean:
 	rm -f *.o $(MAIN) $(MAIN).exe
 	rm -rf Debug Release
-	rm -rf test*.dat *.Err
+	rm -rf *.dat *.Err
 

@@ -18,7 +18,7 @@ template <class PGraph> void GetDegH(const PGraph& Graph, TIntIntH& DegH);
 template <class PGraph> void GetDegVH(const PGraph& Graph, TIntIntVH& DegVH);
 
 template<class PGraph>
-void GetInDegSeqH(const PGraph& Graph, TIntFltH& InDegH) {
+void GetInDegSeqH(const PGraph& Graph, TIntIntH& InDegH) {
   typename PGraph::TObj::TNodeI NI;
   InDegH.Gen(Graph->GetNodes());
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
