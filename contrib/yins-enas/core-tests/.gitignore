@@ -1,0 +1,5 @@
+# Binary
+run-core-tests
+
+# Errors
+*.Err

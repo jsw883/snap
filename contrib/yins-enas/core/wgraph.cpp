@@ -4,7 +4,7 @@
 #include "wgraph.h"
 
 //#//////////////////////////////////////////////
-/// Weighted graphs
+/// Weighted directed graphs
 
 /// Returns a small graph on 5 nodes and 6 edges (integer weights) ##TIntWNGraph::GetSmallGraph
 template <>

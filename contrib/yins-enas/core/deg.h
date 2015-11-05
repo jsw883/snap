@@ -38,7 +38,7 @@ void GetDegSeqH(const PGraph& Graph, TIntIntH& DegH) {
   typename PGraph::TObj::TNodeI NI;
   DegH.Gen(Graph->GetNodes());
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    DegH.AddDat(NI.GetId(), NI.GetWDeg());
+    DegH.AddDat(NI.GetId(), NI.GetDeg());
   }
 }
 
