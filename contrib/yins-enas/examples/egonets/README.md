@@ -48,5 +48,5 @@ well. For makefiles, compile the code with `make all`.
 ```bash
 rm -r ../../datasets/USairport2010/egonets
 mkdir ../../datasets/USairport2010/egonets
-egonets -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/egonets/USairport2010 -k:3 -w:F -c:T
+./egonets -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/egonets/USairport2010 -k:3 -w:F -c:T
 ```

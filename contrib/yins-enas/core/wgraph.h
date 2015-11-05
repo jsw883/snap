@@ -170,15 +170,31 @@ public:
     TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { CurNode=EdgeI.CurNode; EndNode=EdgeI.EndNode; CurEdge=EdgeI.CurEdge; }  return *this; }
     /// Increment iterator.
     TEdgeI& operator++ (int) {
-      CurEdge++;
-      if (CurEdge >= CurNode.GetOutDeg()) {
-        CurEdge = 0;
-        CurNode++;
+      // Make sure the current node has nonzero outdegree
+      // before incrementing CurEdge
+      // Otherwise, we run into errors.
+      // This is possible if a pruning algorithm is being
+      // applied, removing edges in place; if no edges are
+      // left, this case will occur.
+      if (CurNode.GetOutDeg() != 0) {
+        CurEdge++;
+        if (CurEdge >= CurNode.GetOutDeg()) {
+          CurEdge=0;
+          CurNode++;
+          while (CurNode < EndNode && CurNode.GetOutDeg() == 0) {
+            CurNode++;
+          }
+        }
+        return *this;
+      // This handles the case detailed above by skipping over
+      // empty nodes until it reaches one that has edges to be
+      // iterated over.
+      } else {
         while (CurNode < EndNode && CurNode.GetOutDeg() == 0) {
           CurNode++;
         }
+        return *this;
       }
-      return *this;
     }
     /// Decrement iterator.
     TEdgeI& operator-- (int) {

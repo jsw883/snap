@@ -11,6 +11,7 @@ make-examples:
 	$(MAKE) -C statistics
 	$(MAKE) -C wcentrality
 	$(MAKE) -C wstatistics
+	$(MAKE) -C vespignani
 
 clean:
 	$(MAKE) clean -C centrality
@@ -19,3 +20,4 @@ clean:
 	$(MAKE) clean -C statistics
 	$(MAKE) clean -C wcentrality
 	$(MAKE) clean -C wstatistics
+	$(MAKE) clean -C vespignani
