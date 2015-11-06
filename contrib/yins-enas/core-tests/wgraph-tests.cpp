@@ -1,7 +1,6 @@
 // Headers (?)
 
 #include "stdafx.h"
-#include "wgraph.h"
 
 //#//////////////////////////////////////////////
 /// Weighted directed graphs and multigraphs
@@ -12,7 +11,7 @@ struct TypePair {
   typedef TGraph<TEdgeW> TypeGraph;
 };
 
-typedef ::testing::Types<TypePair<TInt, TWNGraph> > Graphs; // , TypePair<TFlt, TWNGraph>, TypePair<TInt, TWNEGraph>, TypePair<TFlt, TWNEGraph> > Graphs;
+typedef ::testing::Types<TypePair<TInt, TWNGraph>, TypePair<TFlt, TWNGraph>, TypePair<TInt, TWNEGraph>, TypePair<TFlt, TWNEGraph> > Graphs;
 
 template <class TypePair>
 class GraphTest : public ::testing::Test {
@@ -30,14 +29,12 @@ TYPED_TEST(GraphTest, Constructor) {
   typedef TPt<TGraph> PGraph;
   
   PGraph Graph = TGraph::New();
-  
-  // empty
-  EXPECT_EQ(0, Graph->GetNodes());
-  EXPECT_EQ(0, Graph->GetEdges());
 
-  // graph properties
+  // graph properties, counts, and directed
   EXPECT_TRUE(Graph->Empty());
   EXPECT_TRUE(Graph->IsOk());
+  EXPECT_EQ(0, Graph->GetNodes());
+  EXPECT_EQ(0, Graph->GetEdges());
   EXPECT_TRUE(Graph->HasFlag(gfDirected));
   
 }
@@ -61,18 +58,15 @@ TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
   int Nodes = 10000;
   int Edges = 1000000;
 
-  int counter, NId;
-  int SrcNId, DstNId;
+  int counter, NId, SrcNId, DstNId;
+
+  TEdgeW W, EdgeW;
+  TEdgeW MxW = 100, TotalW = 0, NodeTotalW = 0;
 
   int InDeg, OutDeg, Deg;
   int TotalInDeg = 0, TotalOutDeg = 0, TotalDeg = 0;  
   TEdgeW WInDeg, WOutDeg, WDeg;
   TEdgeW TotalWInDeg = 0, TotalWOutDeg = 0, TotalWDeg = 0;  
-
-  TEdgeW W, EdgeW;
-  TEdgeW MxW = 100, TotalW = 0, NodeTotalW = 0;
-
-  EXPECT_TRUE(Graph->Empty());
 
   // CREATE NODES AND EDGES
 
@@ -80,10 +74,9 @@ TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
   for (counter = 0; counter < Nodes; counter++) {
     Graph->AddNode(counter);
   }
-  // graph properties
+  // graph properties and count nodes
   EXPECT_FALSE(Graph->Empty());
   EXPECT_TRUE(Graph->IsOk());
-  // count nodes
   EXPECT_EQ(Nodes, Graph->GetNodes());
 
   // create edges (unique)
@@ -94,16 +87,13 @@ TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
     if (SrcNId != DstNId  &&  !Graph->IsEdge(SrcNId, DstNId)) {
       Graph->AddEdge(SrcNId, DstNId, W);
       counter++;
-      // weights
       TotalW += W;
     }
   }
-  // graph properties
+  // graph properties, counts, and weights
   EXPECT_FALSE(Graph->Empty());
   EXPECT_TRUE(Graph->IsOk());
-  // count edges
   EXPECT_EQ(Edges, Graph->GetEdges());
-  // weights
   EXPECT_FLOAT_EQ(TotalW, Graph->GetTotalW());
 
   // NODE ITERATORS
@@ -113,6 +103,7 @@ TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     // check node existence
     EXPECT_TRUE(Graph->IsNode(NI.GetId()));
+    counter++;
     // degrees
     InDeg = NI.GetInDeg(); TotalInDeg += InDeg;   
     OutDeg = NI.GetOutDeg(); TotalOutDeg += OutDeg;
@@ -123,9 +114,8 @@ TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
     WOutDeg = NI.GetWOutDeg(); TotalWOutDeg += WOutDeg;
     WDeg = NI.GetWDeg(); TotalWDeg += WDeg;
     EXPECT_EQ(WDeg, WInDeg + WOutDeg);
-    // count nodes
-    counter++;
   }
+  EXPECT_EQ(Nodes, counter);
   // degrees
   EXPECT_FLOAT_EQ(Edges, TotalInDeg);
   EXPECT_FLOAT_EQ(Edges, TotalOutDeg);
@@ -134,15 +124,13 @@ TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
   EXPECT_FLOAT_EQ(TotalW, TotalWInDeg);
   EXPECT_FLOAT_EQ(TotalW, TotalWOutDeg);
   EXPECT_FLOAT_EQ(TotalW, TotalWDeg/2);
-  // count nodes
-  EXPECT_EQ(Nodes, counter);
 
   // nodes backward iterator
   counter = 0;
   for (NI = Graph->EndNI(); NI > Graph->BegNI(); ) {
     NI--;
-    counter++;
     EXPECT_TRUE(Graph->IsNode(NI.GetId()));
+    counter++;
   }
   EXPECT_EQ(Nodes, counter);
 
@@ -150,14 +138,13 @@ TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
 
   *Clone = *Graph;
 
-  // counts and weights
+  // graph properties, counts, and weights
+  EXPECT_FALSE(Clone->Empty());
+  EXPECT_TRUE(Clone->IsOk());
   EXPECT_EQ(Nodes, Clone->GetNodes());
   EXPECT_EQ(Edges, Clone->GetEdges());
   EXPECT_FLOAT_EQ(TotalW, Clone->GetTotalW());
-  // graph properties  
-  EXPECT_FALSE(Clone->Empty());
-  EXPECT_TRUE(Clone->IsOk());
-
+  
   // save
   {
     TFOut FOut(FName);
@@ -169,13 +156,12 @@ TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
     TFIn FIn(FName);
     Copy = TGraph::Load(FIn);
   }
-  // counts and weights
+  // graph properties, counts, and weights
+  EXPECT_FALSE(Copy->Empty());
+  EXPECT_TRUE(Copy->IsOk());
   EXPECT_EQ(Nodes, Copy->GetNodes());
   EXPECT_EQ(Edges, Copy->GetEdges());
   EXPECT_FLOAT_EQ(TotalW, Copy->GetTotalW());
-  // graph properties
-  EXPECT_FALSE(Copy->Empty());
-  EXPECT_TRUE(Copy->IsOk());
 
   // delete nodes and edges (randomly)
   for (counter = 0; counter < Nodes; counter++) {
@@ -183,24 +169,22 @@ TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
     Graph->DelNode(NId);
   }
 
-  // empty
+  // graph properties, counts, and weights
+  EXPECT_TRUE(Graph->Empty());
+  EXPECT_TRUE(Graph->IsOk());
   EXPECT_EQ(0, Graph->GetNodes());
   EXPECT_EQ(0, Graph->GetEdges());
   EXPECT_FLOAT_EQ(0, Graph->GetTotalW());
-  // graph properties
-  EXPECT_TRUE(Graph->Empty());
-  EXPECT_TRUE(Graph->IsOk());
-
+  
   // clear graph automatically
   Copy->Clr();
 
-  // counts and weights
+  // graph properties, counts, and weights
+  EXPECT_TRUE(Copy->Empty());
+  EXPECT_TRUE(Copy->IsOk());
   EXPECT_EQ(0, Copy->GetNodes());
   EXPECT_EQ(0, Copy->GetEdges());
   EXPECT_FLOAT_EQ(0, Copy->GetTotalW());
-  // graph properties
-  EXPECT_TRUE(Copy->Empty());
-  EXPECT_TRUE(Copy->IsOk());
 
 }
 
@@ -233,8 +217,7 @@ TYPED_TEST(TWNGraphTest, SpecificGraphFunctionality) {
   int Nodes = 10000;
   int Edges = 1000000;
 
-  int counter;
-  int SrcNId, DstNId;
+  int counter, SrcNId, DstNId;
 
   TEdgeW W, EdgeW;
   TEdgeW MxW = 100, TotalW = 0, EdgeTotalW = 0, NodeTotalW = 0;
@@ -267,45 +250,32 @@ TYPED_TEST(TWNGraphTest, SpecificGraphFunctionality) {
   // edges forward iterator
   counter = 0;
   for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
-    // weights
     EdgeTotalW += EI.GetW();
-    // edge existence
     EXPECT_TRUE(Graph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()));
-    // count edges
     counter++;
   }
-  // count edges
   EXPECT_EQ(Edges, counter);
-  // weights
   EXPECT_FLOAT_EQ(TotalW, EdgeTotalW);
 
   // edges backward iterator
   counter = 0;
   for (EI = Graph->EndEI(); EI > Graph->BegEI(); ) {
     EI--;
-    // edge existence
     EXPECT_TRUE(Graph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()));
-    // count edges
     counter++;
   }
-  // count edges
   EXPECT_EQ(Edges, counter);
 
   // edges (per node)
   counter = 0;
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     for (int e = 0; e < NI.GetOutDeg(); e++) {
-      // weights
       NodeTotalW += NI.GetOutEW(e);
-      // edge existence
       EXPECT_TRUE(Graph->IsEdge(NI.GetId(), NI.GetOutNId(e)));
-      // count edges
       counter++;
     }
   }
-  // count edges
   EXPECT_EQ(Edges, counter);
-  // weights
   EXPECT_FLOAT_EQ(TotalW, NodeTotalW);
 
 }
@@ -339,8 +309,7 @@ TYPED_TEST(TWNEGraphTest, SpecificGraphFunctionality) {
   int Nodes = 10000;
   int Edges = 1000000;
   
-  int counter, EId;
-  int SrcNId, DstNId;
+  int counter, EId, SrcNId, DstNId;
 
   TEdgeW W, EdgeW;
   TEdgeW MxW = 100, TotalW = 0, EdgeTotalW = 0, NodeTotalW = 0;
@@ -373,45 +342,32 @@ TYPED_TEST(TWNEGraphTest, SpecificGraphFunctionality) {
   // edges forward iterator
   counter = 0;
   for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
-    // weights
     EdgeTotalW += EI.GetW();
-    // check edge existence
     EXPECT_TRUE(Graph->IsEdge(EI.GetId()));
-    // count edges
     counter++;
   }
-  // count edges
   EXPECT_EQ(Edges, counter);
-  // weights
   EXPECT_FLOAT_EQ(TotalW, EdgeTotalW);
 
   // edges backward iterator
   counter = 0;
   for (EI = Graph->EndEI(); EI > Graph->BegEI(); ) {
     EI--;
-    // edge existence
     EXPECT_TRUE(Graph->IsEdge(EI.GetId()));
-    // count edges
     counter++;
   }
-  // count edges
   EXPECT_EQ(Edges, counter);
 
   // edges (per node)
   counter = 0;
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     for (int e = 0; e < NI.GetOutDeg(); e++) {
-      // weights
       NodeTotalW += NI.GetOutEW(e);
-      // check edge existence
       EXPECT_TRUE(Graph->IsEdge(NI.GetOutEId(e)));
-      // count edges
       counter++;
     }
   }
-  // count edges
   EXPECT_EQ(Edges, counter);
-  // weights
   EXPECT_FLOAT_EQ(TotalW, NodeTotalW);
 
 }

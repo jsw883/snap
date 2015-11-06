@@ -38,7 +38,7 @@ void GetWOutDegH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TEdgeW>& WDegH)
 }
 // Computes weighted degrees
 template <class TEdgeW, template <class> class TGraph >
-void GetWDegH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TVec<TEdgeW> >& WDegH) {
+void GetWDegH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TEdgeW>& WDegH) {
   typename TGraph<TEdgeW>::TNodeI NI;
   WDegH.Gen(WGraph->GetNodes());
   for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
@@ -50,7 +50,7 @@ void GetWDegH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TVec<TEdgeW> >& WD
 template <class TEdgeW, template <class> class TGraph >
 void GetWDegVH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TVec<TEdgeW> >& WDegVH) {
   typename TGraph<TEdgeW>::TNodeI NI;
-  TFltV WDegV;
+  TVec<TEdgeW> WDegV;
   WDegVH.Gen(WGraph->GetNodes());
   for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
     WDegV.Clr();
