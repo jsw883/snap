@@ -51,7 +51,6 @@ TYPED_TEST(GraphTest, WeightedDegrees) {
   THash<TInt, TVec<TEdgeW> > WDegVH;
   TVec<TEdgeW> WDegV;
   typename THash<TInt, TVec<TEdgeW> >::TIter WVHI;
-  typename TVec<TEdgeW>::TIter VI;
 
   // CREATE NODES AND EDGES
 
@@ -73,7 +72,7 @@ TYPED_TEST(GraphTest, WeightedDegrees) {
 
   // WEIGHTED DEGREES
 
-  // indegrees
+  // weighted in degrees
   TSnap::GetWInDegH(Graph, WInDegH);
   WInDegTotalW = 0;
   for (WHI = WInDegH.BegI(); WHI < WInDegH.EndI(); WHI++) {
@@ -82,7 +81,7 @@ TYPED_TEST(GraphTest, WeightedDegrees) {
   }
   EXPECT_FLOAT_EQ(TotalW, WInDegTotalW);
 
-  // out degrees
+  // weighted out degrees
   TSnap::GetWOutDegH(Graph, WOutDegH);
   WOutDegTotalW = 0;
   for (WHI = WOutDegH.BegI(); WHI < WOutDegH.EndI(); WHI++) {
@@ -91,7 +90,7 @@ TYPED_TEST(GraphTest, WeightedDegrees) {
   }
   EXPECT_FLOAT_EQ(TotalW, WOutDegTotalW);
 
-  // degrees
+  // weighted degrees
   TSnap::GetWDegH(Graph, WDegH);
   WDegTotalW = 0;
   for (WHI = WDegH.BegI(); WHI < WDegH.EndI(); WHI++) {
@@ -100,7 +99,7 @@ TYPED_TEST(GraphTest, WeightedDegrees) {
   }
   EXPECT_FLOAT_EQ(TotalW, WDegTotalW/2);
 
-  // vector of degrees
+  // vector of weighted degrees
   TSnap::GetWDegVH(Graph, WDegVH);
   WInDegTotalW = 0;
   WOutDegTotalW = 0;
@@ -116,6 +115,202 @@ TYPED_TEST(GraphTest, WeightedDegrees) {
   }
   EXPECT_FLOAT_EQ(TotalW, WInDegTotalW);
   EXPECT_FLOAT_EQ(TotalW, WOutDegTotalW);
+  EXPECT_FLOAT_EQ(TotalW, WDegTotalW/2);
+
+}
+
+//#//////////////////////////////////////////////
+/// Weighted directed graphs
+
+typedef ::testing::Types<TInt, TFlt> Weights;
+
+template <class TEdgeW>
+class TWNGraphTest : public ::testing::Test {
+public:
+  TWNGraphTest() {}
+};
+
+TYPED_TEST_CASE(TWNGraphTest, Weights);
+
+// Test graph edge weight consistency
+TYPED_TEST(TWNGraphTest, SpecificGraphFunctionality) {
+
+  // DECLARATIONS AND INITIALIZATIONS
+
+  typedef TypeParam TEdgeW;
+  typedef TPt<TWNGraph<TEdgeW> > PGraph;
+
+  typename TWNGraph<TEdgeW>::TNodeI NI;
+  typename TWNGraph<TEdgeW>::TEdgeI EI;
+
+  PGraph Graph = TWNGraph<TEdgeW>::New();
+  
+  int Nodes = 10000;
+  int Edges = 1000000;
+
+  int counter, SrcNId, DstNId;
+
+  TEdgeW W, EdgeW;
+  TEdgeW MxW = 100, TotalW = 0;
+  
+  TEdgeW WInDegTotalW, WOutDegTotalW, WDegTotalW;
+
+  THash<TInt, TVec<TEdgeW> > kWInDegVH, kWOutDegVH, kWDegVH;
+  TVec<TEdgeW> WDegV;
+  typename THash<TInt, TVec<TEdgeW> >::TIter WVHI;
+
+  // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
+
+  // create nodes
+  for (counter = 0; counter < Nodes; counter++) {
+    Graph->AddNode(counter);
+  }
+  EXPECT_TRUE(Graph->IsOk());
+
+  // create edges (unique with random weights)
+  for (counter = 0; counter < Edges; ) {
+    SrcNId = (long) (Nodes * drand48());
+    DstNId = (long) (Nodes * drand48());
+    W = (TEdgeW) (MxW * drand48() + 1);
+    if (SrcNId != DstNId  &&  !Graph->IsEdge(SrcNId, DstNId)) {
+      // create edge
+      Graph->AddEdge(SrcNId, DstNId, W);
+      counter++;
+      // weights
+      TotalW += W;
+    }
+  }
+
+  // ONE STEP k WEIGHTED DEGREES
+
+  TSnap::TFixedMemorykWDeg<TEdgeW, TWNGraph> FixedMemorykWDeg(Graph, 1);
+  FixedMemorykWDeg.GetkWInDegSeqH(kWInDegVH);
+  FixedMemorykWDeg.GetkWOutDegSeqH(kWOutDegVH);
+  FixedMemorykWDeg.GetkWDegSeqH(kWDegVH);
+
+  // weighted in degrees
+  WInDegTotalW = 0;
+  for (WVHI = kWInDegVH.BegI(); WVHI < kWInDegVH.EndI(); WVHI++) {
+    WDegV = WVHI.GetDat();
+    WInDegTotalW += WDegV[0];
+    EXPECT_FLOAT_EQ(Graph->GetNI(WVHI.GetKey()).GetWInDeg(), WDegV[0]);
+  }
+  EXPECT_FLOAT_EQ(TotalW, WInDegTotalW);
+
+  // weighted out degrees
+  WOutDegTotalW = 0;
+  for (WVHI = kWOutDegVH.BegI(); WVHI < kWOutDegVH.EndI(); WVHI++) {
+    WDegV = WVHI.GetDat();
+    WOutDegTotalW += WDegV[0];
+    EXPECT_FLOAT_EQ(Graph->GetNI(WVHI.GetKey()).GetWOutDeg(), WDegV[0]);
+  }
+  EXPECT_FLOAT_EQ(TotalW, WOutDegTotalW);
+
+  // weighted  degrees
+  WDegTotalW = 0;
+  for (WVHI = kWDegVH.BegI(); WVHI < kWDegVH.EndI(); WVHI++) {
+    WDegV = WVHI.GetDat();
+    WDegTotalW += WDegV[0];
+    EXPECT_FLOAT_EQ(Graph->GetNI(WVHI.GetKey()).GetWDeg(), WDegV[0]);
+  }
+  EXPECT_FLOAT_EQ(TotalW, WDegTotalW/2);
+
+}
+
+//#//////////////////////////////////////////////
+/// Weighted directed multigraphs
+
+typedef ::testing::Types<TInt, TFlt> Weights;
+
+template <class TEdgeW>
+class TWNEGraphTest : public ::testing::Test {
+public:
+  TWNEGraphTest() {}
+};
+
+TYPED_TEST_CASE(TWNEGraphTest, Weights);
+
+// Test graph edge weight consistency
+TYPED_TEST(TWNEGraphTest, SpecificGraphFunctionality) {
+
+  // DECLARATIONS AND INITIALIZATIONS
+
+  typedef TypeParam TEdgeW;
+  typedef TPt<TWNEGraph<TEdgeW> > PGraph;
+
+  typename TWNEGraph<TEdgeW>::TNodeI NI;
+  typename TWNEGraph<TEdgeW>::TEdgeI EI;
+
+  PGraph Graph = TWNEGraph<TEdgeW>::New();
+  
+  int Nodes = 10000;
+  int Edges = 1000000;
+
+  int counter, SrcNId, DstNId;
+
+  TEdgeW W, EdgeW;
+  TEdgeW MxW = 100, TotalW = 0;
+  
+  TEdgeW WInDegTotalW, WOutDegTotalW, WDegTotalW;
+
+  THash<TInt, TVec<TEdgeW> > kWInDegVH, kWOutDegVH, kWDegVH;
+  TVec<TEdgeW> WDegV;
+  typename THash<TInt, TVec<TEdgeW> >::TIter WVHI;
+
+  // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
+
+  // create nodes
+  for (counter = 0; counter < Nodes; counter++) {
+    Graph->AddNode(counter);
+  }
+  EXPECT_TRUE(Graph->IsOk());
+
+  // create edges (unique with random weights)
+  for (counter = 0; counter < Edges; ) {
+    SrcNId = (long) (Nodes * drand48());
+    DstNId = (long) (Nodes * drand48());
+    W = (TEdgeW) (MxW * drand48() + 1);
+    if (SrcNId != DstNId  &&  !Graph->IsEdge(SrcNId, DstNId)) {
+      // create edge
+      Graph->AddEdge(SrcNId, DstNId, W);
+      counter++;
+      // weights
+      TotalW += W;
+    }
+  }
+
+  // ONE STEP k WEIGHTED DEGREES
+
+  TSnap::TFixedMemorykWDeg<TEdgeW, TWNEGraph> FixedMemorykWDeg(Graph, 1);
+  FixedMemorykWDeg.GetkWInDegSeqH(kWInDegVH);
+  FixedMemorykWDeg.GetkWOutDegSeqH(kWOutDegVH);
+  FixedMemorykWDeg.GetkWDegSeqH(kWDegVH);
+
+  // weighted in degrees
+  WInDegTotalW = 0;
+  for (WVHI = kWInDegVH.BegI(); WVHI < kWInDegVH.EndI(); WVHI++) {
+    WDegV = WVHI.GetDat();
+    WInDegTotalW += WDegV[0];
+    EXPECT_FLOAT_EQ(Graph->GetNI(WVHI.GetKey()).GetWInDeg(), WDegV[0]);
+  }
+  EXPECT_FLOAT_EQ(TotalW, WInDegTotalW);
+
+  // weighted out degrees
+  WOutDegTotalW = 0;
+  for (WVHI = kWOutDegVH.BegI(); WVHI < kWOutDegVH.EndI(); WVHI++) {
+    WDegV = WVHI.GetDat();
+    WOutDegTotalW += WDegV[0];
+    EXPECT_FLOAT_EQ(Graph->GetNI(WVHI.GetKey()).GetWOutDeg(), WDegV[0]);
+  }
+  EXPECT_FLOAT_EQ(TotalW, WOutDegTotalW);
+
+  // weighted  degrees
+  WDegTotalW = 0;
+  for (WVHI = kWDegVH.BegI(); WVHI < kWDegVH.EndI(); WVHI++) {
+    WDegV = WVHI.GetDat();
+    WDegTotalW += WDegV[0];
+    EXPECT_FLOAT_EQ(Graph->GetNI(WVHI.GetKey()).GetWDeg(), WDegV[0]);
+  }
   EXPECT_FLOAT_EQ(TotalW, WDegTotalW/2);
 
 }
