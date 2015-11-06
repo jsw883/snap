@@ -43,10 +43,7 @@ TYPED_TEST(GraphTest, WeightedDegrees) {
   TEdgeW W, EdgeW;
   TEdgeW MxW = 100, TotalW = 0;
 
-  // int InDeg, OutDeg, Deg;
-  // int TotalInDeg = 0, TotalOutDeg = 0, TotalDeg = 0;  
-  // TEdgeW WInDeg, WOutDeg, WDeg;
-  // TEdgeW TotalWInDeg = 0, TotalWOutDeg = 0, TotalWDeg = 0;  
+  TEdgeW WInDegTotalW, WOutDegTotalW, WDegTotalW;
 
   THash<TInt, TEdgeW> WInDegH, WOutDegH, WDegH;
   typename  THash<TInt, TEdgeW>::TIter WHI;
@@ -55,8 +52,6 @@ TYPED_TEST(GraphTest, WeightedDegrees) {
   TVec<TEdgeW> WDegV;
   typename THash<TInt, TVec<TEdgeW> >::TIter WVHI;
   typename TVec<TEdgeW>::TIter VI;
-
-  TEdgeW WInDegTotalW, WOutDegTotalW, WDegTotalW;
 
   // CREATE NODES AND EDGES
 
@@ -78,6 +73,7 @@ TYPED_TEST(GraphTest, WeightedDegrees) {
 
   // WEIGHTED DEGREES
 
+  // indegrees
   TSnap::GetWInDegH(Graph, WInDegH);
   WInDegTotalW = 0;
   for (WHI = WInDegH.BegI(); WHI < WInDegH.EndI(); WHI++) {
@@ -86,6 +82,7 @@ TYPED_TEST(GraphTest, WeightedDegrees) {
   }
   EXPECT_FLOAT_EQ(TotalW, WInDegTotalW);
 
+  // out degrees
   TSnap::GetWOutDegH(Graph, WOutDegH);
   WOutDegTotalW = 0;
   for (WHI = WOutDegH.BegI(); WHI < WOutDegH.EndI(); WHI++) {
@@ -94,6 +91,7 @@ TYPED_TEST(GraphTest, WeightedDegrees) {
   }
   EXPECT_FLOAT_EQ(TotalW, WOutDegTotalW);
 
+  // degrees
   TSnap::GetWDegH(Graph, WDegH);
   WDegTotalW = 0;
   for (WHI = WDegH.BegI(); WHI < WDegH.EndI(); WHI++) {
@@ -102,6 +100,7 @@ TYPED_TEST(GraphTest, WeightedDegrees) {
   }
   EXPECT_FLOAT_EQ(TotalW, WDegTotalW/2);
 
+  // vector of degrees
   TSnap::GetWDegVH(Graph, WDegVH);
   WInDegTotalW = 0;
   WOutDegTotalW = 0;
@@ -111,19 +110,12 @@ TYPED_TEST(GraphTest, WeightedDegrees) {
     WInDegTotalW += WDegV[0];
     WOutDegTotalW += WDegV[1];
     WDegTotalW += WDegV[2];
+    EXPECT_FLOAT_EQ(Graph->GetNI(WVHI.GetKey()).GetWInDeg(), WDegV[0]);
+    EXPECT_FLOAT_EQ(Graph->GetNI(WVHI.GetKey()).GetWOutDeg(), WDegV[1]);
+    EXPECT_FLOAT_EQ(Graph->GetNI(WVHI.GetKey()).GetWDeg(), WDegV[2]);
   }
   EXPECT_FLOAT_EQ(TotalW, WInDegTotalW);
   EXPECT_FLOAT_EQ(TotalW, WOutDegTotalW);
   EXPECT_FLOAT_EQ(TotalW, WDegTotalW/2);
-
-  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    EXPECT_FLOAT_EQ(NI.GetWInDeg(), WInDegH.GetDat(NI.GetId()));
-    EXPECT_FLOAT_EQ(NI.GetWOutDeg(), WOutDegH.GetDat(NI.GetId()));
-    EXPECT_FLOAT_EQ(NI.GetWDeg(), WDegH.GetDat(NI.GetId()));
-    WDegV = WDegVH.GetDat(NI.GetId());
-    EXPECT_FLOAT_EQ(NI.GetWInDeg(), WDegV[0]);
-    EXPECT_FLOAT_EQ(NI.GetWOutDeg(), WDegV[1]);
-    EXPECT_FLOAT_EQ(NI.GetWDeg(), WDegV[2]);
-  }
 
 }
