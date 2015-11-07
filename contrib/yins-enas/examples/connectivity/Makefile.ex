@@ -4,10 +4,10 @@
 
 MAIN = connectivity
 DEPH = \
-    $(YINSCORE)/galg.h \
-    $(YINSCORE)/cncomnew.h \
-    $(YINSCORE)/io.h
+    $(EXCORE)/galg.h \
+    $(EXCORE)/cncomnew.h \
+    $(EXCORE)/io.h
 DEPCPP = \
-    $(YINSCORE)/galg.cpp \
-    $(YINSCORE)/cncomnew.cpp \
-    $(YINSCORE)/io.cpp
+    $(EXCORE)/galg.cpp \
+    $(EXCORE)/cncomnew.cpp \
+    $(EXCORE)/io.cpp

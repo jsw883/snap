@@ -1,0 +1,7 @@
+# Binary
+run-core-tests
+
+# Testing
+core
+*.dat
+*.Err

@@ -59,6 +59,20 @@ Other centrality measures:
 
   - pagerank centrality
 
+#### community (efficient community detection algorithms) ####
+
+Computes clusters of nodes using efficient community detection algorithms;
+Louvain method with an arbitrary quality objective (modularity objective),
+and a local clustering method with an arbitrary measure of centrality.
+
+Community detection algorithms currently implemented:
+
+  - *Louvain method (arbitrary quality objective)*
+    - *Modularity*
+  - *Local clustering method*
+
+**This is currently under active delopment and is not yet completed.**
+
 #### connectivity (bowtie structure) ####
 
 Computes connectivity structures, namely weakly connected components (WCCS),
