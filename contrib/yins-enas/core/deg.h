@@ -60,12 +60,12 @@ void GetDegVH(const PGraph& Graph, TIntIntVH& DegVH) {
 
 namespace TSnap {
 
-/// Returns k in degree distribution using fixed memory BFS
-template <class PGraph> void GetkInDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int& k);
-/// Returns k out degree distribution using fixed memory BFS
-template <class PGraph> void GetkOutDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int& k);
-/// Returns k degree distribution using fixed memory BFS
-template <class PGraph> void GetkDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int& k);
+// /// Returns k in degree distribution using fixed memory BFS
+// template <class PGraph> void GetkInDegH(const PGraph& Graph, TIntIntVH& DegVH, const int& k);
+// /// Returns k out degree distribution using fixed memory BFS
+// template <class PGraph> void GetkOutDegH(const PGraph& Graph, TIntIntVH& DegVH, const int& k);
+// /// Returns k degree distribution using fixed memory BFS
+// template <class PGraph> void GetkDegH(const PGraph& Graph, TIntIntVH& DegVH, const int& k);
 
 template <class PGraph>
 class TFixedMemorykDeg : public TFixedMemoryBFS<PGraph> {
@@ -76,89 +76,80 @@ public:
     TIntV DegV;
   public:
     TkDegVisitor(const int& k) : DegV(k) { }
-    void Start() {
-      DegV[0] = -1;
-    }
-    void DiscoverNode(const int& NId, const int& depth) { 
-      DegV[depth]++;
-    }
+    void Start() { }
+    void DiscoverNode(const int& NId, const int& depth) { }
     void FinishNode(const int& NId, const int& depth) { }
     void ExamineEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) { }
-    void TreeEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) { }
-    void BackEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) { }
-    void ForwardEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) { }
+    void TreeEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) {
+      DegV[depth]++;
+    }
+    void BackEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) {
+      DegV[depth]++;
+    }
+    void ForwardEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) {
+      DegV[depth]++;
+    }
     void Finish() {
-      for (int i = 1; i < DegV.Len(); i++) { DegV[i] += DegV[i - 1]; };
+      for (int i = 1; i < DegV.Len(); i++) {
+        DegV[i] += DegV[i - 1];
+      };
     }
     void Clr() {
-      for (int i = 0; i < DegV.Len(); i++) { DegV[i] = 0; };
+      for (int i = 0; i < DegV.Len(); i++) {
+        DegV[i] = 0;
+      };
     }
   };
 private:
   TkDegVisitor Visitor;
+  int k;
 public:
-  TFixedMemorykDeg(const PGraph& GraphArg, const int& k) : TFixedMemoryBFS<PGraph>(GraphArg), Visitor(TkDegVisitor(k)) { }
-  void GetkInDegV(const int& NId, TIntV& DegV, const int& k);
-  void GetkOutDegV(const int& NId, TIntV& DegV, const int& k);
-  void GetkDegV(const int& NId, TIntV& DegV, const int& k);
-  void GetkInDegSeqH(TIntIntVH& DegVH, const int& k);
-  void GetkOutDegSeqH(TIntIntVH& DegVH, const int& k);
-  void GetkDegSeqH(TIntIntVH& DegVH, const int& k);
+  TFixedMemorykDeg(const PGraph& Graph, const int& k) : TFixedMemoryBFS<PGraph>(Graph), Visitor(TkDegVisitor(k)), k(k) { }
+  // Direction specific get k degree for a single node 
+  void GetkInDegV(const int& NId, TIntV& DegV) {
+    GetkDegV(NId, DegV, edInDirected);
+  }
+  void GetkOutDegV(const int& NId, TIntV& DegV) {
+    GetkDegV(NId, DegV, edOutDirected);
+  }
+  void GetkDegV(const int& NId, TIntV& DegV) {
+    GetkDegV(NId, DegV, edUnDirected);
+  }
+  // Get k degree for a single node according to direction specified
+  void GetkDegV(const int& NId, TIntV& DegV, const TEdgeDir& Dir);
+  // Direction specific get k degree for all nodes
+  void GetkInDegH(TIntIntVH& DegVH) {
+    GetkDegH(DegVH, edInDirected);
+  }
+  void GetkOutDegH(TIntIntVH& DegVH) {
+    GetkDegH(DegVH, edOutDirected);
+  }
+  void GetkDegH(TIntIntVH& DegVH) {
+    GetkDegH(DegVH, edUnDirected);
+  }
+  // Get k degree for all nodes according to direction specified
+  void GetkDegH(TIntIntVH& DegVH, const TEdgeDir& Dir);
   void Clr(const bool& DoDel = false);
 };
 
+// Get k degree for a single node according to direction specified
 template <class PGraph>
-void TFixedMemorykDeg<PGraph>::GetkInDegV(const int& NId, TIntV& DegV, const int& k) {
+void TFixedMemorykDeg<PGraph>::GetkDegV(const int& NId, TIntV& DegV, const TEdgeDir& Dir) {
   PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId); // this might be inefficient (?)
   Visitor.Clr(); // resets the degree visitor to the initial -1
-  this->GetBfsVisitor<TkDegVisitor>(Ego, Visitor, edInDirected, k);
-  DegV = Visitor.DegV;
-}
-template <class PGraph>
-void TFixedMemorykDeg<PGraph>::GetkOutDegV(const int& NId, TIntV& DegV, const int& k) {
-  PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId); // this might be inefficient (?)
-  Visitor.Clr(); // resets the degree visitor to the initial -1
-  this->GetBfsVisitor<TkDegVisitor>(Ego, Visitor, edOutDirected, k);
-  DegV = Visitor.DegV;
-}
-template <class PGraph>
-void TFixedMemorykDeg<PGraph>::GetkDegV(const int& NId, TIntV& DegV, const int& k) {
-  PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId); // this might be inefficient (?)
-  Visitor.Clr(); // resets the degree visitor to the initial -1
-  this->GetBfsVisitor<TkDegVisitor>(Ego, Visitor, edUnDirected, k);
+  this->GetBfsVisitor<TkDegVisitor>(Ego, Visitor, Dir, k);
   DegV = Visitor.DegV;
 }
 
+// Get k degree for all nodes according to direction specified
 template <class PGraph>
-void TFixedMemorykDeg<PGraph>::GetkInDegSeqH(TIntIntVH& DegVH, const int& k) {
+void TFixedMemorykDeg<PGraph>::GetkDegH(TIntIntVH& DegVH, const TEdgeDir& Dir) {
   typename PGraph::TObj::TNodeI NI;
   TIntV DegV;
   DegVH.Gen(this->Graph->GetNodes());
   for (NI = this->Graph->BegNI(); NI < this->Graph->EndNI(); NI++) {
     DegV.Clr();
-    GetkInDegV(NI.GetId(), DegV, k);
-    DegVH.AddDat(NI.GetId(), DegV);
-  }
-}
-template <class PGraph>
-void TFixedMemorykDeg<PGraph>::GetkOutDegSeqH(TIntIntVH& DegVH, const int& k) {
-  typename PGraph::TObj::TNodeI NI;
-  TIntV DegV;
-  DegVH.Gen(this->Graph->GetNodes());
-  for (NI = this->Graph->BegNI(); NI < this->Graph->EndNI(); NI++) {
-    DegV.Clr();
-    GetkOutDegV(NI.GetId(), DegV, k);
-    DegVH.AddDat(NI.GetId(), DegV);
-  }
-}
-template <class PGraph>
-void TFixedMemorykDeg<PGraph>::GetkDegSeqH(TIntIntVH& DegVH, const int& k) {
-  typename PGraph::TObj::TNodeI NI;
-  TIntV DegV;
-  DegVH.Gen(this->Graph->GetNodes());
-  for (NI = this->Graph->BegNI(); NI < this->Graph->EndNI(); NI++) {
-    DegV.Clr();
-    GetkDegV(NI.GetId(), DegV, k);
+    GetkDegV(NI.GetId(), DegV, Dir);
     DegVH.AddDat(NI.GetId(), DegV);
   }
 }
@@ -169,21 +160,21 @@ void TFixedMemorykDeg<PGraph>::Clr(const bool& DoDel) {
   Visitor.Clr(); // resets the degree visitor to the initial -1
 }
 
-template <class PGraph>
-void GetkInDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int& k) {
-  TFixedMemorykDeg<PGraph> FixedMemorykDeg(Graph, k);
-  FixedMemorykDeg.GetkInDegSeqH(DegVH, k);
-}
-template <class PGraph>
-void GetkOutDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int& k) {
-  TFixedMemorykDeg<PGraph> FixedMemorykDeg(Graph, k);
-  FixedMemorykDeg.GetkOutDegSeqH(DegVH, k);
-}
-template <class PGraph>
-void GetkDegSeqH(const PGraph& Graph, TIntIntVH& DegVH, const int& k) {
-  TFixedMemorykDeg<PGraph> FixedMemorykDeg(Graph, k);
-  FixedMemorykDeg.GetkDegSeqH(DegVH, k);
-}
+// template <class PGraph>
+// void GetkInDegH(const PGraph& Graph, TIntIntVH& DegVH, const int& k) {
+//   TFixedMemorykDeg<PGraph> FixedMemorykDeg(Graph, k);
+//   FixedMemorykDeg.GetkInDegH(DegVH, k);
+// }
+// template <class PGraph>
+// void GetkOutDegH(const PGraph& Graph, TIntIntVH& DegVH, const int& k) {
+//   TFixedMemorykDeg<PGraph> FixedMemorykDeg(Graph, k);
+//   FixedMemorykDeg.GetkOutDegH(DegVH, k);
+// }
+// template <class PGraph>
+// void GetkDegH(const PGraph& Graph, TIntIntVH& DegVH, const int& k) {
+//   TFixedMemorykDeg<PGraph> FixedMemorykDeg(Graph, k);
+//   FixedMemorykDeg.GetkDegH(DegVH, k);
+// }
 
 } // namespace TSnap
 

@@ -19,7 +19,6 @@ public:
     // Counted during BFS
     int Nodes;
     int Edges;
-    // TIntV DegV;
     THash<TInt, TEdgeW> WDegH;
   public:
     TkWEgoVisitor(const TPt<TGraph<TEdgeW> >& Graph) : Graph(Graph), Dir(edUnDirected), WDegH(Graph->GetNodes()) { }
@@ -82,16 +81,24 @@ private:
   bool computed;
 public:
   TFixedMemorykWEgo(const TPt<TGraph<TEdgeW> >& Graph, const int& k) : TFixedMemoryBFS<TPt<TGraph<TEdgeW> > >(Graph), Visitor(TkWEgoVisitor(Graph)), k(k) { }
-  void ComputeInEgonetStatistics(const int& NId) { ComputeEgonetStatistics(NId, edInDirected); }
-  void ComputeOutEgonetStatistics(const int& NId) { ComputeEgonetStatistics(NId, edOutDirected); }
-  void ComputeEgonetStatistics(const int& NId) { ComputeEgonetStatistics(NId, edUnDirected); }
+  // Direction specific compute egonet statistics
+  void ComputeInEgonetStatistics(const int& NId) {
+    ComputeEgonetStatistics(NId, edInDirected);
+  }
+  void ComputeOutEgonetStatistics(const int& NId) {
+    ComputeEgonetStatistics(NId, edOutDirected);
+  }
+  void ComputeEgonetStatistics(const int& NId) {
+    ComputeEgonetStatistics(NId, edUnDirected);
+  }
+  // Compute egonet statistics using the direction specified
   void ComputeEgonetStatistics(const int& NId, const TEdgeDir& Dir);
+  // Get results from the egonet traversal (only valid after compute method called)
   int GetNodes() { return Visitor.Nodes; }
   int GetEdges() { return Visitor.Edges; }
   double GetDensity();
   TEdgeW GetTotalW();
   double GetGiniCoefficient();
-  // void GetDegV(TIntV DegV) { DegV = Visitor.DegV; }
   void GetWDegH(THash<TInt, TEdgeW> WDegH) { WDegH = Visitor.WDegH; }
   void Clr(const bool& DoDel = false);
 };

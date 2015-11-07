@@ -48,13 +48,13 @@ int main(int argc, char* argv[]) {
   printf("Computing egonet degrees for k = 1 to %d (in / out / undirected)\n", k);
   TSnap::TFixedMemorykWDeg<TFlt, TWNGraph> FixedMemorykWDeg(WGraph, k);
   printf("  ...");
-  FixedMemorykWDeg.GetkWInDegSeqH(kWInDegVH);
+  FixedMemorykWDeg.GetkWInDegH(kWInDegVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  ...");
-  FixedMemorykWDeg.GetkWOutDegSeqH(kWOutDegVH);
+  FixedMemorykWDeg.GetkWOutDegH(kWOutDegVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  ...");
-  FixedMemorykWDeg.GetkWDegSeqH(kWDegVH);
+  FixedMemorykWDeg.GetkWDegH(kWDegVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Centrality measures
