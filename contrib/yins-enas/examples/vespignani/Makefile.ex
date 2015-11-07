@@ -4,16 +4,16 @@
 
 MAIN = vespignani
 DEPH = \
-    $(YINSCORE)/wgraph.h \
-    $(YINSCORE)/wgio.h \
-    $(YINSCORE)/wdeg.h \
-    $(YINSCORE)/wfilter.h \
-    $(YINSCORE)/io.h \
-    $(YINSCORE)/deg.h 
+    $(EXCORE)/wgraph.h \
+    $(EXCORE)/wgio.h \
+    $(EXCORE)/wdeg.h \
+    $(EXCORE)/wfilter.h \
+    $(EXCORE)/io.h \
+    $(EXCORE)/deg.h 
 DEPCPP = \
-    $(YINSCORE)/wgraph.cpp \
-    $(YINSCORE)/wgio.cpp \
-    $(YINSCORE)/wdeg.cpp \
-    $(YINSCORE)/wfilter.cpp\
-    $(YINSCORE)/io.cpp \
-    $(YINSCORE)/deg.cpp 
+    $(EXCORE)/wgraph.cpp \
+    $(EXCORE)/wgio.cpp \
+    $(EXCORE)/wdeg.cpp \
+    $(EXCORE)/wfilter.cpp\
+    $(EXCORE)/io.cpp \
+    $(EXCORE)/deg.cpp 

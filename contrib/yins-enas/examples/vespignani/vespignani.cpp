@@ -12,8 +12,8 @@ int main(int argc, char* argv[]) {
   Try
   
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network");
-  const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output network name (-backbone-(alpha).snap added)");
-  const float alpha = Env.GetIfArgPrefixFlt("-a:", 0.01, "level of significance alpha");
+  const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (alpha value and filename extensions added)");
+  const float alpha = Env.GetIfArgPrefixFlt("-a:", 0.01, "alpha significance level threshold");
 
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
@@ -24,36 +24,31 @@ int main(int argc, char* argv[]) {
   printf("  time elapsed: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
 
   // Declare variables
-
-  // Hashtables for source and destination weight sums
   TIntFltH OutWDegH, InWDegH;
-
-  // Hashtables for binary source and destination degrees
   TIntIntH OutDegH, InDegH;
 
-  
-  // Part A: Get degrees, weighted and unweighted
-  printf("\nGetting weighted source and destination degrees...");
+  // Get degrees, weighted and unweighted
+  printf("\nGetting initial distribution of binary in / out degrees...");
+  TSnap::GetInDegH(WGraph, InDegH);
+  TSnap::GetOutDegH(WGraph, OutDegH);
+  printf(" DONE (time elapsed: %s (%s))", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+
+  printf("\nGetting initial distribution of weighted in / out degrees...");
   TSnap::GetWInDegH(WGraph, InWDegH);
   TSnap::GetWOutDegH(WGraph, OutWDegH);
-  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf(" DONE (time elapsed: %s (%s))", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
 
-  printf("\nGetting binary source and destination degrees...");
-  TSnap::GetInDegSeqH(WGraph, InDegH);
-  TSnap::GetOutDegSeqH(WGraph, OutDegH);
-  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  
-  // Part B: Disparity Filter
-  printf("\nApplying the disparity filter...");
-  TSnap::GetVespignaniPruned(WGraph, InWDegH, OutWDegH, InDegH, OutDegH, alpha);
+  // Apply the disparity filter Vespignani method
+  printf("\nApplying the disparity filter vespignani method...");
+  TSnap::FilterEdgesVespignani(WGraph, InWDegH, OutWDegH, InDegH, OutDegH, alpha);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("\nPruned graph:");
   printf("\n  nodes: %d", WGraph->GetNodes());
   printf("\n  edges: %d\n", WGraph->GetEdges());
 
   // OUTPUTTING 
-  printf("\nSaving...");
-  TSnap::SaveFltWEdgeList(WGraph, TStr::Fmt("%s-backbone-%f.snap", OutFNm.CStr(), alpha), "");
+  printf("\nSaving %s-%f.snap...", OutFNm.CStr(), alpha);
+  TSnap::SaveFltWEdgeList(WGraph, TStr::Fmt("%s-%f.snap", OutFNm.CStr(), alpha), "");
   printf(" DONE\n");
 
   Catch

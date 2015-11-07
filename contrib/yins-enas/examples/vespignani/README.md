@@ -1,13 +1,12 @@
 vespignani (multiscale backbone extraction)
 -------------------------------------------
 
-Applies the pruning algorithm documented by Serrano, Boguna, and Vespignani
-in "Extracting the multiscale backbone of complex weighted networks" (2009).
-A hypothesis is performed on each edge examine whether its normalized weight
-suggests the edge is statisically significant and conveys meaningful information.
+Applies the edge filtering algorithm defined by Serrano, Boguna, and Vespignani
+in the paper [Extracting the multiscale backbone of complex weighted networks](http://arxiv.org/pdf/0904.2389.pdf) (2009).
 
-Program appends -(alpha).snap to the specified output filename.  The (alpha)
-in the filename is a float with 5 digits of precision.
+Edges that have a statistically significant normalized edge wight are retained,
+with respect to a unifrom null distribution and the significance level (alpha)
+specified. A smaller value of alpha will remove more edges from the graph, and an alpha value of one will remove no edges.
 
 Makefiles are provided for compilation under Windows with Cygwin and gcc,
 and under Mac OS X, Linux, and other Unix operating systems with gcc as
@@ -16,8 +15,8 @@ well. For makefiles, compile the code with `make all`.
 ### Parameters ###
 
   - -i:input graph (tab separated list of edges)
-  - -o:output graph name
-  - -a: threshold level of significance (default: 0.01)
+  - -o:output prefix (alpha value and filename extensions added)
+  - -a:alpha significance threshold (default: 0.01)
 
 ### Usage ###
 
