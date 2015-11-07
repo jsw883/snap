@@ -7,7 +7,7 @@
 
 namespace TSnap {
 
-template <class TEdgeW, template <class> class TGraph >
+template <class TEdgeW, template <class> class TGraph>
 class TFixedMemorykWEgo : public TFixedMemoryBFS<TPt<TGraph<TEdgeW> > > {
 public:
 // Backward / forward visitor (degree only)
@@ -103,7 +103,7 @@ public:
   void Clr(const bool& DoDel = false);
 };
 
-template <class TEdgeW, template <class> class TGraph >
+template <class TEdgeW, template <class> class TGraph>
 void TFixedMemorykWEgo<TEdgeW, TGraph>::ComputeEgonetStatistics(const int& NId, const TEdgeDir& Dir) {
   TPt<TGraph<TEdgeW> > Ego = TGraph<TEdgeW>::New(); Ego->AddNode(NId); // this might be inefficient (?)
   Visitor.Clr();
@@ -111,12 +111,12 @@ void TFixedMemorykWEgo<TEdgeW, TGraph>::ComputeEgonetStatistics(const int& NId, 
   this->GetBfsVisitor<TkWEgoVisitor>(Ego, Visitor, Dir, k);
 }
 
-template <class TEdgeW, template <class> class TGraph >
+template <class TEdgeW, template <class> class TGraph>
 double TFixedMemorykWEgo<TEdgeW, TGraph>::GetDensity() {
   return(double(Visitor.Edges) / (double(Visitor.Nodes) * (double(Visitor.Nodes) - 1)));
 }
 
-template <class TEdgeW, template <class> class TGraph >
+template <class TEdgeW, template <class> class TGraph>
 TEdgeW TFixedMemorykWEgo<TEdgeW, TGraph>::GetTotalW() {
   TEdgeW TotalW = 0.0;
   for (int i = 0; i < Visitor.WDegH.Len(); i++) {
@@ -126,7 +126,7 @@ TEdgeW TFixedMemorykWEgo<TEdgeW, TGraph>::GetTotalW() {
   return(TotalW);
 }
 
-template <class TEdgeW, template <class> class TGraph >
+template <class TEdgeW, template <class> class TGraph>
 double TFixedMemorykWEgo<TEdgeW, TGraph>::GetGiniCoefficient() {
   typename TVec<TEdgeW>::TIter DI;
   TVec<TEdgeW> WDegV;
@@ -142,7 +142,12 @@ double TFixedMemorykWEgo<TEdgeW, TGraph>::GetGiniCoefficient() {
   return(double(2*numerator) / double(n*denominator) - double(n + 1) / double(n));
 }
 
-// cons
+template <class TEdgeW, template <class> class TGraph>
+void TFixedMemorykWEgo<TEdgeW, TGraph>::Clr(const bool& DoDel) {
+  TFixedMemoryBFS<TPt<TGraph<TEdgeW> > >::Clr(DoDel);
+  Visitor.Clr(); // resets the degree visitor
+}
+
 } // namespace TSnap
 
 #endif

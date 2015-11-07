@@ -157,7 +157,7 @@ void TFixedMemorykDeg<PGraph>::GetkDegH(TIntIntVH& DegVH, const TEdgeDir& Dir) {
 template <class PGraph>
 void TFixedMemorykDeg<PGraph>::Clr(const bool& DoDel) {
   TFixedMemoryBFS<PGraph>::Clr(DoDel);
-  Visitor.Clr(); // resets the degree visitor to the initial -1
+  Visitor.Clr(); // resets the degree visitor
 }
 
 // template <class PGraph>

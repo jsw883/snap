@@ -72,7 +72,7 @@ namespace TSnap {
 // /// Returns k degree distribution using fixed memory BFS
 // template <class TEdgeW, template <class> class TGraph > void GetkWDegH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TVec<TEdgeW> >& WDegVH, const int& k);
 
-template <class TEdgeW, template <class> class TGraph >
+template <class TEdgeW, template <class> class TGraph>
 class TFixedMemorykWDeg : public TFixedMemoryBFS<TPt<TGraph<TEdgeW> > > {
 public:
   // Backward / forward visitor (weighted degree only)
@@ -113,7 +113,6 @@ public:
         WDegV[i] += WDegV[i - 1];
       };
     }
-    // Clear method (somewhat standard)
     void Clr() {
       for (int i = 0; i < WDegV.Len(); i++) {
         WDegV[i] = 0;
@@ -154,7 +153,7 @@ public:
 };
 
 // Get k weighted degree for a single node according to direction specified
-template <class TEdgeW, template <class> class TGraph >
+template <class TEdgeW, template <class> class TGraph>
 void TFixedMemorykWDeg<TEdgeW, TGraph>::GetkWDegV(const int& NId, TVec<TEdgeW>& WDegV, const TEdgeDir& Dir) {
   TPt<TGraph<TEdgeW> > Ego = TGraph<TEdgeW>::New(); Ego->AddNode(NId); // this might be inefficient (?)
   Visitor.Clr(); // resets the degree visitor to the initial 0
@@ -164,7 +163,7 @@ void TFixedMemorykWDeg<TEdgeW, TGraph>::GetkWDegV(const int& NId, TVec<TEdgeW>& 
 }  
 
 // Get k weighted degree for all nodes according to direction specified
-template <class TEdgeW, template <class> class TGraph >
+template <class TEdgeW, template <class> class TGraph>
 void TFixedMemorykWDeg<TEdgeW, TGraph>::GetkWDegH(THash<TInt, TVec<TEdgeW> >& WDegVH, const TEdgeDir& Dir) {
   typename TGraph<TEdgeW>::TNodeI NI;
   TVec<TEdgeW> WDegV;
@@ -176,10 +175,10 @@ void TFixedMemorykWDeg<TEdgeW, TGraph>::GetkWDegH(THash<TInt, TVec<TEdgeW> >& WD
   }
 }
 
-template <class TEdgeW, template <class> class TGraph >
+template <class TEdgeW, template <class> class TGraph>
 void TFixedMemorykWDeg<TEdgeW, TGraph>::Clr(const bool& DoDel) {
   TFixedMemoryBFS<TPt<TGraph<TEdgeW> > >::Clr(DoDel);
-  Visitor.Clr(); // resets the degree visitor to the initial 0
+  Visitor.Clr(); // resets the degree visitor
 }
 
 // template <class TEdgeW, template <class> class TGraph > 
