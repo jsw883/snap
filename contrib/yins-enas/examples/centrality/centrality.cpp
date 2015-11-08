@@ -80,9 +80,9 @@ int main(int argc, char* argv[]) {
   
   if (c) {
     
-    printf("\nSaving %s.centr...", BseFNm.CStr());
-    const TStr AggFNm = TStr::Fmt("%s.centr", OutFNm.CStr());
-    FILE *F = fopen(AggFNm.CStr(), "wt");
+    printf("\nSaving %s.centr.combined...", BseFNm.CStr());
+    const TStr CombinedFNm = TStr::Fmt("%s.centr.combined", OutFNm.CStr());
+    FILE *F = fopen(CombinedFNm.CStr(), "wt");
     fprintf(F,"# Node centrality distributions on the directed / undirected graph (as applicable)\n");
     fprintf(F,"# Nodes: %d\tEdges: %d\n", Graph->GetNodes(), Graph->GetEdges());
     fprintf(F,"# NodeId\tInDegCentr\tOutDegCentr\tDegCentr\tInEigCentr\tOutEigCentr\tEigCentr\tPgRCentr\n");

@@ -105,7 +105,7 @@ private:
   int k;
 public:
   TFixedMemorykDeg(const PGraph& Graph, const int& k) : TFixedMemoryBFS<PGraph>(Graph), Visitor(TkDegVisitor(k)), k(k) { }
-  // Direction specific get k degree for a single node 
+  // Get k degree for a single node (int / out / undirected)
   void GetkInDegV(const int& NId, TIntV& DegV) {
     GetkDegV(NId, DegV, edInDirected);
   }
@@ -117,7 +117,7 @@ public:
   }
   // Get k degree for a single node according to direction specified
   void GetkDegV(const int& NId, TIntV& DegV, const TEdgeDir& Dir);
-  // Direction specific get k degree for all nodes
+  // Get k degree for all nodes (int / out / undirected)
   void GetkInDegH(TIntIntVH& DegVH) {
     GetkDegH(DegVH, edInDirected);
   }
