@@ -2,9 +2,9 @@ connectivity (bowtie structure)
 -------------------------------
 
 Computes connectivity structures, namely weakly connected components (WCCS),
-strongly connected cores (SCCS), components connecting in to the SCCS
-(INS), components connecting out from the SCCS (OUTS), and tendrils from the
-INS and to the OUTS (TES).
+strongly connected cores (SCCS), components connecting in to the SCCS (INS),
+components connecting out from the SCCS (OUTS), and tendrils from the INS
+and to the OUTS (TES).
 
 Connectivity structures (giant only):
 

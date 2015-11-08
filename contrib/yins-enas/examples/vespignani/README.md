@@ -6,7 +6,8 @@ in the paper [Extracting the multiscale backbone of complex weighted networks](h
 
 Edges that have a statistically significant normalized edge wight are retained,
 with respect to a unifrom null distribution and the significance level (alpha)
-specified. A smaller value of alpha will remove more edges from the graph, and an alpha value of one will remove no edges.
+specified. A smaller value of alpha will remove more edges from the graph, and
+an alpha value of one will remove no edges.
 
 Makefiles are provided for compilation under Windows with Cygwin and gcc,
 and under Mac OS X, Linux, and other Unix operating systems with gcc as

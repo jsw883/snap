@@ -10,7 +10,7 @@ namespace TSnap {
 //#//////////////////////////////////////////////
 /// Generic SaveTxt methods
 
-/// Generic SaveTxt for TVec template class using GetStr()
+/// Generic SaveTxt and LoadTxt for TVec template class using GetStr()
 template<class TVal>
 void SaveTxt(const TVec<TVal>& GenV, const TStr& FNm, const TStr& Desc = TStr(), const TStr& ValNm = "Val") {
   typename TVec<TVal>::TIter VI;
@@ -24,6 +24,9 @@ void SaveTxt(const TVec<TVal>& GenV, const TStr& FNm, const TStr& Desc = TStr(),
   }
   fclose(F);
 }
+
+TIntV LoadTxtIntV(const TStr& FNm);
+TFltV LoadTxtFltV(const TStr& FNm);
 
 /// Generic SaveTxt for THash template class using GetStr()
 template<class TKey, class TVal>
@@ -41,6 +44,8 @@ void SaveTxt(const THash<TKey, TVal>& GenH, const TStr& FNm, const TStr& Desc = 
   }
   fclose(F);
 }
+
+// TODO: implement LoadTxtIntIntH and LoadTxtIntFltH
 
 /// Generic SaveTxt for THash template class with TVec data using GetStr()
 template<class TKey, class TVal>
@@ -62,6 +67,8 @@ void SaveTxt(const THash<TKey, TVec<TVal> >& GenVH, const TStr& FNm, const TStr&
   }
   fclose(F);
 }
+
+// TODO: implement LoadTxtIntIntVH and LoadTxtIntFltVH
 
 //#//////////////////////////////////////////////
 /// Generic SaveTxt methods

@@ -76,9 +76,9 @@ Community detection algorithms currently implemented:
 #### connectivity (bowtie structure) ####
 
 Computes connectivity structures, namely weakly connected components (WCCS),
-strongly connected cores (SCCS), components connecting in to the SCCS
-(INS), components connecting out from the SCCS (OUTS), and tendrils from the
-INS and to the OUTS (TES).
+strongly connected cores (SCCS), components connecting in to the SCCS (INS),
+components connecting out from the SCCS (OUTS), and tendrils from the INS
+and to the OUTS (TES).
 
 Connectivity structures (giant only):
 
@@ -156,6 +156,16 @@ Note that diameter and average path length are found using the approximate
 neighbourhood function / shortest path cumulative density as described in
 the paper [ANF: A Fast and Scalable Tool for Data Mining in Massive Graphs](http://www.cs.cmu.edu/~christos/PUBLICATIONS/kdd02-anf.pdf)
 by C. R. Palmer, P. B. Gibbons, and C. Faloutsos and implemented in SNAP.
+
+#### vespignani (multiscale backbone extraction) ####
+
+Applies the edge filtering algorithm defined by Serrano, Boguna, and Vespignani
+in the paper [Extracting the multiscale backbone of complex weighted networks](http://arxiv.org/pdf/0904.2389.pdf) (2009).
+
+Edges that have a statistically significant normalized edge wight are retained,
+with respect to a unifrom null distribution and the significance level (alpha)
+specified. A smaller value of alpha will remove more edges from the graph, and
+an alpha value of one will remove no edges.
 
 #### wcentrality (weighted vertex distributions) ####
 

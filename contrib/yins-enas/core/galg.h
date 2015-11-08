@@ -40,12 +40,12 @@ void GetDfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visito
   const int Nodes = Graph->GetNodes();
   TSStack<TIntTr> Stack(Nodes);
   int edge = 0, Deg = 0, U = 0, V = 0;
-  TIntH ColorH(Nodes);
+  TIntH Color(Nodes);
   typename PGraph::TObj::TNodeI NI, UI;
   for (NI = SubGraph->BegNI(); NI < SubGraph->EndNI(); NI++) {
     U = NI.GetId();
-    if (! ColorH.IsKey(U)) {         // is unvisited node
-      ColorH.AddDat(U, 1); 
+    if (! Color.IsKey(U)) {         // is unvisited node
+      Color.AddDat(U, 1); 
       Visitor.DiscoverNode(U);       // discover
       switch(dir) {
         case edInDirected: Deg = Graph->GetNI(U).GetInDeg(); break;
@@ -65,11 +65,11 @@ void GetDfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visito
             case edUnDirected: V = UI.GetNbrNId(edge); break;
           }
           Visitor.ExamineEdge(U, V); // examine edge
-          if (! ColorH.IsKey(V)) {
+          if (! Color.IsKey(V)) {
             Visitor.TreeEdge(U, V);  // tree edge
             Stack.Push(TIntTr(U, ++edge, Deg));
             U = V;
-            ColorH.AddDat(U, 1); 
+            Color.AddDat(U, 1); 
             Visitor.DiscoverNode(U); // discover
             UI = Graph->GetNI(U);
             edge = 0;
@@ -79,14 +79,14 @@ void GetDfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visito
               case edUnDirected: Deg = UI.GetDeg(); break;
             }
           }
-          else if (ColorH.GetDat(V) == 1) {
+          else if (Color.GetDat(V) == 1) {
             Visitor.BackEdge(U, V);  // edge upward
             ++edge; }
           else {
             Visitor.FwdEdge(U, V);   // edge downward
             ++edge; }
         }
-        ColorH.AddDat(U, 2); 
+        Color.AddDat(U, 2); 
         Visitor.FinishNode(U);       // finish
       }
     }
@@ -99,12 +99,12 @@ void GetBfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visito
   const int Nodes = Graph->GetNodes();
   TQQueue<TIntTr> Queue(Nodes); // it might be inefficient reinitializing the queue every BFS
   int depth = 0, peekdepth = 0, edge = 0, Deg = 0, U = 0, V = 0, VDeg = 0;
-  TIntH ColorH(Nodes);
+  TIntH Color(Nodes);
   typename PGraph::TObj::TNodeI NI, UI;
   for (NI = SubGraph->BegNI(); NI < SubGraph->EndNI(); NI++) {
     U = NI.GetId();
-    if (! ColorH.IsKey(U)) { // is unvisited node
-      ColorH.AddDat(U, 1);
+    if (! Color.IsKey(U)) { // is unvisited node
+      Color.AddDat(U, 1);
       switch(dir) {
         case edInDirected: Deg = Graph->GetNI(U).GetInDeg(); break;
         case edOutDirected: Deg = Graph->GetNI(U).GetOutDeg(); break;
@@ -129,12 +129,12 @@ void GetBfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visito
           } else {
             peekdepth = depth + 1;
           }
-          Visitor.ExamineEdge(U, V); // examine edge
-          if (! ColorH.IsKey(V)) { // V has not been discovered
-            ColorH.AddDat(V, 1);
+          Visitor.ExamineEdge(U, depth, edge, V); // examine edge
+          if (! Color.IsKey(V)) { // V has not been discovered
+            Color.AddDat(V, 1);
             Visitor.DiscoverNode(V, peekdepth); // discover node
-            Visitor.TreeEdge(U, V); // tree edge
-            if (peekdepth < k) {
+            Visitor.TreeEdge(U, depth, edge, V); // tree edge
+            if (k == -1 || peekdepth < k) {
               switch(dir) {
                 case edInDirected: VDeg = Graph->GetNI(V).GetInDeg(); break;
                 case edOutDirected: VDeg = Graph->GetNI(V).GetOutDeg(); break;
@@ -143,15 +143,15 @@ void GetBfsVisitor(const PGraph& Graph, const PGraph& SubGraph, TVisitor& Visito
               Queue.Push(TIntTr(V, peekdepth, VDeg));
             }
           }
-          else if (ColorH.GetDat(V) == 1) { // V has been discovered
-            Visitor.BackEdge(U,V);
+          else if (Color.GetDat(V) == 1) { // V has been discovered
+            Visitor.BackEdge(U, depth, edge, V);
           }
           else {
-            Visitor.FwdEdge(U,V);
+            Visitor.ForwardEdge(U, depth, edge, V);
           }
           ++edge;
         }
-        ColorH.AddDat(U, 2);
+        Color.AddDat(U, 2);
         Visitor.FinishNode(U, depth); // finish
       }
     }
@@ -255,7 +255,7 @@ protected:
 public:
   TFixedMemoryBFS(const PGraph& Graph) : Graph(Graph), Queue(Graph->GetNodes()), Color(Graph->GetNodes()) { }
   void SetGraph(const PGraph& Graph);
-  template <class TVisitor> void GetBfsVisitor(const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir, const int& k);
+  template <class TVisitor> void GetBfsVisitor(const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir, const int& k = -1);
   void Clr(const bool& DoDel = false);
 };
 
@@ -273,7 +273,7 @@ void TFixedMemoryBFS<PGraph>::GetBfsVisitor(const PGraph& SubGraph, TVisitor& Vi
   Queue.Clr(false);
   Color.Clr(false);
   Visitor.Start();
-  int depth = 0, edge = 0, Deg = 0, U = 0, V = 0, VDeg = 0;
+  int depth = 0, peekdepth = 0, edge = 0, Deg = 0, U = 0, V = 0, VDeg = 0;
   typename PGraph::TObj::TNodeI NI, UI;
   for (NI = SubGraph->BegNI(); NI < SubGraph->EndNI(); NI++) {
     U = NI.GetId();
@@ -298,18 +298,23 @@ void TFixedMemoryBFS<PGraph>::GetBfsVisitor(const PGraph& SubGraph, TVisitor& Vi
             case edOutDirected: V = UI.GetOutNId(edge); break;
             case edUnDirected: V = UI.GetNbrNId(edge); break;
           }
+          if (SubGraph->IsNode(V)) { // ensures SubGraph node depth = 0
+            peekdepth = 0;
+          } else {
+            peekdepth = depth + 1;
+          }
           Visitor.ExamineEdge(U, depth, edge, V); // examine edge
-          if (!Color.IsKey(V)) { // V has not been discovered
+          if (! Color.IsKey(V)) { // V has not been discovered
             Color.AddDat(V, 1);
-            Visitor.DiscoverNode(V, depth + 1); // discover node
+            Visitor.DiscoverNode(V, peekdepth); // discover node
             Visitor.TreeEdge(U, depth, edge, V); // tree edge
-            if (k == -1 || depth + 1 < k) {
+            if (k == -1 || peekdepth < k) {
               switch(dir) {
                 case edInDirected: VDeg = Graph->GetNI(V).GetInDeg(); break;
                 case edOutDirected: VDeg = Graph->GetNI(V).GetOutDeg(); break;
                 case edUnDirected: VDeg = Graph->GetNI(V).GetDeg(); break;
               }
-              Queue.Push(TIntTr(V, depth + 1, VDeg));
+              Queue.Push(TIntTr(V, peekdepth, VDeg));
             }
           }
           else if (Color.GetDat(V) == 1) { // V has been discovered
@@ -332,6 +337,98 @@ template <class PGraph>
 void TFixedMemoryBFS<PGraph>::Clr(const bool& DoDel) {
   Queue.Clr(DoDel);
   Color.Clr(DoDel);
+}
+
+template <class PGraph>
+class TFixedMemorySubsetDiameter : public TFixedMemoryBFS<PGraph> {
+public:
+  // Backward / forward visitor (degree only)
+  class TSubsetDiameterVisitor {
+  public:
+    int nodes;
+    int diameter;
+  public:
+    TSubsetDiameterVisitor() : nodes(0), diameter(0) { }
+    void Start() { }
+    void DiscoverNode(const int& NId, const int& depth) {
+      nodes++;
+      if (depth > diameter) {
+        diameter = depth;
+      }
+    }
+    void FinishNode(const int& NId, const int& depth) { }
+    void ExamineEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
+    void TreeEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
+    void BackEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
+    void ForwardEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
+    void Finish() { }
+    void Clr() {
+      nodes = 0;
+      diameter = 0;
+    }
+  };
+private:
+  TSubsetDiameterVisitor Visitor;
+public:
+  TFixedMemorySubsetDiameter(const PGraph& Graph) : TFixedMemoryBFS<PGraph>(Graph), Visitor(TSubsetDiameterVisitor()) { }
+
+  // Get diameter and node count for a single node (int / out / undirected)
+  void ComputeInDiameter(const int& NId, int& nodes, int& diameter) {
+    ComputeDiameter(NId, edInDirected);
+  }
+  void ComputeOutDiameter(const int& NId, int& nodes, int& diameter) {
+    ComputeDiameter(NId, edOutDirected);
+  }
+  void ComputeNodeDiameter(const int& NId, int& nodes, int& diameter) {
+    ComputeDiameter(NId, edUnDirected);
+  }
+  // Get diameter and node count for a single node using the direction specified 
+  void ComputeDiameter(const int& NId, const TEdgeDir& Dir, int& nodes, int& diameter);
+
+  // Get diameters and node counts for the subset of nodes (int / out / undirected)
+  void ComputeInSubsetDiameter(const TIntV& NIdV, TIntIntH& NodesH, TIntIntH& DiameterH) {
+    ComputeSubsetDiameter(NIdV, edInDirected, NodesH, DiameterH);
+  }
+  void ComputeOutSubsetDiameter(const TIntV& NIdV, TIntIntH& NodesH, TIntIntH& DiameterH) {
+    ComputeSubsetDiameter(NIdV, edOutDirected, NodesH, DiameterH);
+  }
+  void ComputeSubsetDiameter(const TIntV& NIdV, TIntIntH& NodesH, TIntIntH& DiameterH) {
+    ComputeSubsetDiameter(NIdV, edUnDirected, NodesH, DiameterH);
+  }
+  // Get diameters and node counts for the subset of nodes using the direction specified
+  void ComputeSubsetDiameter(const TIntV& NIdV, const TEdgeDir& Dir, TIntIntH& NodesH, TIntIntH& DiameterH);
+  
+  void Clr(const bool& DoDel = false);
+};
+
+// Compute egonet statistics using the direction specified
+template <class PGraph>
+void TFixedMemorySubsetDiameter<PGraph>::ComputeDiameter(const int& NId, const TEdgeDir& Dir, int& nodes, int& diameter) {
+  PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId);
+  Visitor.Clr();
+  Visitor.SetEdgeDir(Dir);
+  this->GetBfsVisitor<TSubsetDiameterVisitor>(Ego, Visitor, Dir);
+  nodes = Visitor.nodes;
+  diameter = Visitor.diameter;
+}
+
+// Compute subset using the direction specified
+template <class PGraph>
+void TFixedMemorySubsetDiameter<PGraph>::ComputeSubsetDiameter(const TIntV& NIdV, const TEdgeDir& Dir, TIntIntH& NodesH, TIntIntH& DiameterH) {
+  TIntV::TIter VI;
+  for (VI = NIdV.BegI(); VI < NIdV.EndI();  VI++) {
+    PGraph Ego = PGraph::TObj::New(); Ego->AddNode(VI->Val);
+    Visitor.Clr();
+    this->GetBfsVisitor<TSubsetDiameterVisitor>(Ego, Visitor, Dir);
+    NodesH.AddDat(VI->Val, Visitor.nodes);
+    DiameterH.AddDat(VI->Val, Visitor.diameter);
+  }
+}
+
+template <class PGraph>
+void TFixedMemorySubsetDiameter<PGraph>::Clr(const bool& DoDel) {
+  TFixedMemoryBFS<PGraph>::Clr(DoDel);
+  Visitor.Clr(); // resets the degree visitor to have zero nodes and diameter
 }
 
 } // namespace TSnap
