@@ -1,6 +1,8 @@
 # Large datasets (download instructions provided)
 amazon0302.snap*
 amazon0312.snap*
+*/nodes.TIntV
+!USairport2010/nodes.TIntV
 
 # Example output directories (any subdirectory in a dataset directory)
 */*/
