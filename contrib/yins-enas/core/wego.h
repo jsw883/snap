@@ -7,7 +7,7 @@
 
 namespace TSnap {
 
-template <class TEdgeW, template <class> class TGraph >
+template <class TEdgeW, template <class> class TGraph>
 class TFixedMemorykWEgo : public TFixedMemoryBFS<TPt<TGraph<TEdgeW> > > {
 public:
 // Backward / forward visitor (degree only)
@@ -19,7 +19,6 @@ public:
     // Counted during BFS
     int Nodes;
     int Edges;
-    // TIntV DegV;
     THash<TInt, TEdgeW> WDegH;
   public:
     TkWEgoVisitor(const TPt<TGraph<TEdgeW> >& Graph) : Graph(Graph), Dir(edUnDirected), WDegH(Graph->GetNodes()) { }
@@ -82,21 +81,29 @@ private:
   bool computed;
 public:
   TFixedMemorykWEgo(const TPt<TGraph<TEdgeW> >& Graph, const int& k) : TFixedMemoryBFS<TPt<TGraph<TEdgeW> > >(Graph), Visitor(TkWEgoVisitor(Graph)), k(k) { }
-  void ComputeInEgonetStatistics(const int& NId) { ComputeEgonetStatistics(NId, edInDirected); }
-  void ComputeOutEgonetStatistics(const int& NId) { ComputeEgonetStatistics(NId, edOutDirected); }
-  void ComputeEgonetStatistics(const int& NId) { ComputeEgonetStatistics(NId, edUnDirected); }
+  // Direction specific compute egonet statistics
+  void ComputeInEgonetStatistics(const int& NId) {
+    ComputeEgonetStatistics(NId, edInDirected);
+  }
+  void ComputeOutEgonetStatistics(const int& NId) {
+    ComputeEgonetStatistics(NId, edOutDirected);
+  }
+  void ComputeEgonetStatistics(const int& NId) {
+    ComputeEgonetStatistics(NId, edUnDirected);
+  }
+  // Compute egonet statistics using the direction specified
   void ComputeEgonetStatistics(const int& NId, const TEdgeDir& Dir);
+  // Get results from the egonet traversal (only valid after compute method called)
   int GetNodes() { return Visitor.Nodes; }
   int GetEdges() { return Visitor.Edges; }
   double GetDensity();
   TEdgeW GetTotalW();
   double GetGiniCoefficient();
-  // void GetDegV(TIntV DegV) { DegV = Visitor.DegV; }
   void GetWDegH(THash<TInt, TEdgeW> WDegH) { WDegH = Visitor.WDegH; }
   void Clr(const bool& DoDel = false);
 };
 
-template <class TEdgeW, template <class> class TGraph >
+template <class TEdgeW, template <class> class TGraph>
 void TFixedMemorykWEgo<TEdgeW, TGraph>::ComputeEgonetStatistics(const int& NId, const TEdgeDir& Dir) {
   TPt<TGraph<TEdgeW> > Ego = TGraph<TEdgeW>::New(); Ego->AddNode(NId); // this might be inefficient (?)
   Visitor.Clr();
@@ -104,12 +111,12 @@ void TFixedMemorykWEgo<TEdgeW, TGraph>::ComputeEgonetStatistics(const int& NId, 
   this->GetBfsVisitor<TkWEgoVisitor>(Ego, Visitor, Dir, k);
 }
 
-template <class TEdgeW, template <class> class TGraph >
+template <class TEdgeW, template <class> class TGraph>
 double TFixedMemorykWEgo<TEdgeW, TGraph>::GetDensity() {
   return(double(Visitor.Edges) / (double(Visitor.Nodes) * (double(Visitor.Nodes) - 1)));
 }
 
-template <class TEdgeW, template <class> class TGraph >
+template <class TEdgeW, template <class> class TGraph>
 TEdgeW TFixedMemorykWEgo<TEdgeW, TGraph>::GetTotalW() {
   TEdgeW TotalW = 0.0;
   for (int i = 0; i < Visitor.WDegH.Len(); i++) {
@@ -119,7 +126,7 @@ TEdgeW TFixedMemorykWEgo<TEdgeW, TGraph>::GetTotalW() {
   return(TotalW);
 }
 
-template <class TEdgeW, template <class> class TGraph >
+template <class TEdgeW, template <class> class TGraph>
 double TFixedMemorykWEgo<TEdgeW, TGraph>::GetGiniCoefficient() {
   typename TVec<TEdgeW>::TIter DI;
   TVec<TEdgeW> WDegV;
@@ -135,7 +142,12 @@ double TFixedMemorykWEgo<TEdgeW, TGraph>::GetGiniCoefficient() {
   return(double(2*numerator) / double(n*denominator) - double(n + 1) / double(n));
 }
 
-// cons
+template <class TEdgeW, template <class> class TGraph>
+void TFixedMemorykWEgo<TEdgeW, TGraph>::Clr(const bool& DoDel) {
+  TFixedMemoryBFS<TPt<TGraph<TEdgeW> > >::Clr(DoDel);
+  Visitor.Clr(); // resets the degree visitor
+}
+
 } // namespace TSnap
 
 #endif

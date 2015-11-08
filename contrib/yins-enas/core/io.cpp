@@ -3,6 +3,30 @@
 #include "stdafx.h"
 #include "io.h"
 
+TIntV TSnap::LoadTxtIntV(const TStr& FNm) {
+  TSsParser Ss(FNm);
+  TIntV GenV;
+  int Val;
+  while (Ss.Next()) {
+    if (Ss.GetInt(0, Val)) {
+      GenV.Add(Val);
+    }
+  }
+  return GenV;
+}
+
+TFltV TSnap::LoadTxtFltV(const TStr& FNm) {
+  TSsParser Ss(FNm);
+  TFltV GenV;
+  double Val;
+  while (Ss.Next()) {
+    if (Ss.GetFlt(0, Val)) {
+      GenV.Add(Val);
+    }
+  }
+  return GenV;
+}
+
 // Specific SaveTxt for TIntV
 // void TSnap::SaveTxtTIntV(const TIntV& NIdV, const TStr& FNm, const TStr& Desc) {
 //   typename TIntV::TIter VI;
@@ -73,7 +97,7 @@
 // }
 
 // Generic SaveTxt for TVec template class using GetStr()
-void SaveTxt(const TFltV& GenV, const TStr& FNm, const TStr& Desc, const TStr& ValNm, const int& Width, const int& Prec) {
+void TSnap::SaveTxt(const TFltV& GenV, const TStr& FNm, const TStr& Desc, const TStr& ValNm, const int& Width, const int& Prec) {
   typename TFltV::TIter VI;
   FILE *F = fopen(FNm.CStr(), "wt");
   if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }

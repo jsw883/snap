@@ -38,7 +38,7 @@ template <template <class> class TGraph> void SaveFltWEdgeList(const TPt<TGraph<
   
 // Loads the format saved by TSnap::SaveWEdgeList()
 template <template <class> class TGraph> 
-TPt<TGraph<TInt> >LoadIntWEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId, const int& WColId) {
+TPt<TGraph<TInt> > LoadIntWEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId, const int& WColId) {
   TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
   TPt<TGraph<TInt> > Graph = TGraph<TInt>::New();
   int SrcNId, DstNId;

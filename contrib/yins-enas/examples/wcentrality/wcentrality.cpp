@@ -48,13 +48,13 @@ int main(int argc, char* argv[]) {
   printf("Computing egonet degrees for k = 1 to %d (in / out / undirected)\n", k);
   TSnap::TFixedMemorykWDeg<TFlt, TWNGraph> FixedMemorykWDeg(WGraph, k);
   printf("  ...");
-  FixedMemorykWDeg.GetkWInDegSeqH(kWInDegVH);
+  FixedMemorykWDeg.GetkWInDegH(kWInDegVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  ...");
-  FixedMemorykWDeg.GetkWOutDegSeqH(kWOutDegVH);
+  FixedMemorykWDeg.GetkWOutDegH(kWOutDegVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  ...");
-  FixedMemorykWDeg.GetkWDegSeqH(kWDegVH);
+  FixedMemorykWDeg.GetkWDegH(kWDegVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Centrality measures
@@ -80,9 +80,9 @@ int main(int argc, char* argv[]) {
   
   if (c) {
     
-    printf("\nSaving %s.wcentr...", BseFNm.CStr());
-    const TStr AggFNm = TStr::Fmt("%s.wcentr", OutFNm.CStr());
-    FILE *F = fopen(AggFNm.CStr(), "wt");
+    printf("\nSaving %s.wcentr.combined...", BseFNm.CStr());
+    const TStr CombinedFNm = TStr::Fmt("%s.wcentr.combined", OutFNm.CStr());
+    FILE *F = fopen(CombinedFNm.CStr(), "wt");
     fprintf(F,"# Node centrality distributions on the directed / undirected graph (as applicable)\n");
     fprintf(F,"# Nodes: %d\tEdges: %d\n", WGraph->GetNodes(), WGraph->GetEdges());
     fprintf(F,"# NodeId\tWInDegCentr\tWOutDegCentr\tWDegCentr\tWInEigCentr\tWOutEigCentr\tWEigCentr\tWPgRCentr\n");

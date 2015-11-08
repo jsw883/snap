@@ -1,8 +1,12 @@
 # Example executables (need to be specified manually or manually cleaned)
 */centrality
 */centrality.exe
+*/community
+*/community.exe
 */connectivity
 */connectivity.exe
+*/diameters
+*/diameters.exe
 */egonets
 */egonets.exe
 */statistics
