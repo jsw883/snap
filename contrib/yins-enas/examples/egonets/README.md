@@ -35,18 +35,27 @@ Makefiles are provided for compilation under Windows with Cygwin and gcc,
 and under Mac OS X, Linux, and other Unix operating systems with gcc as
 well. For makefiles, compile the code with `make all`.
 
-### Parameters ###
-
-  - -i:input graph (tab separated list of edges)
-  - -o:output prefix (filename extensions added)
-  - -k:depth of degree distributions (1 / 2 / ...)
-  - -w:compute horizontal / vertical edge weights (T / F)
-  - -c:collate properties into matrix (T / F)
-
 ### Usage ###
 
+```
+Usage: ./egonets -i:<input graph> -o:<output prefix> [Options]
+Options:
+    -i          input graph (tab separated list of edges)
+    -o          output prefix (filename extensions added)
+    -k          depth of degree distributions (1 / 2 ...)
+    --collate   collate properties into matrix (T / F)
+```
+
+### Example ###
+
+This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
+which is included in this repository. 
+
 ```bash
-rm -r ../../datasets/USairport2010/egonets
-mkdir ../../datasets/USairport2010/egonets
-./egonets -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/egonets/USairport2010 -k:3 -w:F -c:T
+DATASET=../../datasets/USairport2010
+rm -rf $DATASET/egonets
+mkdir $DATASET/egonets
+./egonets -i:$DATASET/USairport2010.snap \
+          -o:$DATASET/egonets/USairport2010 \
+          -k:3 --collate:T
 ```

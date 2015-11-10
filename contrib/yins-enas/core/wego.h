@@ -15,33 +15,40 @@ public:
   public:
     // Parameters for BFS
     TPt<TGraph<TEdgeW> > Graph;
+    int k;
     TEdgeDir Dir;
     // Counted during BFS
     int Nodes;
     int Edges;
     THash<TInt, TEdgeW> WDegH;
   public:
-    TkWEgoVisitor(const TPt<TGraph<TEdgeW> >& Graph) : Graph(Graph), Dir(edUnDirected), WDegH(Graph->GetNodes()) { }
+    TkWEgoVisitor(const TPt<TGraph<TEdgeW> >& Graph, const int& k) : Graph(Graph), k(k), Dir(edUnDirected), WDegH(Graph->GetNodes()) { }
     // Supplementary methods
     void SetEdgeDir(const TEdgeDir& DirArg) { Dir = DirArg; }
-    void AddW(const int& SrcNId, const int& edge, const int& DstNId, const bool& discovered) {
+    void AddW(const int& NId, const int& depth, const TEdgeW& W) {
+      if (!WDegH.IsKey(NId) && depth < k) {
+        WDegH.AddDat(NId, W);
+      } else {
+        TEdgeW& WDeg = WDegH.GetDat(NId);
+        WDeg += W;
+      }
+    }
+    void AddW(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) {
       switch(Dir) {
-        case edInDirected: { 
-          TEdgeW& WDeg = discovered ? WDegH.GetDat(SrcNId) : WDegH.AddDat(SrcNId);
-          WDeg += Graph->GetNI(SrcNId).GetInEW(edge);
+        case edInDirected: {
+          const TEdgeW W = Graph->GetNI(SrcNId).GetInEW(edge);
+          AddW(SrcNId, depth, W);
           break;
         }
         case edOutDirected: {
-          TEdgeW& WDeg = discovered ? WDegH.GetDat(SrcNId) : WDegH.AddDat(SrcNId);
-          WDeg += Graph->GetNI(SrcNId).GetOutEW(edge);
+          const TEdgeW W = Graph->GetNI(SrcNId).GetOutEW(edge);
+          AddW(SrcNId, depth, W);
           break;
         }
         case edUnDirected: {  // add edge weight to source node (OUT)
-          TEdgeW& WSrcDeg = discovered ? WDegH.GetDat(SrcNId) : WDegH.AddDat(SrcNId);
-          TEdgeW& WDstDeg = discovered ? WDegH.GetDat(DstNId) : WDegH.AddDat(DstNId);
           const TEdgeW W = Graph->GetNI(SrcNId).GetNbrEW(edge);
-          WSrcDeg += W;
-          WDstDeg += W;
+          AddW(SrcNId, depth, W);
+          AddW(DstNId, depth, W);
           break;
         }
       }
@@ -55,15 +62,15 @@ public:
     void ExamineEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) { }
     void TreeEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) {
       Edges += 1;
-      AddW(SrcNId, edge, DstNId, false);
+      AddW(SrcNId, depth, edge, DstNId);
     }
     void BackEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) {
       Edges += 1;
-      AddW(SrcNId, edge, DstNId, true);
+      AddW(SrcNId, depth, edge, DstNId);
     }
     void ForwardEdge(const int& SrcNId, const int& depth, const int& edge, const int& DstNId) {
       Edges += 1;
-      AddW(SrcNId, edge, DstNId, true);
+      AddW(SrcNId, depth, edge, DstNId);
     }
     void Finish() { }
     // Clear method (somewhat standard)
@@ -80,7 +87,7 @@ private:
   int k;
   bool computed;
 public:
-  TFixedMemorykWEgo(const TPt<TGraph<TEdgeW> >& Graph, const int& k) : TFixedMemoryBFS<TPt<TGraph<TEdgeW> > >(Graph), Visitor(TkWEgoVisitor(Graph)), k(k) { }
+  TFixedMemorykWEgo(const TPt<TGraph<TEdgeW> >& Graph, const int& k) : TFixedMemoryBFS<TPt<TGraph<TEdgeW> > >(Graph), Visitor(TkWEgoVisitor(Graph, k)), k(k) { }
   // Direction specific compute egonet statistics
   void ComputeInEgonetStatistics(const int& NId) {
     ComputeEgonetStatistics(NId, edInDirected);
