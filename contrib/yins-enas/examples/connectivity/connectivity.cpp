@@ -11,10 +11,10 @@ int main(int argc, char* argv[]) {
   
   Try
   
-  const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network");
+  const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input graph (tab separated list of edges)");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
-  const bool s = Env.GetIfArgPrefixBool("-s:", false, "giant only / each weak structure (T / F)");
+  const bool giantOnly = Env.GetIfArgPrefixBool("--giant-only:", false, "compute giant weakly connected component only");
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
-  if (s) {
+  if (giantOnly) {
     
     printf("\nSaving %s.GWCC and %s.GWCC...", BseFNm.CStr(), BseFNm.CStr());
     TSnap::SaveTxt(WCnComV[0].NIdV, TStr::Fmt("%s.GWCC", OutFNm.CStr()), "Giant weakly connected component (GWCC)", "NodeId");

@@ -14,17 +14,28 @@ Makefiles are provided for compilation under Windows with Cygwin and gcc,
 and under Mac OS X, Linux, and other Unix operating systems with gcc as
 well. For makefiles, compile the code with `make all`.
 
-### Parameters ###
-
-  - -i:input graph (tab separated list of edges)
-  - -j:subset of nodes (column list of nodes)
-  - -o:output prefix (filename extensions added)
-  - -c:collate centralities into matrix (T / F)
-
 ### Usage ###
 
+```
+Usage: ./diameters -i:<input graph> -o:<output prefix> [Options]
+Options:
+    -i          input graph (tab separated list of edges)
+    -s          subset nodes (column of nodes)
+    -o          output prefix (filename extensions added)
+    --collate   collate properties into matrix: T / F (default: F)
+```
+
+### Example ###
+
+This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
+which is included in this repository. 
+
 ```bash
-rm -r ../../datasets/USairport2010/diameters
-mkdir ../../datasets/USairport2010/diameters
-./diameters -i:../../datasets/USairport2010/USairport2010.snap -j:../../datasets/USairport2010/nodes.TIntV -o:../../datasets/USairport2010/diameters/USairport2010 -c:F
+DATASET=../../datasets/USairport2010
+rm -rf $DATASET/diameters
+mkdir $DATASET/diameters
+./diameters -i:$DATASET/USairport2010.snap \
+            -s:$DATASET/nodes.TIntV \
+            -o:$DATASET/diameters/USairport2010 \
+            --collate:T
 ```

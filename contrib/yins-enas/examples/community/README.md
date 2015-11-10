@@ -32,3 +32,29 @@ rm -r ../../datasets/USairport2010/community
 mkdir ../../datasets/USairport2010/community
 community -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/community/USairport2010 -c:F
 ```
+
+### Usage ###
+
+```
+Usage: ./community -i:<input graph> -o:<output prefix> [Options]
+Options:
+    -i          input graph (tab separated list of edges with edge weights)
+    -o          output prefix (filename extensions added)
+    --eps       minimum quality improvement threshold (default: 1.0e-5)
+    --iters     maximum number of iterations (default: 1.0e+4)
+    --moves     minimum number of moves (proportional) (default: 1.0e-2)
+```
+
+### Example ###
+
+This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
+which is included in this repository. 
+
+```bash
+DATASET=../../datasets/USairport2010
+rm -rf $DATASET/community
+mkdir $DATASET/community
+./community -i:$DATASET/USairport2010.snap \
+          -o:$DATASET/community/USairport2010 \
+          --iters:1.0e+3 --moves:1.0e-3
+```

@@ -32,16 +32,26 @@ Makefiles are provided for compilation under Windows with Cygwin and gcc,
 and under Mac OS X, Linux, and other Unix operating systems with gcc as
 well. For makefiles, compile the code with `make all`.
 
-### Parameters ###
-
-  - -i:input graph (tab separated list of edges)
-  - -o:output prefix (filename extensions added)
-  - -s:giant only / each weak structure (T / F)
-
 ### Usage ###
 
+```
+Usage: ./egonets -i:<input graph> -o:<output prefix> [Options]
+Options:
+    -i              input graph (tab separated list of edges)
+    -o              output prefix (filename extensions added)
+    --giant-only    compute giant weakly connected component only (default: F) 
+```
+
+### Example ###
+
+This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
+which is included in this repository. 
+
 ```bash
-rm -r ../../datasets/USairport2010/connectivity
-mkdir ../../datasets/USairport2010/connectivity
-./connectivity -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/connectivity/USairport2010 -c:F
+DATASET=../../datasets/USairport2010
+rm -rf $DATASET/connectivity
+mkdir $DATASET/connectivity
+./connectivity -i:$DATASET/USairport2010.snap \
+               -o:$DATASET/connectivity/USairport2010 \
+               --giant-only:T
 ```
