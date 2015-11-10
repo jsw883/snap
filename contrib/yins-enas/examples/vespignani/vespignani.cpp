@@ -23,30 +23,18 @@ int main(int argc, char* argv[]) {
   printf("  edges: %d\n", WGraph->GetEdges());
   printf("  time elapsed: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
 
-  // Declare variables
-  TIntFltH OutWDegH, InWDegH;
-  TIntIntH OutDegH, InDegH;
-
-  // Get degrees, weighted and unweighted
-  printf("\nGetting initial distribution of binary in / out degrees...");
-  TSnap::GetInDegH(WGraph, InDegH);
-  TSnap::GetOutDegH(WGraph, OutDegH);
-  printf(" DONE (time elapsed: %s (%s))", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-
-  printf("\nGetting initial distribution of weighted in / out degrees...");
-  TSnap::GetWInDegH(WGraph, InWDegH);
-  TSnap::GetWOutDegH(WGraph, OutWDegH);
-  printf(" DONE (time elapsed: %s (%s))", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  // VESPIGNANI METHOD
 
   // Apply the disparity filter Vespignani method
   printf("\nApplying the disparity filter vespignani method...");
-  TSnap::FilterEdgesVespignani(WGraph, InWDegH, OutWDegH, InDegH, OutDegH, alpha);
+  TSnap::FilterEdgesVespignani<TFlt, TWNGraph>(WGraph, alpha);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("\nPruned graph:");
   printf("\n  nodes: %d", WGraph->GetNodes());
   printf("\n  edges: %d\n", WGraph->GetEdges());
 
   // OUTPUTTING 
+  
   printf("\nSaving %s-%f.snap...", OutFNm.CStr(), alpha);
   TSnap::SaveFltWEdgeList(WGraph, TStr::Fmt("%s-%f.snap", OutFNm.CStr(), alpha), "");
   printf(" DONE\n");

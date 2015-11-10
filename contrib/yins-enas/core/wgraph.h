@@ -19,7 +19,7 @@
 // NOTE: In order to define smart pointers, TEdgeW needs to be defined (C++98)
 template <class TEdgeW> class TWNGraph;
 
-/// Integer weighted directed graph (TWNGraph<TInt>)./r  
+/// Integer weighted directed graph (TWNGraph<TInt>)
 typedef TWNGraph<TInt> TIntWNGraph;
 /// Float weighted directed graph (TWNGraph<TFlt>)
 typedef TWNGraph<TFlt> TFltWNGraph;
@@ -51,7 +51,7 @@ typedef TPt<TIntWNEGraph> PIntWNEGraph;
 typedef TPt<TFltWNEGraph> PFltWNEGraph;
 
 //#//////////////////////////////////////////////
-/// Weighted directed graph. ##TWNGraph::Class
+/// Weighted directed graph.
 template <class TEdgeW> // TEdgeW can be TInt or TFlt (which must be numeric typed, should this be restricted (?))
 class TWNGraph {
 public:
@@ -136,11 +136,11 @@ public:
     TEdgeW GetWOutDeg() const;
     /// Returns weighted degree of the current node, the sum of weighted in-degree and weighted out-degree.
     TEdgeW GetWDeg() const { return GetWInDeg() + GetWOutDeg(); }
-    /// Returns ID of NodeN-th in-node (the node pointing to the current node). ##TWNGraph::TNodeI::GetInNId
+    /// Returns ID of NodeN-th in-node (the node pointing to the current node).
     int GetInNId(const int& EdgeN) const { return NodeHI.GetDat().GetInNId(EdgeN); }
-    /// Returns ID of NodeN-th out-node (the node the current node points to). ##TWNGraph::TNodeI::GetOutNId
+    /// Returns ID of NodeN-th out-node (the node the current node points to).
     int GetOutNId(const int& EdgeN) const { return NodeHI.GetDat().GetOutNId(EdgeN); }
-    /// Returns ID of NodeN-th neighboring node ##TWNGraph::TNodeI::GetNbrNId
+    /// Returns ID of NodeN-th neighboring node
     int GetNbrNId(const int& EdgeN) const { return NodeHI.GetDat().GetNbrNId(EdgeN); }
     
     /// Tests whether node with ID NId points to the current node.
@@ -179,7 +179,7 @@ public:
       if (CurNode.GetOutDeg() != 0) {
         CurEdge++;
         if (CurEdge >= CurNode.GetOutDeg()) {
-          CurEdge=0;
+          CurEdge = 0;
           CurNode++;
           while (CurNode < EndNode && CurNode.GetOutDeg() == 0) {
             CurNode++;
@@ -201,10 +201,10 @@ public:
       CurEdge--;
       if (CurEdge < 0) {
         CurNode--;
-        CurEdge = CurNode.GetOutDeg() - 1;
         while (CurNode > BegNode && CurNode.GetOutDeg() == 0) {
           CurNode--;
         }
+        CurEdge = CurNode.GetOutDeg() - 1;
       }
       return *this;
     }
@@ -243,7 +243,7 @@ public:
   void Save(TSOut& SOut) const { MxNId.Save(SOut); NodeH.Save(SOut); }
   /// Static constructor that returns a pointer to the graph. Call: PNGraph Graph = TWNGraph::New().
   static PNet New() { return PNet(new TNet()); }
-  /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TWNGraph::New
+  /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges.
   static PNet New(const int& Nodes, const int& Edges) { return PNet(new TNet(Nodes, Edges)); }
   /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
   static PNet Load(TSIn& SIn) { return PNet(new TNet(SIn)); }
@@ -255,14 +255,14 @@ public:
   
   /// Returns the number of nodes in the graph.
   int GetNodes() const { return NodeH.Len(); }
-  /// Adds a node of ID NId to the graph. ##TWNGraph::AddNode
+  /// Adds a node of ID NId to the graph.
   int AddNode(int NId = -1);
   /// Adds a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId()); }
-  /// Deletes node of ID NId from the graph. ##TWNGraph::DelNode
+  /// Deletes node of ID NId from the graph. 
   void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the graph.
-  void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }
+  void DelNode(TNode& NodeI) { DelNode(NodeI.GetId()); }
   /// Tests whether ID NId is a node.
   bool IsNode(const int& NId) const { return NodeH.IsKey(NId); }
   /// Returns an iterator referring to the first node in the graph.
@@ -276,12 +276,14 @@ public:
   
   /// Returns the number of edges in the graph.
   int GetEdges() const;
-  /// Adds an edge from node IDs SrcNId to node DstNId to the graph. ##TWNGraph::AddEdge
+  /// Adds an edge from node IDs SrcNId to node DstNId to the graph.
   int AddEdge(const int& SrcNId, const int& DstNId, TEdgeW W = 1);
   /// Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() to the graph.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI.GetW()); }
-  /// Deletes an edge from node IDs SrcNId to DstNId from the graph. ##TWNGraph::DelEdge
+  /// Deletes an edge from node IDs SrcNId to DstNId from the graph.
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
+  /// Deletes an edge from the edge iterator EI, checking internal consistency for EI
+  void DelEdge(TEdgeI& EdgeI);
   /// Tests whether an edge from node IDs SrcNId to DstNId exists in the graph.
   bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const;
   /// Returns an iterator referring to the first edge in the graph.
@@ -334,7 +336,7 @@ public:
   void ReserveNIdOutDeg(const int& NId, const int& OutDeg) { GetNode(NId).OutNIdEdgeWV.Reserve(OutDeg); }
   /// Defragments the graph. ##TWNGraph::Defrag
   void Defrag(const bool& OnlyNodeLinks = false);
-  /// Checks the graph data structure for internal consistency. ##TWNGraph::IsOk
+  /// Checks the graph data structure for internal consistency.
   bool IsOk(const bool& ThrowExcept = true) const;
   /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF = stdout) const;
@@ -480,6 +482,15 @@ void TWNGraph<TEdgeW>::DelEdge(const int& SrcNId, const int& DstNId, const bool&
     { TNode& N = GetNode(DstNId);
     N.IsOutNId(SrcNId, node);
     if (node != -1) { N.OutNIdEdgeWV.Del(node); } }
+  }
+}
+
+template <class TEdgeW>
+void TWNGraph<TEdgeW>::DelEdge(TEdgeI& EdgeI) {
+  const int SrcNId = EdgeI.GetSrcNId(), DstNId = EdgeI.GetDstNId();
+  DelEdge(SrcNId, DstNId);
+  if (EdgeI.CurEdge >= EdgeI.CurNode.GetOutDeg()) {
+    EdgeI++;
   }
 }
 
@@ -637,14 +648,14 @@ void TWNGraph<TEdgeW>::Dump(FILE *OutF) const {
 }
 
 //#//////////////////////////////////////////////
-/// Weighted directed multigraph. ##TWNEGraph::Class
+/// Weighted directed multigraph.
 template <class TEdgeW> // TEdgeW can be TInt or TFlt (which must be numeric typed, should this be restricted (?))
 class TWNEGraph {
 public:
   typedef TWNEGraph<TEdgeW> TNet;
   typedef TPt<TNet> PNet;
 public:
-  /// Edge class used to store edge information ##TWNEGraph::TEdge::Class
+  /// Edge class used to store edge information
   class TEdge {
   private:
     TInt Id, SrcNId, DstNId;
@@ -665,7 +676,7 @@ public:
     int GetSrcNId() const { return SrcNId; }
     int GetDstNId() const { return DstNId; }
     // Edge weight accessor method
-    TEdgeW GetW() const { return EdgeW; } // don't need to use references, only TInt or TFlt being used
+    TEdgeW GetW() const { return EdgeW; }
     friend class TWNEGraph<TEdgeW>;
   };
   class TNode {
@@ -744,11 +755,11 @@ public:
     TEdgeW GetWOutDeg() const;
     // Returns weighted degree of the current node, the sum of weighted in-degree and weighted out-degree.
     TEdgeW GetWDeg() const { return GetWInDeg() + GetWOutDeg(); }
-    /// Returns ID of NodeN-th in-node (the node pointing to the current node). ##TWNEGraph::TNodeI::GetInNId
+    /// Returns ID of NodeN-th in-node (the node pointing to the current node).
     int GetInNId(const int& EdgeN) const { return NodeHI.GetDat().GetInNId(EdgeN); }
-    /// Returns ID of NodeN-th out-node (the node the current node points to). ##TWNEGraph::TNodeI::GetOutNId
+    /// Returns ID of NodeN-th out-node (the node the current node points to).
     int GetOutNId(const int& EdgeN) const { return NodeHI.GetDat().GetOutNId(EdgeN); }
-    /// Returns ID of NodeN-th neighboring node ##TWNEGraph::TNodeI::GetNbrNId
+    /// Returns ID of NodeN-th neighboring node
     int GetNbrNId(const int& EdgeN) const { return NodeHI.GetDat().GetNbrNId(EdgeN); }
     /// Returns ID of EdgeN-th in-edge.
     int GetInEId(const int& EdgeN) const { return NodeHI.GetDat().GetInEId(EdgeN); }
@@ -823,7 +834,7 @@ public:
   void Save(TSOut& SOut) const { MxNId.Save(SOut); MxEId.Save(SOut); NodeH.Save(SOut); EdgeH.Save(SOut); }
   /// Static constructor that returns a pointer to the graph. Call: PNGraph Graph = TWNEGraph::New().
   static PNet New() { return PNet(new TNet()); }
-  /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TWNEGraph::New
+  /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges.
   static PNet New(const int& Nodes, const int& Edges) { return PNet(new TNet(Nodes, Edges)); }
   /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
   static PNet Load(TSIn& SIn) { return PNet(new TNet(SIn)); }
@@ -835,11 +846,11 @@ public:
   
   /// Returns the number of nodes in the graph.
   int GetNodes() const { return NodeH.Len(); }
-  /// Adds a node of ID NId to the graph. ##TWNEGraph::AddNode
+  /// Adds a node of ID NId to the graph.
   int AddNode(int NId = -1);
   /// Adds a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId()); }
-  /// Deletes node of ID NId from the graph. ##TWNEGraph::DelNode
+  /// Deletes node of ID NId from the graph.
   void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the graph.
   void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }
@@ -856,14 +867,16 @@ public:
   
   /// Returns the number of edges in the graph.
   int GetEdges() const { return EdgeH.Len(); }
-  /// Adds an edge from node IDs SrcNId to node DstNId to the graph. ##TWNEGraph::AddEdge
+  /// Adds an edge from node IDs SrcNId to node DstNId to the graph.
   int AddEdge(const int& SrcNId, const int& DstNId, TEdgeW W = 1, int EId = -1);
   /// Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() to the graph.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI.GetW(), EdgeI.GetId()); }
-  /// Deletes an edge with edge ID EId from the graph. ##TWNEGraph::DelEdge
+  /// Deletes an edge with edge ID EId from the graph.
   void DelEdge(const int& EId);
-  /// Deletes all edges from node IDs SrcNId to DstNId from the graph. ##TWNEGraph::DelEdge
+  /// Deletes all edges from node IDs SrcNId to DstNId from the graph.
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
+  /// Deletes edge of ID EdgeI.GetId() from the graph.
+  void DelNode(TEdge& EdgeI) { DelEdge(EdgeI.GetId()); }
   /// Tests whether an edge with edge ID EId exists in the graph.
   bool IsEdge(const int& EId) const { return EdgeH.IsKey(EId); }
   
@@ -918,11 +931,11 @@ public:
   void ReserveNIdOutDeg(const int& NId, const int& OutDeg) { GetNode(NId).OutEdgeV.Reserve(OutDeg); }
   /// Defragments the graph. ##TWNEGraph::Defrag
   void Defrag(const bool& OnlyNodeLinks = false);
-  /// Checks the graph data structure for internal consistency. ##TWNEGraph::IsOk
+  /// Checks the graph data structure for internal consistency.
   bool IsOk(const bool& ThrowExcept = true) const;
   /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF = stdout) const;
-  /// Returns a small graph on 5 nodes and 6 edges. ##TWNEGraph::GetSmallGraph
+  /// Returns a small graph on 5 nodes and 6 edges.
   static PNet GetSmallGraph();
   friend class TPt<TWNEGraph<TEdgeW> >;
   // friend class TWNEGraphWMtx<TEdgeW>; // required for weighted adjacency matrix SVD
@@ -944,7 +957,7 @@ template <class TEdgeW>
 TEdgeW TWNEGraph<TEdgeW>::TNodeI::GetWInDeg() const {
   TEdgeW WDeg = 0;
   for (int edge = 0; edge < GetInDeg(); edge++) {
-    WDeg += GetInEW(edge); // Graph->GetEdge(NodeHI.GetDat().GetInEId(edge)).GetW();
+    WDeg += GetInEW(edge);
   }
   return WDeg;
 }
@@ -953,7 +966,7 @@ template <class TEdgeW>
 TEdgeW TWNEGraph<TEdgeW>::TNodeI::GetWOutDeg() const {
   TEdgeW WDeg = 0;
   for (int edge = 0; edge < GetOutDeg(); edge++) {
-    WDeg += GetOutEW(edge); // Graph->GetEdge(NodeHI.GetDat().GetOutEId(edge)).GetW();
+    WDeg += GetOutEW(edge);
   }
   return WDeg;
 }
