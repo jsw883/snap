@@ -35,11 +35,11 @@ well. For makefiles, compile the code with `make all`.
 ### Usage ###
 
 ```
-Usage: ./egonets -i:<input network> -o:<output prefix> [Options]
+Usage: ./connectivity -i:<input network> -o:<output prefix> [Options]
 Options:
-    -i              input network (tab separated list of edges)
-    -o              output prefix (filename extensions added)
-    --giant-only    compute giant weakly connected component only (default: F) 
+    -i          input network (tab separated list of edges)
+    -o          output prefix (filename extensions added)
+    --gcc-only  compute giant weakly connected component only (default: F) 
 ```
 
 ### Example ###

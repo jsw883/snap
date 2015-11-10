@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network (tab separated list of edges)");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
-  const bool giantOnly = Env.GetIfArgPrefixBool("--giant-only:", false, "compute giant weakly connected component only");
+  const bool gccOnly = Env.GetIfArgPrefixBool("--gcc-only:", false, "compute giant weakly connected component only");
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
-  if (giantOnly) {
+  if (gccOnly) {
     
     printf("\nSaving %s.GWCC and %s.GWCC...", BseFNm.CStr(), BseFNm.CStr());
     TSnap::SaveTxt(WCnComV[0].NIdV, TStr::Fmt("%s.GWCC", OutFNm.CStr()), "Giant weakly connected component (GWCC)", "NodeId");
@@ -56,17 +56,17 @@ int main(int argc, char* argv[]) {
     printf("  (GWCC) nodes: %d edges: %d\n", WSubGraph->GetNodes(), WSubGraph->GetEdges());
     printf("  (GSCC) nodes: %d edges: %d\n", SSubGraph->GetNodes(), SSubGraph->GetEdges());
     
-    printf("\nSaving %s.IN and %s.OUT...", BseFNm.CStr(), BseFNm.CStr());
-    TSnap::SaveTxt(BCnComV[0].NIdV, TStr::Fmt("%s.IN", OutFNm.CStr()), "Components connecting in to the GSCC (IN)", "NodeId");
-    TSnap::SaveTxt(FCnComV[0].NIdV, TStr::Fmt("%s.OUT", OutFNm.CStr()), "Components connected out from the GSCC (OUT)", "NodeId");
+    printf("\nSaving %s.GIN and %s.GOUT...", BseFNm.CStr(), BseFNm.CStr());
+    TSnap::SaveTxt(BCnComV[0].NIdV, TStr::Fmt("%s.GIN", OutFNm.CStr()), "Components connecting in to the GSCC (GIN)", "NodeId");
+    TSnap::SaveTxt(FCnComV[0].NIdV, TStr::Fmt("%s.GOUT", OutFNm.CStr()), "Components connected out from the GSCC (GOUT)", "NodeId");
     printf(" DONE\n");
-    printf("  (IN) nodes: %d\n",BCnComV[0].NIdV.Len());
-    printf("  (OUT) nodes: %d\n",FCnComV[0].NIdV.Len());
+    printf("  (GIN) nodes: %d\n",BCnComV[0].NIdV.Len());
+    printf("  (GOUT) nodes: %d\n",FCnComV[0].NIdV.Len());
     
-    printf("\nSaving %s.TE...", BseFNm.CStr());
-    TSnap::SaveTxt(TeCnComV[0].NIdV, TStr::Fmt("%s.TE", OutFNm.CStr()), "Tendrils from the IN and to the OUT (TE)", "NodeId");
+    printf("\nSaving %s.GTE...", BseFNm.CStr());
+    TSnap::SaveTxt(TeCnComV[0].NIdV, TStr::Fmt("%s.GTE", OutFNm.CStr()), "Tendrils from the IN and to the OUT (GTE)", "NodeId");
     printf(" DONE\n");
-    printf("  (TE) nodes: %d\n",TeCnComV[0].NIdV.Len());
+    printf("  (GTE) nodes: %d\n",TeCnComV[0].NIdV.Len());
     
   } else {
     

@@ -83,9 +83,9 @@ int main(int argc, char* argv[]) {
     printf("\nSaving %s.centr.combined...", BseFNm.CStr());
     const TStr CombinedFNm = TStr::Fmt("%s.centr.combined", OutFNm.CStr());
     FILE *F = fopen(CombinedFNm.CStr(), "wt");
-    fprintf(F,"# Node centrality distributions on the directed / undirected graph (as applicable)\n");
-    fprintf(F,"# Nodes: %d\tEdges: %d\n", Graph->GetNodes(), Graph->GetEdges());
-    fprintf(F,"# NodeId\tInDegCentr\tOutDegCentr\tDegCentr\tInEigCentr\tOutEigCentr\tEigCentr\tPgRCentr\n");
+    fprintf(F, "# Node centrality distributions on the directed / undirected graph (as applicable)\n");
+    fprintf(F, "# Nodes: %d\tEdges: %d\n", Graph->GetNodes(), Graph->GetEdges());
+    fprintf(F, "# NodeId\tInDegCentr\tOutDegCentr\tDegCentr\tInEigCentr\tOutEigCentr\tEigCentr\tPgRCentr\n");
     for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
       const int NId = NI.GetId(); fprintf(F, "%d", NId);
       const TFltV DegCentrV = DegCentrVH.GetDat(NId);
