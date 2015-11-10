@@ -379,7 +379,7 @@ public:
   void ComputeOutDiameter(const int& NId, int& nodes, int& diameter) {
     ComputeDiameter(NId, edOutDirected);
   }
-  void ComputeNodeDiameter(const int& NId, int& nodes, int& diameter) {
+  void ComputeDiameter(const int& NId, int& nodes, int& diameter) {
     ComputeDiameter(NId, edUnDirected);
   }
   // Get diameter and node count for a single node using the direction specified 
@@ -406,7 +406,6 @@ template <class PGraph>
 void TFixedMemorySubsetDiameter<PGraph>::ComputeDiameter(const int& NId, const TEdgeDir& Dir, int& nodes, int& diameter) {
   PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId);
   Visitor.Clr();
-  Visitor.SetEdgeDir(Dir);
   this->GetBfsVisitor<TSubsetDiameterVisitor>(Ego, Visitor, Dir);
   nodes = Visitor.nodes;
   diameter = Visitor.diameter;
@@ -416,12 +415,11 @@ void TFixedMemorySubsetDiameter<PGraph>::ComputeDiameter(const int& NId, const T
 template <class PGraph>
 void TFixedMemorySubsetDiameter<PGraph>::ComputeSubsetDiameter(const TIntV& NIdV, const TEdgeDir& Dir, TIntIntH& NodesH, TIntIntH& DiameterH) {
   TIntV::TIter VI;
+  int nodes, diameter;
   for (VI = NIdV.BegI(); VI < NIdV.EndI();  VI++) {
-    PGraph Ego = PGraph::TObj::New(); Ego->AddNode(VI->Val);
-    Visitor.Clr();
-    this->GetBfsVisitor<TSubsetDiameterVisitor>(Ego, Visitor, Dir);
-    NodesH.AddDat(VI->Val, Visitor.nodes);
-    DiameterH.AddDat(VI->Val, Visitor.diameter);
+    ComputeDiameter(VI->Val, Dir, nodes, diameter);
+    NodesH.AddDat(VI->Val, nodes);
+    DiameterH.AddDat(VI->Val, diameter);
   }
 }
 

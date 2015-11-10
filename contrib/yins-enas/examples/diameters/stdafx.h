@@ -6,3 +6,4 @@
 
 #include "galg.h"
 #include "io.h"
+#include "rand.h"

@@ -22,6 +22,9 @@ Options:
     -i          input network (tab separated list of edges)
     -s          subset nodes (column of nodes)
     -o          output prefix (filename extensions added)
+    -d          direction of ego traversal: in = 1, out = 2, undirected = 3
+                    (default: 3)
+    --compare   compare to a random subset of nodes: T / F (default: T)
     --collate   collate properties into matrix: T / F (default: F)
 ```
 
@@ -35,7 +38,7 @@ DATASET=../../datasets/USairport2010
 rm -rf $DATASET/diameters
 mkdir $DATASET/diameters
 ./diameters -i:$DATASET/USairport2010.snap \
-            -s:$DATASET/nodes.TIntV \
+            -s:$DATASET/subset.TIntV \
             -o:$DATASET/diameters/USairport2010 \
-            --collate:T
+            -d:3 --compare --collate:T
 ```
