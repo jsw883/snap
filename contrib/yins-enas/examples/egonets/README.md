@@ -40,10 +40,12 @@ well. For makefiles, compile the code with `make all`.
 ```
 Usage: ./egonets -i:<input graph> -o:<output prefix> [Options]
 Options:
-    -i          input graph (tab separated list of edges)
+    -i          input graph (tab separated list of edges with edge weights)
     -o          output prefix (filename extensions added)
-    -k          depth of degree distributions (1 / 2 ...)
-    --collate   collate properties into matrix (T / F)
+    -d          direction of ego traversal: in = 1, out = 2, undirected = 3
+                    (default: 3)
+    -k          depth of ego traversal (default: 1)
+    --collate   collate properties into matrix: T / F (default: F)
 ```
 
 ### Example ###
