@@ -15,7 +15,7 @@ well. For makefiles, compile the code with `make all`.
 
 ### Parameters ###
 
-  - -i:input graph (tab separated list of edges)
+  - -i:input network (tab separated list of edges)
   - -o:output prefix (alpha value and filename extensions added)
   - -a:alpha significance threshold (default: 0.01)
 
@@ -31,11 +31,11 @@ mkdir ../../datasets/USairport2010/vespignani
 ### Usage ###
 
 ```
-Usage: ./vespignani -i:<input graph> -o:<output prefix> [Options]
+Usage: ./vespignani -i:<input network> -o:<output prefix> [Options]
 Options:
-    -i      input graph (tab separated list of edges with edge weights)
+    -i      input network (tab separated list of edges with edge weights)
     -o      output prefix (filename extensions added)
-    -d      alpha significance level threshold (default: 0.01)
+    -a      alpha significance level threshold (default: 0.01)
 ```
 
 ### Example ###

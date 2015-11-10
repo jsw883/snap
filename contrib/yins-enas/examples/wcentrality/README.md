@@ -30,9 +30,9 @@ well. For makefiles, compile the code with `make all`.
 ### Usage ###
 
 ```
-Usage: ./wcentrality -i:<input graph> -o:<output prefix> [Options]
+Usage: ./wcentrality -i:<input network> -o:<output prefix> [Options]
 Options:
-    -i          input graph (tab separated list of edges with edge weights)
+    -i          input network (tab separated list of edges with edge weights)
     -o          output prefix (filename extensions added)
     -k          depth of degree traversal (default: 1)
     --collate   collate properties into matrix: T / F (default: F)

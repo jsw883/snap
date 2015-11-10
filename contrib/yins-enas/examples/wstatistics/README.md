@@ -16,10 +16,10 @@ well. For makefiles, compile the code with `make all`.
 ### Usage ###
 
 ```
-Usage: ./wstatistics -i:<input graph> -o:<output prefix> [Options]
+Usage: ./wstatistics -i:<input network> -o:<output prefix> [Options]
 Options:
-    -i          input graph (tab separated list of edges with edge weights)
-    -o          output prefix (filename extensions added)
+    -i      input network (tab separated list of edges with edge weights)
+    -o      output prefix (filename extensions added)
 ```
 
 ### Example ###

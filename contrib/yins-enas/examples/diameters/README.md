@@ -17,9 +17,9 @@ well. For makefiles, compile the code with `make all`.
 ### Usage ###
 
 ```
-Usage: ./diameters -i:<input graph> -o:<output prefix> [Options]
+Usage: ./diameters -i:<input network> -o:<output prefix> [Options]
 Options:
-    -i          input graph (tab separated list of edges)
+    -i          input network (tab separated list of edges)
     -s          subset nodes (column of nodes)
     -o          output prefix (filename extensions added)
     --collate   collate properties into matrix: T / F (default: F)

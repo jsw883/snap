@@ -32,9 +32,9 @@ well. For makefiles, compile the code with `make all`.
 ### Usage ###
 
 ```
-Usage: ./centrality -i:<input graph> -o:<output prefix> [Options]
+Usage: ./centrality -i:<input network> -o:<output prefix> [Options]
 Options:
-    -i          input graph (tab separated list of edges)
+    -i          input network (tab separated list of edges)
     -o          output prefix (filename extensions added)
     -k          depth of degree traversal (default: 1)
     --collate   collate properties into matrix: T / F (default: F)

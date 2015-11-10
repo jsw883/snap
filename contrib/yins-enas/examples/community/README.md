@@ -19,7 +19,7 @@ well. For makefiles, compile the code with `make all`.
 
 ### Parameters ###
 
-  - -i:input graph (tab separated list of edges)
+  - -i:input network (tab separated list of edges)
   - -o:output prefix (filename extensions added)
   - -eps:minimum quality improvement threshold
   - -iters:maximum number of iterations
@@ -36,9 +36,9 @@ community -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/U
 ### Usage ###
 
 ```
-Usage: ./community -i:<input graph> -o:<output prefix> [Options]
+Usage: ./community -i:<input network> -o:<output prefix> [Options]
 Options:
-    -i          input graph (tab separated list of edges with edge weights)
+    -i          input network (tab separated list of edges with edge weights)
     -o          output prefix (filename extensions added)
     --eps       minimum quality improvement threshold (default: 1.0e-5)
     --iters     maximum number of iterations (default: 1.0e+4)

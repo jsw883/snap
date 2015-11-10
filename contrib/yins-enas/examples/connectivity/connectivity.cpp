@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
   
   Try
   
-  const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input graph (tab separated list of edges)");
+  const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network (tab separated list of edges)");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
   const bool giantOnly = Env.GetIfArgPrefixBool("--giant-only:", false, "compute giant weakly connected component only");
