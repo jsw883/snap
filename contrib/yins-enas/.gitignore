@@ -48,5 +48,7 @@ wconversions
 
 # Custom bash scripts for testing
 testing.config
-*DIAN
+*DIAN*
 *testing
+.conf/
+*.conf

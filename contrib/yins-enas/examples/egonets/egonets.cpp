@@ -32,34 +32,18 @@ int main(int argc, char* argv[]) {
   TFltWNGraph::TNodeI NI;
   
   // Loop over egonets (node iterator)
-  printf("\n----------------------------------------\n");
-  printf("Computing egonet properties (");
-  switch(d) {
-    case edInDirected: printf("in"); break;
-    case edOutDirected: printf("out"); break;
-    case edUnDirected: printf("undirected"); break;
-  }
-  printf(")");
-  printf("\n----------------------------------------\n");
-  printf("000%% : %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  int i = 1, lastPercentage = 0, currentPercentage = 0, percentageStep = 5;  
-  for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++, i++) {
+  Progress progress(ExeTm, WGraph->GetNodes(), 5, "Computing egonet statistics"); 
+  for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
+    progress++;
     
-    // print only every 5%
-    currentPercentage = floor(double(i) / double(WGraph->GetNodes()) * 100);
-    if (currentPercentage >= lastPercentage + percentageStep) {
-      printf("%03d%% : %s (%s)\n", currentPercentage, ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-      lastPercentage = currentPercentage;
-    }
-    
+    // get node id for computing and storing egonet statistics
     const int NId = NI.GetId();
     
+    // compute egonet statistics (computationally expensive)
     TSnap::TFixedMemorykWEgo<TFlt, TWNGraph> FixedMemorykWEgo(WGraph, k);
-    switch(d) {
-      case edInDirected: FixedMemorykWEgo.ComputeInEgonetStatistics(NId); break;
-      case edOutDirected: FixedMemorykWEgo.ComputeOutEgonetStatistics(NId); break;
-      case edUnDirected: FixedMemorykWEgo.ComputeEgonetStatistics(NId); break;
-    }
+    FixedMemorykWEgo.ComputeEgonetStatistics(NId, d);
+    
+    // get results
     NodesH.AddDat(NId, FixedMemorykWEgo.GetNodes());
     EdgesH.AddDat(NId, FixedMemorykWEgo.GetEdges());
     DensityH.AddDat(NId, FixedMemorykWEgo.GetDensity());
@@ -69,8 +53,6 @@ int main(int argc, char* argv[]) {
     // Need to implement a different efficient subgraphing class for centrality 
     
   }
-  printf("----------------------------------------\n");
-  printf("\n... DONE\n");
   
   if (collate) {
     
