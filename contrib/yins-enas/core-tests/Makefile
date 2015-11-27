@@ -21,8 +21,8 @@ LIBS += -lpthread -lgtest
 MAIN = run-core-tests
 
 TEST_SRCS = \
+	wgraph-tests.cpp \
 	wdeg-tests.cpp
-	# wgraph-tests.cpp
 
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 

@@ -184,9 +184,9 @@ TYPED_TEST(TWNGraphTest, SpecificGraphFunctionality) {
   // ONE STEP k WEIGHTED DEGREES
 
   TSnap::TFixedMemorykWDeg<TEdgeW, TWNGraph> FixedMemorykWDeg(Graph, 1);
-  FixedMemorykWDeg.GetkWInDegSeqH(kWInDegVH);
-  FixedMemorykWDeg.GetkWOutDegSeqH(kWOutDegVH);
-  FixedMemorykWDeg.GetkWDegSeqH(kWDegVH);
+  FixedMemorykWDeg.GetkWInDegH(kWInDegVH);
+  FixedMemorykWDeg.GetkWOutDegH(kWOutDegVH);
+  FixedMemorykWDeg.GetkWDegH(kWDegVH);
 
   // weighted in degrees
   WInDegTotalW = 0;
@@ -282,9 +282,9 @@ TYPED_TEST(TWNEGraphTest, SpecificGraphFunctionality) {
   // ONE STEP k WEIGHTED DEGREES
 
   TSnap::TFixedMemorykWDeg<TEdgeW, TWNEGraph> FixedMemorykWDeg(Graph, 1);
-  FixedMemorykWDeg.GetkWInDegSeqH(kWInDegVH);
-  FixedMemorykWDeg.GetkWOutDegSeqH(kWOutDegVH);
-  FixedMemorykWDeg.GetkWDegSeqH(kWDegVH);
+  FixedMemorykWDeg.GetkWInDegH(kWInDegVH);
+  FixedMemorykWDeg.GetkWOutDegH(kWOutDegVH);
+  FixedMemorykWDeg.GetkWDegH(kWDegVH);
 
   // weighted in degrees
   WInDegTotalW = 0;

@@ -136,8 +136,8 @@ TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
 
   // ASSIGNMENT, SAVE, AND LOAD
 
+  // copy graph by pointer
   *Clone = *Graph;
-
   // graph properties, counts, and weights
   EXPECT_FALSE(Clone->Empty());
   EXPECT_TRUE(Clone->IsOk());
@@ -235,7 +235,7 @@ TYPED_TEST(TWNGraphTest, SpecificGraphFunctionality) {
     SrcNId = (long) (Nodes * drand48());
     DstNId = (long) (Nodes * drand48());
     W = (TEdgeW) (MxW * drand48() + 1);
-    if (SrcNId != DstNId  &&  !Graph->IsEdge(SrcNId, DstNId)) {
+    if (SrcNId != DstNId && !Graph->IsEdge(SrcNId, DstNId)) {
       // create edge
       Graph->AddEdge(SrcNId, DstNId, W);
       counter++;
@@ -278,6 +278,23 @@ TYPED_TEST(TWNGraphTest, SpecificGraphFunctionality) {
   EXPECT_EQ(Edges, counter);
   EXPECT_FLOAT_EQ(TotalW, NodeTotalW);
 
+  // CHECK WEIGHT OVERLOADING
+  
+  // add weight to existing edges (new random weights)
+  counter = 0;
+  for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    EdgeW = EI.GetW();
+    W = (TEdgeW) (MxW * drand48() + 1);
+    // add weight to existing edge
+    Graph->AddEdge(EI.GetSrcNId(), EI.GetDstNId(), W);
+    counter++;
+    // weights
+    TotalW += W;
+    EXPECT_DOUBLE_EQ(EdgeW + W, EI.GetW());
+  }
+  EXPECT_EQ(Edges, counter);
+  EXPECT_FLOAT_EQ(TotalW, Graph->GetTotalW());
+  
 }
 
 //#//////////////////////////////////////////////
@@ -327,7 +344,7 @@ TYPED_TEST(TWNEGraphTest, SpecificGraphFunctionality) {
     SrcNId = (long) (Nodes * drand48());
     DstNId = (long) (Nodes * drand48());
     W = (TEdgeW) (MxW * drand48() + 1);
-    if (SrcNId != DstNId  &&  !Graph->IsEdge(SrcNId, DstNId)) {
+    if (SrcNId != DstNId && !Graph->IsEdge(SrcNId, DstNId)) {
       // create edge
       EId = Graph->AddEdge(SrcNId, DstNId, W);
       counter++;

@@ -277,7 +277,7 @@ public:
   /// Returns the number of edges in the graph.
   int GetEdges() const;
   /// Adds an edge from node IDs SrcNId to node DstNId to the graph.
-  int AddEdge(const int& SrcNId, const int& DstNId, TEdgeW W = 1);
+  int AddEdge(const int& SrcNId, const int& DstNId, const TEdgeW& W = 1);
   /// Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() to the graph.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI.GetW()); }
   /// Deletes an edge from node IDs SrcNId to DstNId from the graph.
@@ -455,11 +455,19 @@ int TWNGraph<TEdgeW>::GetEdges() const {
 }
 
 template <class TEdgeW>
-int TWNGraph<TEdgeW>::AddEdge(const int& SrcNId, const int& DstNId, TEdgeW W) {
+int TWNGraph<TEdgeW>::AddEdge(const int& SrcNId, const int& DstNId, const TEdgeW& W) {
   typedef TPair<TInt, TEdgeW> TNIdEdgeW;
   IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   IAssertR(W > 0, "Weight not positive (stricly).");
-  if (IsEdge(SrcNId, DstNId)) { return -2; }
+  if (IsEdge(SrcNId, DstNId)) {
+    // increment edge weight if edge exists
+    int EdgeN;
+    GetNode(SrcNId).IsOutNId(DstNId, EdgeN);
+    GetNode(SrcNId).OutNIdEdgeWV[EdgeN].Val2 += W;
+    GetNode(DstNId).IsInNId(SrcNId, EdgeN);
+    GetNode(DstNId).InNIdEdgeWV[EdgeN].Val2 += W;
+    return -1;
+  }
   GetNode(SrcNId).OutNIdEdgeWV.AddSorted(TNIdEdgeW(DstNId, W));
   GetNode(DstNId).InNIdEdgeWV.AddSorted(TNIdEdgeW(SrcNId, W));
   return -1;
