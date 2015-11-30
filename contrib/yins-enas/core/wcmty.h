@@ -367,9 +367,7 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& CmtyVH, con
     
   }
   
-  printf("number of communities: %d\n", Cmty.NCmty);
-  
-  return Cmty.GetQuality();
+  return Cmty.GetQuality(); // return modularity
   
 }
 

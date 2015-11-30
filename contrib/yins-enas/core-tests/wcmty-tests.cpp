@@ -27,16 +27,20 @@ TYPED_TEST(TWNGraphWCmtyTest, LouvainMethod) {
 
   typename TWNGraph<TEdgeW>::TNodeI NI;
   typename TWNGraph<TEdgeW>::TEdgeI EI;
+  TIntIntVH::TIter HI;
+  TIntV::TIter VI;
 
   PGraph Graph = TWNGraph<TEdgeW>::New();
   
-  int Nodes = 25;
-  int Edges = 100;
+  // int Nodes = 25;
+  // int Edges = 100;
 
-  int counter, SrcNId, DstNId;
+  // int counter, SrcNId, DstNId;
 
   TEdgeW W, EdgeW;
   TEdgeW MxW = 100, TotalW = 0;
+  
+  double quality;
   
   // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
 
@@ -78,8 +82,22 @@ TYPED_TEST(TWNGraphWCmtyTest, LouvainMethod) {
   
   TIntIntVH CmtyVH;
   
-  double Q = TSnap::LouvainMethod<TSnap::ModularityCommunity<TEdgeW>, TEdgeW>(Graph, CmtyVH, edUnDirected, 1e-5, 1e-2, 1000);
+  quality = TSnap::LouvainMethod<TSnap::ModularityCommunity<TEdgeW>, TEdgeW>(Graph, CmtyVH, edUnDirected, 1e-5, 1e-2, 1000);
 
-  printf("Q: %f\n", Q);
+  printf("graph edges and weights:\n");
+  for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    printf("(%d, %d) %f\n", EI.GetSrcNId(), EI.GetDstNId(), (double) EI.GetW());
+  }
+  
+  printf("community hierarchy:\n");
+  for (HI = CmtyVH.BegI(); HI < CmtyVH.EndI(); HI++) {
+    printf("%d: ", (int) HI.GetKey());
+    for (VI = HI.GetDat().BegI(); VI < HI.GetDat().EndI(); VI++) {
+      printf("%d, ", VI->Val);
+    }
+    printf("\n");
+  }
+  
+  printf("quality: %f\n", quality);
   
 }
