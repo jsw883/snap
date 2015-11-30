@@ -21,8 +21,9 @@ LIBS += -lpthread -lgtest
 MAIN = run-core-tests
 
 TEST_SRCS = \
-	wgraph-tests.cpp \
-	wdeg-tests.cpp
+	wcmty-tests.cpp
+	# wgraph-tests.cpp \
+	# wdeg-tests.cpp
 
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 
@@ -32,7 +33,7 @@ run: $(MAIN)
 	./$(MAIN)
 
 $(MAIN): $(MAIN).cpp $(TEST_SRCS) $(CSNAP)/Snap.o $(wildcard $(CCORE)/*)
-	$(CC) $(CXXFLAGS) $(CXXOPENMP) -o $(MAIN) $(MAIN).cpp $(TEST_SRCS) $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) -I$(CCORE) $(LIBS)
+	$(CC) -g $(CXXFLAGS) $(CXXOPENMP) -o $(MAIN) $(MAIN).cpp $(TEST_SRCS) $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) -I$(CCORE) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
