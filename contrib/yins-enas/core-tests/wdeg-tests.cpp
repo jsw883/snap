@@ -2,6 +2,8 @@
 
 #include "stdafx.h"
 
+#include "wdeg.h"
+
 //#//////////////////////////////////////////////
 /// Weighted directed graphs and multigraphs
 
@@ -14,15 +16,15 @@ struct TypePair {
 typedef ::testing::Types<TypePair<TInt, TWNGraph>, TypePair<TFlt, TWNGraph>, TypePair<TInt, TWNEGraph>, TypePair<TFlt, TWNEGraph> > Graphs;
 
 template <class TypePair>
-class GraphTest : public ::testing::Test {
+class WDegTest : public ::testing::Test {
 public:
-  GraphTest() {}
+  WDegTest() {}
 };
 
-TYPED_TEST_CASE(GraphTest, Graphs);
+TYPED_TEST_CASE(WDegTest, Graphs);
 
 // Weighted degree
-TYPED_TEST(GraphTest, WeightedDegrees) {
+TYPED_TEST(WDegTest, WeightedDegrees) {
 
   // DECLARATIONS AND INITIALIZATIONS
 
@@ -125,15 +127,15 @@ TYPED_TEST(GraphTest, WeightedDegrees) {
 typedef ::testing::Types<TInt, TFlt> Weights;
 
 template <class TEdgeW>
-class TWNGraphTest : public ::testing::Test {
+class TWNGraphWDegTest : public ::testing::Test {
 public:
-  TWNGraphTest() {}
+  TWNGraphWDegTest() {}
 };
 
-TYPED_TEST_CASE(TWNGraphTest, Weights);
+TYPED_TEST_CASE(TWNGraphWDegTest, Weights);
 
 // Test graph edge weight consistency
-TYPED_TEST(TWNGraphTest, SpecificGraphFunctionality) {
+TYPED_TEST(TWNGraphWDegTest, SpecificGraphFunctionality) {
 
   // DECLARATIONS AND INITIALIZATIONS
 
@@ -223,15 +225,15 @@ TYPED_TEST(TWNGraphTest, SpecificGraphFunctionality) {
 typedef ::testing::Types<TInt, TFlt> Weights;
 
 template <class TEdgeW>
-class TWNEGraphTest : public ::testing::Test {
+class TWNEGraphWDegTest : public ::testing::Test {
 public:
-  TWNEGraphTest() {}
+  TWNEGraphWDegTest() {}
 };
 
-TYPED_TEST_CASE(TWNEGraphTest, Weights);
+TYPED_TEST_CASE(TWNEGraphWDegTest, Weights);
 
 // Test graph edge weight consistency
-TYPED_TEST(TWNEGraphTest, SpecificGraphFunctionality) {
+TYPED_TEST(TWNEGraphWDegTest, SpecificGraphFunctionality) {
 
   // DECLARATIONS AND INITIALIZATIONS
 
