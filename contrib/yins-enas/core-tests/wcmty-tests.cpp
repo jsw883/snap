@@ -100,4 +100,6 @@ TYPED_TEST(TWNGraphWCmtyTest, LouvainMethod) {
   
   printf("quality: %f\n", quality);
   
+  TSnap::CmtyHierarchySummary(CmtyVH, 10);
+  
 }

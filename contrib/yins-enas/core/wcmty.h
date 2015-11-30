@@ -24,6 +24,7 @@ public:
   TPt<TWNGraph<TEdgeW> > Graph;
   TIntIntH NIdCmtyIdH;
   THash<TInt, TEdgeW> NIdWH; // avoid requiring graph self loops
+  TIntIntH NIdSizeH; // accurate node sizes
   // Community sizes and weights for efficiency
   TIntV CmtySizeV;
   TVec<TEdgeW> CmtyInWV, CmtyOutWV, CmtyWV; // community weights
@@ -31,8 +32,8 @@ public:
   int NCmty;
   TEdgeW GraphTotalW;
 public:
-  /// Constructor requires existing node self weights to be specified.
-  Community(const TPt<TWNGraph<TEdgeW> >& Graph, const THash<TInt, TEdgeW>& NIdWH) : Graph(Graph), NIdWH(NIdWH) {
+  /// Constructor only requires graph to be specified.
+  Community(const TPt<TWNGraph<TEdgeW> >& Graph) : Graph(Graph) {
     // Iterators
     typename TWNGraph<TEdgeW>::TNodeI NI;
     int NId, CmtyId;
@@ -40,15 +41,17 @@ public:
     for (NI = Graph->BegNI(), CmtyId = 0; NI < Graph->EndNI(); NI++, CmtyId++) {
       NId = NI.GetId();
       NIdCmtyIdH.AddDat(NId, CmtyId);
-      CmtySizeV.Add(1);
-      CmtyInWV.Add(NIdWH.GetDat(NId) + NI.GetWInDeg());
-      CmtyOutWV.Add(NIdWH.GetDat(NId) + NI.GetWOutDeg());
-      CmtyWV.Add(NIdWH.GetDat(NId));
+      NIdWH.AddDat(NId, 0);
+      NIdSizeH.AddDat(NId, 1);
+      CmtySizeV.Add(NIdSizeH.GetDat(NId));
+      CmtyInWV.Add(NI.GetWInDeg());
+      CmtyOutWV.Add(NI.GetWOutDeg());
+      CmtyWV.Add(0);
     }
     NCmty = CmtyId;
     GraphTotalW = this->Graph->GetTotalW();
   }
-  /// Computes the change in GetQuality if a node is move into another community. To be implemented by inheriting child.
+  /// Computes the change in quality if a node is moved into another community. To be implemented by inheriting child.
   virtual double NodeMoveQuality(const int& NId, const int& NewCmtyId) = 0;
   /// Computes the GetQuality. To be implemented by inheriting child.
   virtual double GetQuality() = 0;
@@ -57,14 +60,14 @@ public:
     // Iterator for getting node properties and neighborhood
     typename TWNGraph<TEdgeW>::TNodeI NI = Graph->GetNI(NId);
     TInt& OldCmtyId = NIdCmtyIdH.GetDat(NId); // exact reference needed
-    int DstNId, SrcNId;
-    TEdgeW W, NIdW = NIdWH.GetDat(NId);
+    int DstNId, SrcNId, NSize = NIdSizeH.GetDat(NId);
+    TEdgeW W, NW = NIdWH.GetDat(NId);
     // Update community sizes
-    CmtySizeV[OldCmtyId]--;
-    CmtySizeV[NewCmtyId]++;
+    CmtySizeV[OldCmtyId] -= NSize;
+    CmtySizeV[NewCmtyId] += NSize;
     // Update community weights
-    CmtyInWV[OldCmtyId] -= NIdW; CmtyOutWV[OldCmtyId] -= NIdW; CmtyWV[OldCmtyId] -= NIdW;
-    CmtyInWV[NewCmtyId] += NIdW; CmtyOutWV[NewCmtyId] += NIdW; CmtyWV[NewCmtyId] += NIdW;
+    CmtyInWV[OldCmtyId] -= NW; CmtyOutWV[OldCmtyId] -= NW; CmtyWV[OldCmtyId] -= NW;
+    CmtyInWV[NewCmtyId] += NW; CmtyOutWV[NewCmtyId] += NW; CmtyWV[NewCmtyId] += NW;
     for (int e = 0; e < NI.GetOutDeg(); e++) {
       DstNId = NI.GetOutNId(e);
       W = NI.GetOutEW(e);
@@ -158,12 +161,13 @@ public:
     Graph = NewGraph;
     NIdCmtyIdH.Clr();
     NIdWH.Clr();
+    NIdSizeH.Clr();
     for (NI = Graph->BegNI(), CmtyId = 0; NI < Graph->EndNI(); NI++, CmtyId++) {
       NId = NI.GetId();
       NIdCmtyIdH.AddDat(NId, CmtyId);
       NIdWH.AddDat(NId, CmtyWV[CmtyId]); // update node self weights
+      NIdSizeH.AddDat(NId, CmtySizeV[CmtyId]); // update node sizes
     }
-    CmtySizeV.PutAll(1); // reset sizes
   }
 };
 
@@ -173,22 +177,22 @@ template <class TEdgeW>
 class ModularityCommunity : public Community<TEdgeW> {
 public:
   /// Calls parent constructor 
-  ModularityCommunity(const TPt<TWNGraph<TEdgeW> >& Graph, const THash<TInt, TEdgeW>& NIdWH) : Community<TEdgeW>(Graph, NIdWH) { }
-  /// Computes the change in quality if a node is move into another community. To be implemented by inheriting child.
+  ModularityCommunity(const TPt<TWNGraph<TEdgeW> >& Graph) : Community<TEdgeW>(Graph) { }
+  /// Computes the change in quality if a node is moved into another community. To be implemented by inheriting child.
   virtual double NodeMoveQuality(const int& NId, const int& NewCmtyId);
   /// Computes the quality. To be implemented by inheriting child.
   virtual double GetQuality();
 };
 
 
-/// Computes the change in quality if a node is move into another community. To be implemented by inheriting child.
+/// Computes the change in quality if a node is moved into another community. To be implemented by inheriting child.
 template <class TEdgeW>
 double ModularityCommunity<TEdgeW>::NodeMoveQuality(const int& NId, const int& NewCmtyId) {
   // Variables
   typename TWNGraph<TEdgeW>::TNodeI NI = this->Graph->GetNI(NId);
   double old_mod, new_mod;
   int DstNId, SrcNId, OldCmtyId = this->NIdCmtyIdH.GetDat(NId);
-  TEdgeW W, NIdW = this->NIdWH.GetDat(NId);
+  TEdgeW W, NW = this->NIdWH.GetDat(NId);
   // Local copies of old and new community weights
   TEdgeW OldCmtyInW = this->CmtyInWV[OldCmtyId], OldCmtyOutW = this->CmtyOutWV[OldCmtyId], OldCmtyW = this->CmtyWV[OldCmtyId];
   TEdgeW NewCmtyInW = this->CmtyInWV[NewCmtyId], NewCmtyOutW = this->CmtyOutWV[NewCmtyId], NewCmtyW = this->CmtyWV[NewCmtyId];
@@ -196,8 +200,8 @@ double ModularityCommunity<TEdgeW>::NodeMoveQuality(const int& NId, const int& N
   old_mod = OldCmtyW - ((double) OldCmtyOutW*OldCmtyInW) / ((double) this->GraphTotalW)
           + NewCmtyW - ((double) NewCmtyOutW*NewCmtyInW) / ((double) this->GraphTotalW);
   // Update community weights
-  OldCmtyInW -= NIdW; OldCmtyOutW -= NIdW; OldCmtyW -= NIdW;
-  NewCmtyInW += NIdW; NewCmtyOutW += NIdW; NewCmtyW += NIdW;
+  OldCmtyInW -= NW; OldCmtyOutW -= NW; OldCmtyW -= NW;
+  NewCmtyInW += NW; NewCmtyOutW += NW; NewCmtyW += NW;
   for (int e = 0; e < NI.GetOutDeg(); e++) {
     DstNId = NI.GetOutNId(e);
     W = NI.GetOutEW(e);
@@ -266,7 +270,6 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& CmtyVH, con
   // Variables
   TPt<TWNGraph<TEdgeW> > GraphCopy = Graph; // smart pointer working graph copy
   typename TWNGraph<TEdgeW>::TNodeI NI;
-  THash<TInt, TEdgeW> NIdWH;
   TIntIntVH::TIter HI;
   // Compute the absolute minimum number of moves required
   int MinMove = (int) delta*Graph->GetNodes();
@@ -279,9 +282,8 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& CmtyVH, con
     int NId = NI.GetId();
     CmtyVH.AddKey(NId);
     CmtyVH.GetDat(NId).Add(NId);
-    NIdWH.AddDat(NId, 0); // also setup empty self weights
   }
-  Community Cmty(GraphCopy, NIdWH);
+  Community Cmty(GraphCopy);
   
   // Louvain greedy optimization method
   while (phase == 0 || phaseImprov > eps) { // while quality improving
@@ -370,6 +372,13 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& CmtyVH, con
   return Cmty.GetQuality(); // return modularity
   
 }
+
+} // namespace TSnap
+
+namespace TSnap {
+
+// Summary method
+void CmtyHierarchySummary(const TIntIntVH& CmtyVH, const int& NCmtyThreshold);
 
 } // namespace TSnap
 

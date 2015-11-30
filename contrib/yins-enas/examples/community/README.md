@@ -54,10 +54,10 @@ This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
 which is included in this repository. 
 
 ```bash
-DATASET=../../datasets/amazon0302
+DATASET=../../datasets/USairport2010
 rm -rf $DATASET/community
 mkdir $DATASET/community
-./community -i:$DATASET/amazon0302.snap.FltW \
-          -o:$DATASET/community/amazon0302 \
+./community -i:$DATASET/USairport2010.snap \
+          -o:$DATASET/community/USairport2010 \
           --eps 1.0e-5 --moves:1.0e-2 --iters:1.0e+4
 ```

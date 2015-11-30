@@ -28,13 +28,18 @@ int main(int argc, char* argv[]) {
   
   // Declare variables
   TIntIntVH CmtyVH;
+  double LouvainQ;
   
   // COMMUNITY
   
-  double Q = TSnap::LouvainMethod<TSnap::ModularityCommunity<TFlt>, TFlt>(WGraph, CmtyVH, edUnDirected, eps, moves, iters);
-
-  printf("Q: %f\n", Q);
-
+  printf("Louvain method...");
+  LouvainQ = TSnap::LouvainMethod<TSnap::ModularityCommunity<TFlt>, TFlt>(WGraph, CmtyVH, edUnDirected, eps, moves, iters);
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  
+  printf("  quality: %f\n", LouvainQ);
+  
+  TSnap::CmtyHierarchySummary(CmtyVH, 250);
+  
   // Louvain method (modularity objective)
   
   Catch

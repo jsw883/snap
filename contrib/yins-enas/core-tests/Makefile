@@ -27,13 +27,24 @@ TEST_SRCS = \
 
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 
+DEPH = \
+    $(CCORE)/wgraph.h \
+    $(CCORE)/wgio.h \
+    $(CCORE)/wdeg.h \
+    $(CCORE)/wcmty.h
+DEPCPP = \
+    $(CCORE)/wgraph.cpp \
+    $(CCORE)/wgio.cpp \
+    $(CCORE)/wdeg.cpp \
+    $(CCORE)/wcmty.cpp
+
 all: $(MAIN)
 
 run: $(MAIN)
 	./$(MAIN)
 
-$(MAIN): $(MAIN).cpp $(TEST_SRCS) $(CSNAP)/Snap.o $(wildcard $(CCORE)/*)
-	$(CC) -g $(CXXFLAGS) $(CXXOPENMP) -o $(MAIN) $(MAIN).cpp $(TEST_SRCS) $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) -I$(CCORE) $(LIBS)
+$(MAIN): $(MAIN).cpp $(TEST_SRCS) $(DEPH) $(CSNAP)/Snap.o $(wildcard $(CCORE)/*)
+	$(CC) -g $(CXXFLAGS) $(CXXOPENMP) -o $(MAIN) $(MAIN).cpp $(TEST_SRCS) $(DEPCPP) $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) -I$(CCORE) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
