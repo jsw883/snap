@@ -82,15 +82,15 @@ int main(int argc, char* argv[]) {
   NIdV.Diff(SubNIdV);
   RndNIdV = TSnap::GetRndSubV(NIdV, SubNIdV.Len(), Rnd);
   
-  printf("SubNIdV\n");
-  for (TIntV::TIter VI = SubNIdV.BegI(); VI < SubNIdV.EndI(); VI++) {
-    printf("%d\n", VI->Val);
-  }
+  // printf("SubNIdV\n");
+  // for (TIntV::TIter VI = SubNIdV.BegI(); VI < SubNIdV.EndI(); VI++) {
+  //   printf("%d\n", VI->Val);
+  // }
   
-  printf("RndNIdV\n");
-  for (TIntV::TIter VI = RndNIdV.BegI(); VI < RndNIdV.EndI(); VI++) {
-    printf("%d\n", VI->Val);
-  }
+  // printf("RndNIdV\n");
+  // for (TIntV::TIter VI = RndNIdV.BegI(); VI < RndNIdV.EndI(); VI++) {
+  //   printf("%d\n", VI->Val);
+  // }
   
   // SUBSET DIAMETER AND NODE COUNTS
   
