@@ -12,9 +12,8 @@ void TSnap::CmtyHierarchySummary(const TIntIntVH& CmtyVH, const int& NCmtyThresh
   int CmtyId, NCmty;
   int phase, phases = CmtyVH.BegI().GetDat().Len();
   
-  printf("Community hierarchy:\n");
+  printf("\nCommunity hierarchy:\n");
   for (phase = 0; phase < phases; phase++) {
-    printf("Phase %d:\n", phase);
     TIntIntH CmtySizeH;
     NCmty = 0;
     for (HI = CmtyVH.BegI(); HI < CmtyVH.EndI(); HI++) {
@@ -24,15 +23,24 @@ void TSnap::CmtyHierarchySummary(const TIntIntVH& CmtyVH, const int& NCmtyThresh
       } else {
         CmtySizeH.AddDat(CmtyId, 1);
       }
-      // CmtySizeV[CmtyId]++;
       NCmty = NCmty > CmtyId + 1 ? NCmty : CmtyId + 1;
     }
+    printf("Phase %d (communities: %d, maximum size: %d)\n", phase, NCmty, (int) CmtySizeH.GetDat(0));
     if (NCmty < NCmtyThreshold) {
-      printf("Community sizes:\n");
       for (CmtyId = 0; CmtyId < NCmty; CmtyId++) {
-        printf("%d: %f\n", CmtyId, (double) CmtySizeH.GetDat(CmtyId));
+        printf("%d: %d\n", CmtyId, (int) CmtySizeH.GetDat(CmtyId));
       }
     }
-    printf("Number of communities: %d\n", NCmty);
   }
+  if (CmtyVH.Len() < NCmtyThreshold) {
+    printf("Summary:\n");
+    for (HI = CmtyVH.BegI(); HI < CmtyVH.EndI(); HI++) {
+      printf("%d:", (int) HI.GetKey());
+      for (VI = HI.GetDat().BegI(); VI < HI.GetDat().EndI(); VI++) {
+        printf("\t%d", VI->Val);
+      }
+      printf("\n");
+    }
+  }
+  printf("\n");
 }

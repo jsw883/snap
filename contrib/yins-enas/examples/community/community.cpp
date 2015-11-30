@@ -27,18 +27,21 @@ int main(int argc, char* argv[]) {
   printf("  time elapsed: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Declare variables
-  TIntIntVH CmtyVH;
+  TIntIntVH NIdCmtyVH;
   double LouvainQ;
   
   // COMMUNITY
   
   printf("Louvain method...");
-  LouvainQ = TSnap::LouvainMethod<TSnap::ModularityCommunity<TFlt>, TFlt>(WGraph, CmtyVH, edUnDirected, eps, moves, iters);
+  LouvainQ = TSnap::LouvainMethod<TSnap::ModularityCommunity<TFlt>, TFlt>(WGraph, NIdCmtyVH, edUnDirected, eps, moves, iters);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  
   printf("  quality: %f\n", LouvainQ);
   
-  TSnap::CmtyHierarchySummary(CmtyVH, 250);
+  TSnap::CmtyHierarchySummary(NIdCmtyVH, 250);
+  
+  printf("Saving %s.louvain.modularity...", BseFNm.CStr());
+  TSnap::SaveTxt(NIdCmtyVH, TStr::Fmt("%s.louvain.modularity", OutFNm.CStr()), "Louvain modularity community hierarchy", "NodeId", "CmtyV");
+  printf(" DONE\n");
   
   // Louvain method (modularity objective)
   

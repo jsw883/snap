@@ -265,7 +265,7 @@ double ModularityCommunity<TEdgeW>::GetQuality() {
 namespace TSnap {
 
 template <class Community, class TEdgeW>
-double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& CmtyVH, const TEdgeDir& dir, const double& eps, const double& delta, const int& MaxIter) {
+double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, const TEdgeDir& dir, const double& eps, const double& delta, const int& MaxIter) {
   
   // Variables
   TPt<TWNGraph<TEdgeW> > GraphCopy = Graph; // smart pointer working graph copy
@@ -277,11 +277,11 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& CmtyVH, con
   int phase = 0;
   double phaseImprov = 0.0;
   // Setup community and output community hierarchy 
-  CmtyVH.Clr();
+  NIdCmtyVH.Clr();
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     int NId = NI.GetId();
-    CmtyVH.AddKey(NId);
-    CmtyVH.GetDat(NId).Add(NId);
+    NIdCmtyVH.AddKey(NId);
+    NIdCmtyVH.GetDat(NId).Add(NId);
   }
   Community Cmty(GraphCopy);
   
@@ -349,7 +349,7 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& CmtyVH, con
     Cmty.CleanCmty();
     
     // Update output community hierarchy
-    for (HI = CmtyVH.BegI(); HI < CmtyVH.EndI(); HI++) {
+    for (HI = NIdCmtyVH.BegI(); HI < NIdCmtyVH.EndI(); HI++) {
       TIntV& CmtyV = HI.GetDat();
       CmtyV.Add(Cmty.NIdCmtyIdH.GetDat(CmtyV[phase]));
     }
@@ -378,7 +378,7 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& CmtyVH, con
 namespace TSnap {
 
 // Summary method
-void CmtyHierarchySummary(const TIntIntVH& CmtyVH, const int& NCmtyThreshold);
+void CmtyHierarchySummary(const TIntIntVH& NIdCmtyVH, const int& NCmtyThreshold);
 
 } // namespace TSnap
 
