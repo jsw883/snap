@@ -5,11 +5,11 @@
 MAIN = community
 DEPH = \
     $(EXCORE)/wgraph.h \
-    $(EXCORE)/wcmty.h \
     $(EXCORE)/wgio.h \
+    $(EXCORE)/wcmty.h \
     $(EXCORE)/io.h
 DEPCPP = \
     $(EXCORE)/wgraph.cpp \
-    $(EXCORE)/wcmty.cpp \
     $(EXCORE)/wgio.cpp \
+    $(EXCORE)/wcmty.cpp \
     $(EXCORE)/io.cpp

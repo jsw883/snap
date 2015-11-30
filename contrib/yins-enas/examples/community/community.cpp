@@ -15,8 +15,8 @@ int main(int argc, char* argv[]) {
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
   const double eps = Env.GetIfArgPrefixFlt("--eps:", 1.0e-5, "minimum quality improvement threshold");
-  const double min_moves = Env.GetIfArgPrefixFlt("--moves:", 1.0e-2, "minimum number of moves (proportional)");
-  const double max_iters = Env.GetIfArgPrefixFlt("--iters:", 1.0e+4, "maximum number of iterations");
+  const double moves = Env.GetIfArgPrefixFlt("--moves:", 1.0e-2, "minimum number of moves (relative)");
+  const double iters = Env.GetIfArgPrefixFlt("--iters:", 1.0e+4, "maximum number of iterations");
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
@@ -27,13 +27,14 @@ int main(int argc, char* argv[]) {
   printf("  time elapsed: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Declare variables
+  TIntIntVH CmtyVH;
   
   // COMMUNITY
   
-  // TODO
-  
-  
-  
+  double Q = TSnap::LouvainMethod<TSnap::ModularityCommunity<TFlt>, TFlt>(WGraph, CmtyVH, edUnDirected, eps, moves, iters);
+
+  printf("Q: %f\n", Q);
+
   // Louvain method (modularity objective)
   
   Catch

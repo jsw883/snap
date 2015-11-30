@@ -66,9 +66,12 @@ void GetCmtyGraph(TPt<TWNGraph<TEdgeW> >& Graph, Community& Cmty) {
 
 // TODO: think carefully about default values
 // TODO: update class to allow self loops (?)
+// TODO: implement local improvements (for any community detection method)
+
+namespace TSnap {
 
 template <class Community, class TEdgeW>
-void LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, const TEdgeDir& Dir, const double& eps = 1e-5, const double& delta = 1e-2, const int& max_iters = 1000);
+double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, const TEdgeDir& Dir, const double& eps = 1e-5, const double& delta = 1e-2, const int& max_iters = 1000);
 
 // Community class to be inherited
 template <class TEdgeW>
@@ -295,11 +298,12 @@ double ModularityCommunity<TEdgeW>::quality() {
   return mod / ((double) this->TotalW);
 }
 
+}
 
 namespace TSnap {
 
 template <class Community, class TEdgeW>
-void LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& CmtyVH, const TEdgeDir& Dir, const double& eps, const double& delta, const int& max_iters) {
+double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& CmtyVH, const TEdgeDir& Dir, const double& eps, const double& delta, const int& max_iters) {
   
   printf("starting Louvain method\n");
   
@@ -326,28 +330,30 @@ void LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& CmtyVH, const
   
   Community Cmty(CmtyGraphCopy, NIdWH);
   
+  printf("initial quality: %f\n", Cmty.quality());
+  
   while (phase_init || phase_improv > eps) { // quality improving
     phase_init = false; // TODO: deprecate this with a single initial phase 1
     phase_improv = 0.0;
     
     printf("phase: %d\n", phases);
     
-    printf("graph edges:\n");
-    for (typename TWNGraph<TEdgeW>::TEdgeI EI = CmtyGraphCopy->BegEI(); EI < CmtyGraphCopy->EndEI(); EI++) {
-      printf("(%d, %d) : %f\n", EI.GetSrcNId(), EI.GetDstNId(), (double) EI.GetW());
-    }
+    // printf("graph edges:\n");
+    // for (typename TWNGraph<TEdgeW>::TEdgeI EI = CmtyGraphCopy->BegEI(); EI < CmtyGraphCopy->EndEI(); EI++) {
+    //   printf("(%d, %d) : %f\n", EI.GetSrcNId(), EI.GetDstNId(), (double) EI.GetW());
+    // }
     
-    printf("communities:\n"); 
-    for (HI = Cmty.NIdCmtyIdH.BegI(); HI < Cmty.NIdCmtyIdH.EndI(); HI++) {
-      printf("%d: %d (w: %f)\n", (int) HI.GetKey(), (int) HI.GetDat(), (double) Cmty.NIdWH.GetDat(HI.GetKey()));
-    }
+    // printf("communities:\n"); 
+    // for (HI = Cmty.NIdCmtyIdH.BegI(); HI < Cmty.NIdCmtyIdH.EndI(); HI++) {
+    //   printf("%d: %d (w: %f)\n", (int) HI.GetKey(), (int) HI.GetDat(), (double) Cmty.NIdWH.GetDat(HI.GetKey()));
+    // }
     
-    printf("community statistics:\n");
-    for (int CmtyId = 0; CmtyId < Cmty.NCmty; CmtyId++) {
-      printf("%d: (size: %d, in: %f, out: %f, w: %f\n", CmtyId, (int) Cmty.CmtySizeV[CmtyId], (double) Cmty.CmtyInWV[CmtyId], (double) Cmty.CmtyOutWV[CmtyId], (double) Cmty.CmtyWV[CmtyId]);
-    }
+    // printf("community statistics:\n");
+    // for (int CmtyId = 0; CmtyId < Cmty.NCmty; CmtyId++) {
+    //   printf("%d: (size: %d, in: %f, out: %f, w: %f\n", CmtyId, (int) Cmty.CmtySizeV[CmtyId], (double) Cmty.CmtyInWV[CmtyId], (double) Cmty.CmtyOutWV[CmtyId], (double) Cmty.CmtyWV[CmtyId]);
+    // }
     
-    printf("quality: %f\n", Cmty.quality());
+    // printf("quality: %f\n", Cmty.quality());
     
     // Phase 1 : MoveNode<Community>(Graph, Q, NId)
     // -------
@@ -387,9 +393,9 @@ void LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& CmtyVH, const
         }
         
         if (best_move_improv > 0.0 && BestCmtyId != -1) {
-          printf("best diff: %f (%d: %d ->", best_move_improv, NId, (int) Cmty.NIdCmtyIdH.GetDat(NId));
+          // printf("best diff: %f (%d: %d ->", best_move_improv, NId, (int) Cmty.NIdCmtyIdH.GetDat(NId));
           Cmty.move_node(NId, BestCmtyId);
-          printf(" %d: %d)\n", NId, (int) Cmty.NIdCmtyIdH.GetDat(NId));
+          // printf(" %d: %d)\n", NId, (int) Cmty.NIdCmtyIdH.GetDat(NId));
           iter_improv += best_move_improv;
           moves++;
         }
@@ -410,21 +416,21 @@ void LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& CmtyVH, const
     
     printf("phase improv: %f\n", phase_improv);
     
-    printf("quality: %f\n", Cmty.quality());
+    // printf("quality: %f\n", Cmty.quality());
     
     if (phase_improv == 0.0) {
       break; // break if not improved (as no singleton communities will have changed)
     }
     
-    printf("communities:\n"); 
-    for (HI = Cmty.NIdCmtyIdH.BegI(); HI < Cmty.NIdCmtyIdH.EndI(); HI++) {
-      printf("%d: %d (w: %f)\n", (int) HI.GetKey(), (int) HI.GetDat(), (double) Cmty.NIdWH.GetDat(HI.GetKey()));
-    }
+    // printf("communities:\n"); 
+    // for (HI = Cmty.NIdCmtyIdH.BegI(); HI < Cmty.NIdCmtyIdH.EndI(); HI++) {
+    //   printf("%d: %d (w: %f)\n", (int) HI.GetKey(), (int) HI.GetDat(), (double) Cmty.NIdWH.GetDat(HI.GetKey()));
+    // }
     
-    printf("community statistics:\n");
-    for (int CmtyId = 0; CmtyId < Cmty.NCmty; CmtyId++) {
-      printf("%d: (size: %d, in: %f, out: %f, w: %f\n", CmtyId, (int) Cmty.CmtySizeV[CmtyId], (double) Cmty.CmtyInWV[CmtyId], (double) Cmty.CmtyOutWV[CmtyId], (double) Cmty.CmtyWV[CmtyId]);
-    }
+    // printf("community statistics:\n");
+    // for (int CmtyId = 0; CmtyId < Cmty.NCmty; CmtyId++) {
+    //   printf("%d: (size: %d, in: %f, out: %f, w: %f\n", CmtyId, (int) Cmty.CmtySizeV[CmtyId], (double) Cmty.CmtyInWV[CmtyId], (double) Cmty.CmtyOutWV[CmtyId], (double) Cmty.CmtyWV[CmtyId]);
+    // }
     
     Cmty.clean_up();
     
@@ -433,15 +439,15 @@ void LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& CmtyVH, const
       CmtyV.Add(Cmty.NIdCmtyIdH.GetDat(CmtyV[phases]));
     }
     
-    printf("communities:\n"); 
-    for (HI = Cmty.NIdCmtyIdH.BegI(); HI < Cmty.NIdCmtyIdH.EndI(); HI++) {
-      printf("%d: %d (w: %f)\n", (int) HI.GetKey(), (int) HI.GetDat(), (double) Cmty.NIdWH.GetDat(HI.GetKey()));
-    }
+    // printf("communities:\n"); 
+    // for (HI = Cmty.NIdCmtyIdH.BegI(); HI < Cmty.NIdCmtyIdH.EndI(); HI++) {
+    //   printf("%d: %d (w: %f)\n", (int) HI.GetKey(), (int) HI.GetDat(), (double) Cmty.NIdWH.GetDat(HI.GetKey()));
+    // }
     
-    printf("community statistics:\n");
-    for (int CmtyId = 0; CmtyId < Cmty.NCmty; CmtyId++) {
-      printf("%d: (size: %d, in: %f, out: %f, w: %f\n", CmtyId, (int) Cmty.CmtySizeV[CmtyId], (double) Cmty.CmtyInWV[CmtyId], (double) Cmty.CmtyOutWV[CmtyId], (double) Cmty.CmtyWV[CmtyId]);
-    }
+    // printf("community statistics:\n");
+    // for (int CmtyId = 0; CmtyId < Cmty.NCmty; CmtyId++) {
+    //   printf("%d: (size: %d, in: %f, out: %f, w: %f\n", CmtyId, (int) Cmty.CmtySizeV[CmtyId], (double) Cmty.CmtyInWV[CmtyId], (double) Cmty.CmtyOutWV[CmtyId], (double) Cmty.CmtyWV[CmtyId]);
+    // }
     
     printf("quality: %f\n", Cmty.quality());
     
@@ -456,13 +462,17 @@ void LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& CmtyVH, const
     
   }
   
-  for (VHI = CmtyVH.BegI(); VHI < CmtyVH.EndI(); VHI++) {
-    printf("%d: ", (int) VHI.GetKey());
-    for (VI = VHI.GetDat().BegI(); VI < VHI.GetDat().EndI(); VI++) {
-      printf("%d, ", VI->Val);
-    }
-    printf("END)\n");
-  }
+  // for (VHI = CmtyVH.BegI(); VHI < CmtyVH.EndI(); VHI++) {
+  //   printf("%d: ", (int) VHI.GetKey());
+  //   for (VI = VHI.GetDat().BegI(); VI < VHI.GetDat().EndI(); VI++) {
+  //     printf("%d, ", VI->Val);
+  //   }
+  //   printf("END)\n");
+  // }
+  
+  printf("number of communities: %d\n", Cmty.NCmty);
+  
+  return Cmty.quality();
   
 }
 
