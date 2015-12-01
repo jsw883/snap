@@ -27,17 +27,27 @@ Makefiles are provided for compilation under Windows with Cygwin and gcc,
 and under Mac OS X, Linux, and other Unix operating systems with gcc as
 well. For makefiles, compile the code with `make all`.
 
-### Parameters ###
-
-  - -i:input graph (tab separated list of edges)
-  - -o:output prefix (filename extensions added)
-  - -k:depth of degree distributions (1 / 2 / ...)
-  - -c:collate centralities into matrix (T / F)
-
 ### Usage ###
 
+```
+Usage: ./wcentrality -i:<input network> -o:<output prefix> [Options]
+Options:
+    -i          input network (tab separated list of edges with edge weights)
+    -o          output prefix (filename extensions added)
+    -k          depth of degree traversal (default: 1)
+    --collate   collate properties into matrix: T / F (default: F)
+```
+
+### Example ###
+
+This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
+which is included in this repository. 
+
 ```bash
-rm -r ../../datasets/USairport2010/wcentrality
-mkdir ../../datasets/USairport2010/wcentrality
-./wcentrality -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/wcentrality/USairport2010 -c:F
+DATASET=../../datasets/USairport2010
+rm -rf $DATASET/wcentrality
+mkdir $DATASET/wcentrality
+./wcentrality -i:$DATASET/USairport2010.snap \
+              -o:$DATASET/wcentrality/USairport2010 \
+              -k:3 --collate:T
 ```

@@ -11,11 +11,11 @@ int main(int argc, char* argv[]) {
   
   Try
   
-  const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network");
+  const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network (tab separated list of edges with edge weights)");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
-  const int k = Env.GetIfArgPrefixInt("-k:", 1, "depth of weighted degree distributions (1 / 2 / ...)");
-  const bool c = Env.GetIfArgPrefixBool("-c:", false, "collate centralities into matrix (T / F)");
+  const int k = Env.GetIfArgPrefixInt("-k:", 1, "depth of degree traversal");
+  const bool collapse = Env.GetIfArgPrefixBool("-collapse:", false, "collate properties into matrix: T / F");
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
@@ -78,14 +78,14 @@ int main(int argc, char* argv[]) {
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
-  if (c) {
+  if (collapse) {
     
     printf("\nSaving %s.wcentr.combined...", BseFNm.CStr());
     const TStr CombinedFNm = TStr::Fmt("%s.wcentr.combined", OutFNm.CStr());
     FILE *F = fopen(CombinedFNm.CStr(), "wt");
-    fprintf(F,"# Node centrality distributions on the directed / undirected graph (as applicable)\n");
-    fprintf(F,"# Nodes: %d\tEdges: %d\n", WGraph->GetNodes(), WGraph->GetEdges());
-    fprintf(F,"# NodeId\tWInDegCentr\tWOutDegCentr\tWDegCentr\tWInEigCentr\tWOutEigCentr\tWEigCentr\tWPgRCentr\n");
+    fprintf(F, "# Node centrality distributions on the directed / undirected graph (as applicable)\n");
+    fprintf(F, "# Nodes: %d\tEdges: %d\n", WGraph->GetNodes(), WGraph->GetEdges());
+    fprintf(F, "# NodeId\tWInDegCentr\tWOutDegCentr\tWDegCentr\tWInEigCentr\tWOutEigCentr\tWEigCentr\tWPgRCentr\n");
     for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
       const int NId = NI.GetId(); fprintf(F, "%d", NId);
       const TFltV WDegCentrV = WDegCentrVH.GetDat(NId);

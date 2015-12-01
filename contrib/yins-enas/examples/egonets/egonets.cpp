@@ -11,12 +11,12 @@ int main(int argc, char* argv[]) {
   
   Try
   
-  const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network");
+  const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network (tab separated list of edges with edge weights)");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
-  const int d = Env.GetIfArgPrefixInt("-d:", 2, "direction: in (0), out (1), undirected (2)");
-  const int k = Env.GetIfArgPrefixInt("-k:", 1, "depth of egonet traversal (1 / 2 / ...)");
-  const bool c = Env.GetIfArgPrefixBool("-c:", false, "collate characteristics into matrix (T / F)");
+  const TEdgeDir d = (TEdgeDir) Env.GetIfArgPrefixInt("-d:", 3, "direction of ego traversal: in = 1, out = 2, undirected = 3");
+  const int k = Env.GetIfArgPrefixInt("-k:", 1, "depth of ego traversal");
+  const bool collate = Env.GetIfArgPrefixBool("--collate:", false, "collate properties into matrix: T / F");
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
@@ -30,38 +30,20 @@ int main(int argc, char* argv[]) {
   TIntIntH NodesH, EdgesH;
   TIntFltH TotalWH, DensityH, GiniH;
   TFltWNGraph::TNodeI NI;
-  // TIntIntVH::TIter IntIntVI;
-  // TFltV::TIter VI;
   
   // Loop over egonets (node iterator)
-  printf("\n----------------------------------------\n");
-  printf("Computing egonet properties (");
-  switch(d) {
-    case 0: printf("in"); break;
-    case 1: printf("out"); break;
-    case 2: printf("undirected"); break;
-  }
-  printf(")");
-  printf("\n----------------------------------------\n");
-  printf("000%% : %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  int i = 1, lastPercentage = 0, currentPercentage = 0, percentageStep = 5;  
-  for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++, i++) {
+  Progress progress(ExeTm, WGraph->GetNodes(), 5, "Computing egonet statistics"); 
+  for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
+    progress++;
     
-    // print only every 5%
-    currentPercentage = floor(double(i) / double(WGraph->GetNodes()) * 100);
-    if (currentPercentage >= lastPercentage + percentageStep) {
-      printf("%03d%% : %s (%s)\n", currentPercentage, ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-      lastPercentage = currentPercentage;
-    }
-    
+    // get node id for computing and storing egonet statistics
     const int NId = NI.GetId();
     
+    // compute egonet statistics (computationally expensive)
     TSnap::TFixedMemorykWEgo<TFlt, TWNGraph> FixedMemorykWEgo(WGraph, k);
-    switch(d) {
-      case 0: FixedMemorykWEgo.ComputeInEgonetStatistics(NId); break;
-      case 1: FixedMemorykWEgo.ComputeOutEgonetStatistics(NId); break;
-      case 2: FixedMemorykWEgo.ComputeEgonetStatistics(NId); break;
-    }
+    FixedMemorykWEgo.ComputeEgonetStatistics(NId, d);
+    
+    // get results
     NodesH.AddDat(NId, FixedMemorykWEgo.GetNodes());
     EdgesH.AddDat(NId, FixedMemorykWEgo.GetEdges());
     DensityH.AddDat(NId, FixedMemorykWEgo.GetDensity());
@@ -71,17 +53,15 @@ int main(int argc, char* argv[]) {
     // Need to implement a different efficient subgraphing class for centrality 
     
   }
-  printf("----------------------------------------\n");
-  printf("\n... DONE\n");
   
-  if (c) {
+  if (collate) {
     
     printf("\nSaving %s.egonets...", BseFNm.CStr());
     const TStr AggFNm = TStr::Fmt("%s.egonets", OutFNm.CStr());
     FILE *F = fopen(AggFNm.CStr(), "wt");
     fprintf(F,"# Egonet properties on the weighted / unweighted graph with k = %d\n", k);
     fprintf(F,"# Nodes: %d\tEdges: %d\n", WGraph->GetNodes(), WGraph->GetEdges());
-    fprintf(F,"# NodeId\tNodes\tEdges\tDensity\tGini\tWeights");
+    fprintf(F,"# NodeId\tNodes\tEdges\tDensity\tGini\tWeights\n");
     for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
       const int NId = NI.GetId(); fprintf(F, "%d", NId);
       const int nodes = NodesH.GetDat(NId); fprintf(F, "\t%d", nodes);

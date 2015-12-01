@@ -3,4 +3,4 @@
 #include "Snap.h"
 
 #include "wgraph.h"
-#include "wdeg.h"
+#include "enums.h"

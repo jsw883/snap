@@ -15,7 +15,7 @@ well. For makefiles, compile the code with `make all`.
 
 ### Parameters ###
 
-  - -i:input graph (tab separated list of edges)
+  - -i:input network (tab separated list of edges)
   - -o:output prefix (alpha value and filename extensions added)
   - -a:alpha significance threshold (default: 0.01)
 
@@ -25,4 +25,29 @@ well. For makefiles, compile the code with `make all`.
 rm -r ../../datasets/USairport2010/vespignani
 mkdir ../../datasets/USairport2010/vespignani
 ./vespignani -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/vespignani/USairport2010
+```
+
+
+### Usage ###
+
+```
+Usage: ./vespignani -i:<input network> -o:<output prefix> [Options]
+Options:
+    -i      input network (tab separated list of edges with edge weights)
+    -o      output prefix (filename extensions added)
+    -a      alpha significance level threshold (default: 0.01)
+```
+
+### Example ###
+
+This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
+which is included in this repository. 
+
+```bash
+DATASET=../../datasets/USairport2010
+rm -rf $DATASET/vespignani
+mkdir $DATASET/vespignani
+./vespignani -i:$DATASET/USairport2010.snap \
+             -o:$DATASET/vespignani/USairport2010 \
+             -a:0.05
 ```

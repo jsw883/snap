@@ -11,12 +11,12 @@ int main(int argc, char* argv[]) {
   
   Try
   
-  const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network");
+  const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network (tab separated list of edges with edge weights)");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
-  const double eps = Env.GetIfArgPrefixFlt("-eps:", 1.0e-5, "minimum quality improvement threshold");
-  const double min_moves = Env.GetIfArgPrefixFlt("-moves:", 1.0e-2, "minimum number of moves required (proportional)");
-  const double max_iters = Env.GetIfArgPrefixFlt("-iters:", 1.0e+4, "maximum number of iterations");
+  const double eps = Env.GetIfArgPrefixFlt("--eps:", 1.0e-5, "minimum quality improvement threshold");
+  const double moves = Env.GetIfArgPrefixFlt("--moves:", 1.0e-2, "minimum number of moves (relative)");
+  const double iters = Env.GetIfArgPrefixFlt("--iters:", 1.0e+4, "maximum number of iterations");
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
@@ -27,12 +27,21 @@ int main(int argc, char* argv[]) {
   printf("  time elapsed: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Declare variables
+  TIntIntVH NIdCmtyVH;
+  double LouvainQ;
   
   // COMMUNITY
   
-  // TODO
+  printf("Louvain method...");
+  LouvainQ = TSnap::LouvainMethod<TSnap::ModularityCommunity<TFlt>, TFlt>(WGraph, NIdCmtyVH, edUnDirected, eps, moves, iters);
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf("  quality: %f\n", LouvainQ);
   
+  TSnap::CmtyHierarchySummary(NIdCmtyVH, 250);
   
+  printf("Saving %s.louvain.modularity...", BseFNm.CStr());
+  TSnap::SaveTxt(NIdCmtyVH, TStr::Fmt("%s.louvain.modularity", OutFNm.CStr()), "Louvain modularity community hierarchy", "NodeId", "CmtyV");
+  printf(" DONE\n");
   
   // Louvain method (modularity objective)
   

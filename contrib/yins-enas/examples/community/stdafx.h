@@ -5,6 +5,6 @@
 #include "Snap.h"
 
 #include "wgraph.h"
-#include "wcmty.h"
 #include "wgio.h"
+#include "wcmty.h"
 #include "io.h"

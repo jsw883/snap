@@ -3,100 +3,383 @@
 
 // Headers (?)
 
-// Community class to be inherited
-template <class TEdgeW>
-class Community {
-public:
-  
-protected:
-  Quality Q;
-private:
-  
-};
+//#//////////////////////////////////////////////
+/// Generic community functions
 
-// Modularity objective community  
-template <class TEdgeW>
-class ModularityCommunity : public Objective {
-public:
-  // Modularity quality
-  class Quality {
-    public:
-      
-    private:
-      
-  };
-protected:
-  
-private:
-  
-};
+//#//////////////////////////////////////////////
+/// Louvain method
+
+// TODO: implement local improvements (for any community detection method)
 
 namespace TSnap {
 
-template <class Community, class TEdgeW, template <class> class TGraph>
-void LouvainMethod(PGraph& Graph, TIntIntVH& CmtyVH) {
-  
-  // Variables needed
-  
-  Community Cmty; // or Quality (?)
-  double best_improv;
-  // ...
-  
-  while () { // quality improving
-    
-    // Phase 1 : MoveNode<Objective<Community> >(Graph, Q, NId)
-    // -------
-    
-    while () { // quality improving
-      
-      // randomly permute nodes (?)
-      
-      for () { // nodes, randomly permuted
-        
-        if (Cmty.move_node_diff(NId, DstCmty) > best_improv) { // check if node move improves quality
-          
-          // update node move
-          
-        }
-        
-      }
-      
-      Cmty.move_node(NId, DstCmty); // execute node move with the best improvement in quality
-      
-    }
-    
-    // -------
-    
-    if () break; // break if not improved
-    
-    // Phase 2 : CollapseGraph(Graph, CmtyGraph, CmtyV);
-    // -------
-    
-    for (i) { // for node in graph
-      
-      if (!IsNode(Cmty.GetDat(i))) { // check if cmty hasn't already been added
-        
-        AddNode(Cmty.GetDat(i))); // add cmty
+template <class Community, class TEdgeW>
+double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, const TEdgeDir& dir, const double& eps = 1e-5, const double& delta = 1e-2, const int& MaxIter = 1000);
 
+/// Base community class to be inherited and specialized.
+template <class TEdgeW>
+class Community {
+public:
+  // Graph being partitioned, node to community mapping, and node self weights
+  TPt<TWNGraph<TEdgeW> > Graph;
+  TIntIntH NIdCmtyIdH;
+  THash<TInt, TEdgeW> NIdWH; // avoid requiring graph self loops
+  TIntIntH NIdSizeH; // accurate node sizes
+  // Community sizes and weights for efficiency
+  TIntV CmtySizeV;
+  TVec<TEdgeW> CmtyInWV, CmtyOutWV, CmtyWV; // community weights
+  // Totals
+  int NCmty;
+  TEdgeW GraphTotalW;
+public:
+  /// Constructor only requires graph to be specified.
+  Community(const TPt<TWNGraph<TEdgeW> >& Graph) : Graph(Graph) {
+    // Iterators
+    typename TWNGraph<TEdgeW>::TNodeI NI;
+    int NId, CmtyId;
+    // Setup community sizes and weights
+    for (NI = Graph->BegNI(), CmtyId = 0; NI < Graph->EndNI(); NI++, CmtyId++) {
+      NId = NI.GetId();
+      NIdCmtyIdH.AddDat(NId, CmtyId);
+      NIdWH.AddDat(NId, 0);
+      NIdSizeH.AddDat(NId, 1);
+      CmtySizeV.Add(NIdSizeH.GetDat(NId));
+      CmtyInWV.Add(NI.GetWInDeg());
+      CmtyOutWV.Add(NI.GetWOutDeg());
+      CmtyWV.Add(0);
+    }
+    NCmty = CmtyId;
+    GraphTotalW = this->Graph->GetTotalW();
+  }
+  /// Computes the change in quality if a node is moved into another community. To be implemented by inheriting child.
+  virtual double NodeMoveQuality(const int& NId, const int& NewCmtyId) = 0;
+  /// Computes the GetQuality. To be implemented by inheriting child.
+  virtual double GetQuality() = 0;
+  /// Move node into another community, updating community weights accordingly
+  void MoveNode(const int& NId, const int& NewCmtyId) {
+    // Iterator for getting node properties and neighborhood
+    typename TWNGraph<TEdgeW>::TNodeI NI = Graph->GetNI(NId);
+    TInt& OldCmtyId = NIdCmtyIdH.GetDat(NId); // exact reference needed
+    int DstNId, SrcNId, NSize = NIdSizeH.GetDat(NId);
+    TEdgeW W, NW = NIdWH.GetDat(NId);
+    // Update community sizes
+    CmtySizeV[OldCmtyId] -= NSize;
+    CmtySizeV[NewCmtyId] += NSize;
+    // Update community weights
+    CmtyInWV[OldCmtyId] -= NW; CmtyOutWV[OldCmtyId] -= NW; CmtyWV[OldCmtyId] -= NW;
+    CmtyInWV[NewCmtyId] += NW; CmtyOutWV[NewCmtyId] += NW; CmtyWV[NewCmtyId] += NW;
+    for (int e = 0; e < NI.GetOutDeg(); e++) {
+      DstNId = NI.GetOutNId(e);
+      W = NI.GetOutEW(e);
+      if (NIdCmtyIdH.GetDat(DstNId) == OldCmtyId) {
+        CmtyWV[OldCmtyId] -= W;
+        CmtyOutWV[OldCmtyId] -= W;
+        CmtyOutWV[NewCmtyId] += W;
+      } else {
+        CmtyOutWV[OldCmtyId] -= W;
+        CmtyOutWV[NewCmtyId] += W;
+        if (NIdCmtyIdH.GetDat(DstNId) == NewCmtyId) {
+          CmtyWV[NewCmtyId] += W;
+        }
       }
+    }
+    for (int e = 0; e < NI.GetInDeg(); e++) {
+      SrcNId = NI.GetInNId(e);
+      W = NI.GetInEW(e);
+      if (NIdCmtyIdH.GetDat(SrcNId) == OldCmtyId) {
+        CmtyWV[OldCmtyId] -= W;
+        CmtyInWV[OldCmtyId] -= W;
+        CmtyInWV[NewCmtyId] += W;
+      } else {
+        CmtyInWV[OldCmtyId] -= W;
+        CmtyInWV[NewCmtyId] += W;
+        if (NIdCmtyIdH.GetDat(SrcNId) == NewCmtyId) {
+          CmtyWV[NewCmtyId] += W;
+        }
+      }
+    }
+    OldCmtyId = NewCmtyId; // updates old community to new community
+  }
+  /// Clean up by removing empty communities and renumbering communities by size (descending)
+  void CleanCmty() {
+    // Variables
+    TIntIntH OldNewCmtyH;
+    TIntV NewCmtySizeV;
+    TVec<TEdgeW> NewCmtyInWV, NewCmtyOutWV, NewCmtyWV;
+    TIntV::TIter VI;
+    TIntIntH::TIter HI;
+    int OldCmtyId, NewCmtyId;
+    // Set up community renumbering using community sizes
+    for (VI = CmtySizeV.BegI(), OldCmtyId = 0; VI < CmtySizeV.EndI(); VI++, OldCmtyId++) {
+      if (VI->Val > 0) {
+        OldNewCmtyH.AddDat(OldCmtyId, VI->Val);
+      }
+    }
+    OldNewCmtyH.SortByDat(false); // sort communities by size (descending)
+    for (HI = OldNewCmtyH.BegI(), NewCmtyId = 0; HI < OldNewCmtyH.EndI(); HI++, NewCmtyId++) {
+      HI.GetDat() = NewCmtyId; // renumber community
+    }
+    NCmty = NewCmtyId;
+    // Renumber communities
+    for (HI = NIdCmtyIdH.BegI(); HI < NIdCmtyIdH.EndI(); HI++) {
+      TInt& CmtyId = HI.GetDat();
+      CmtyId = OldNewCmtyH.GetDat(CmtyId);
+    }
+    // Reorder community sizes and weights
+    for (HI = OldNewCmtyH.BegI(); HI < OldNewCmtyH.EndI(); HI++) {
+      OldCmtyId = HI.GetKey();
+      NewCmtySizeV.Add(CmtySizeV[OldCmtyId]);
+      NewCmtyInWV.Add(CmtyInWV[OldCmtyId]);
+      NewCmtyOutWV.Add(CmtyOutWV[OldCmtyId]);
+      NewCmtyWV.Add(CmtyWV[OldCmtyId]);
+    }
+    CmtySizeV = NewCmtySizeV;
+    CmtyInWV = NewCmtyInWV;
+    CmtyOutWV = NewCmtyOutWV;
+    CmtyWV = NewCmtyWV;
+  }
+  /// Collapse graph, converting communities into nodes
+  void CollapseGraph() {
+    // Variables
+    typename TWNGraph<TEdgeW>::TNodeI NI;
+    typename TWNGraph<TEdgeW>::TEdgeI EI;
+    TIntIntH::TIter HI;
+    int NId, CmtyId, SrcCmtyId, DstCmtyId;
+    // Create new graph with nodes as communities
+    TPt<TWNGraph<TEdgeW> > NewGraph = TPt<TWNGraph<TEdgeW> >::New();
+    for (CmtyId = 0; CmtyId < NCmty; CmtyId++) {
+      NewGraph->AddNode(CmtyId);
+    }
+    for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+      SrcCmtyId = NIdCmtyIdH.GetDat(EI.GetSrcNId());
+      DstCmtyId = NIdCmtyIdH.GetDat(EI.GetDstNId());
+      if (SrcCmtyId != DstCmtyId) {
+        NewGraph->AddEdge(SrcCmtyId, DstCmtyId, EI.GetW()); // increments W
+      }
+    }
+    // Update attributes of community
+    Graph = NewGraph;
+    NIdCmtyIdH.Clr();
+    NIdWH.Clr();
+    NIdSizeH.Clr();
+    for (NI = Graph->BegNI(), CmtyId = 0; NI < Graph->EndNI(); NI++, CmtyId++) {
+      NId = NI.GetId();
+      NIdCmtyIdH.AddDat(NId, CmtyId);
+      NIdWH.AddDat(NId, CmtyWV[CmtyId]); // update node self weights
+      NIdSizeH.AddDat(NId, CmtySizeV[CmtyId]); // update node sizes
+    }
+  }
+};
+
+
+/// Modularity objective community
+template <class TEdgeW>
+class ModularityCommunity : public Community<TEdgeW> {
+public:
+  /// Calls parent constructor 
+  ModularityCommunity(const TPt<TWNGraph<TEdgeW> >& Graph) : Community<TEdgeW>(Graph) { }
+  /// Computes the change in quality if a node is moved into another community. To be implemented by inheriting child.
+  virtual double NodeMoveQuality(const int& NId, const int& NewCmtyId);
+  /// Computes the quality. To be implemented by inheriting child.
+  virtual double GetQuality();
+};
+
+
+/// Computes the change in quality if a node is moved into another community. To be implemented by inheriting child.
+template <class TEdgeW>
+double ModularityCommunity<TEdgeW>::NodeMoveQuality(const int& NId, const int& NewCmtyId) {
+  // Variables
+  typename TWNGraph<TEdgeW>::TNodeI NI = this->Graph->GetNI(NId);
+  double old_mod, new_mod;
+  int DstNId, SrcNId, OldCmtyId = this->NIdCmtyIdH.GetDat(NId);
+  TEdgeW W, NW = this->NIdWH.GetDat(NId);
+  // Local copies of old and new community weights
+  TEdgeW OldCmtyInW = this->CmtyInWV[OldCmtyId], OldCmtyOutW = this->CmtyOutWV[OldCmtyId], OldCmtyW = this->CmtyWV[OldCmtyId];
+  TEdgeW NewCmtyInW = this->CmtyInWV[NewCmtyId], NewCmtyOutW = this->CmtyOutWV[NewCmtyId], NewCmtyW = this->CmtyWV[NewCmtyId];
+  // Compute old modularity
+  old_mod = OldCmtyW - ((double) OldCmtyOutW*OldCmtyInW) / ((double) this->GraphTotalW)
+          + NewCmtyW - ((double) NewCmtyOutW*NewCmtyInW) / ((double) this->GraphTotalW);
+  // Update community weights
+  OldCmtyInW -= NW; OldCmtyOutW -= NW; OldCmtyW -= NW;
+  NewCmtyInW += NW; NewCmtyOutW += NW; NewCmtyW += NW;
+  for (int e = 0; e < NI.GetOutDeg(); e++) {
+    DstNId = NI.GetOutNId(e);
+    W = NI.GetOutEW(e);
+    if (this->NIdCmtyIdH.GetDat(DstNId) == OldCmtyId) {
+      OldCmtyW -= W;
+      OldCmtyOutW -= W;
+      NewCmtyOutW += W;
+    } else {
+      OldCmtyOutW -= W;
+      NewCmtyOutW += W;
+      if (this->NIdCmtyIdH.GetDat(DstNId) == NewCmtyId) {
+        NewCmtyW += W;
+      }
+    }
+  }
+  for (int e = 0; e < NI.GetInDeg(); e++) {
+    SrcNId = NI.GetInNId(e);
+    W = NI.GetInEW(e);
+    if (this->NIdCmtyIdH.GetDat(SrcNId) == OldCmtyId) {
+      OldCmtyW -= W;
+      OldCmtyInW -= W;
+      NewCmtyInW += W;
+    } else {
+      OldCmtyInW -= W;
+      NewCmtyInW += W;
+      if (this->NIdCmtyIdH.GetDat(SrcNId) == NewCmtyId) {
+        NewCmtyW += W;
+      }
+    }
+  }
+  // Compute new modularity
+  new_mod = OldCmtyW - ((double) OldCmtyOutW*OldCmtyInW) / ((double) this->GraphTotalW)
+          + NewCmtyW - ((double) NewCmtyOutW*NewCmtyInW) / ((double) this->GraphTotalW);
+  // Return change in modularity
+  return (new_mod - old_mod) / ((double) this->GraphTotalW); // normalized modularity
+}
+
+/// Computes the quality. To be implemented by inheriting child.
+template <class TEdgeW>
+double ModularityCommunity<TEdgeW>::GetQuality() {
+  // Variables
+  typename TIntIntH::TIter HI;
+  double mod = 0.0;
+  int CmtyId;
+  // Compute modularity by iterating over the communities (rather than edges)
+  for (CmtyId = 0; CmtyId < this->NCmty; CmtyId++) {
+    if (this->CmtySizeV[CmtyId] > 0) {
+      // Community weights
+      TEdgeW CmtyW = this->CmtyWV[CmtyId];
+      TEdgeW CmtyOutW = this->CmtyOutWV[CmtyId];
+      TEdgeW CmtyInW = this->CmtyInWV[CmtyId];
+      // Community modularity
+      mod += CmtyW - ((double) CmtyOutW*CmtyInW) / ((double) this->GraphTotalW);
+    }
+  }
+  return mod / ((double) this->GraphTotalW); // normalized modularity
+}
+
+}
+
+namespace TSnap {
+
+template <class Community, class TEdgeW>
+double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, const TEdgeDir& dir, const double& eps, const double& delta, const int& MaxIter) {
+  
+  // Variables
+  TPt<TWNGraph<TEdgeW> > GraphCopy = Graph; // smart pointer working graph copy
+  typename TWNGraph<TEdgeW>::TNodeI NI;
+  TIntIntVH::TIter HI;
+  // Compute the absolute minimum number of moves required
+  int MinMove = (int) delta*Graph->GetNodes();
+  // Phase ariables
+  int phase = 0;
+  double phaseImprov = 0.0;
+  // Setup community and output community hierarchy 
+  NIdCmtyVH.Clr();
+  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    int NId = NI.GetId();
+    NIdCmtyVH.AddKey(NId);
+    NIdCmtyVH.GetDat(NId).Add(NId);
+  }
+  Community Cmty(GraphCopy);
+  
+  // Louvain greedy optimization method
+  while (phase == 0 || phaseImprov > eps) { // while quality improving
+    
+    // Reset phase improvement in modularity
+    phaseImprov = 0.0;
+    // Iter variables
+    int moves = 0, iter = 0;
+    double iterImprov = 0.0;
+    
+    // Phase A
+    // -------
+    
+    while (iter == 0 || (iterImprov > eps && moves > MinMove && iter < MaxIter)) { // while quality improving and parameters not exceeded
       
-      for (i -> j) { // edges
+      // Reset iter improvement in modularity
+      iterImprov = 0.0;
+      
+      // TODO: randomly permute nodes (?)
+      
+      for (NI = GraphCopy->BegNI(); NI < GraphCopy->EndNI(); NI++) { // nodes, randomly permuted
+        // Local variables
+        double moveImprov = 0.0, bestMoveImprov = 0.0;
+        int NId = NI.GetId();
+        int OldCmtyId, NewCmtyId, BestCmtyId = -1;
         
-        if (Cmty.GetDat(i) != Cmty.GetDat(j)) { //  edge is between communities
-          
-          AddEdge(Cmty.GetDat(i), Cmty.GetDat(j), w); // incrementally "add edge" or "add to edge weight"
-          
+        // TODO: implement switching using
+        //         (a) all
+        //         (b) neighbors
+        //         (c) random communities
+        
+        // Only iterate over the neighbors for the direction specified
+        for (int e = 0; e < NI.GetDeg(dir); e++) {
+          OldCmtyId = Cmty.NIdCmtyIdH.GetDat(NId);
+          NewCmtyId = Cmty.NIdCmtyIdH.GetDat(NI.GetNbrNId(e, dir));
+          if (NewCmtyId != OldCmtyId) {
+            moveImprov = Cmty.NodeMoveQuality(NId, NewCmtyId);
+            if (moveImprov > bestMoveImprov) {
+              BestCmtyId = NewCmtyId;
+              bestMoveImprov = moveImprov;
+            }
+          }
+        }
+        // Execute best move if it gives an improvement in modularity 
+        if (bestMoveImprov > 0.0 && BestCmtyId != -1) {
+          Cmty.MoveNode(NId, BestCmtyId);
+          iterImprov += bestMoveImprov;
+          moves++;
         }
         
       }
       
+      iter++;
+      phaseImprov += iterImprov;
+      
     }
+    
+    if (phaseImprov == 0.0) {
+      break; // break if not improved (communities have not changed)
+    }
+    
+    // Remove empty communities and renumber communities by size (descending)
+    Cmty.CleanCmty();
+    
+    // Update output community hierarchy
+    for (HI = NIdCmtyVH.BegI(); HI < NIdCmtyVH.EndI(); HI++) {
+      TIntV& CmtyV = HI.GetDat();
+      CmtyV.Add(Cmty.NIdCmtyIdH.GetDat(CmtyV[phase]));
+    }
+    
+    // -------
+    
+    // Phase B
+    // -------
+    
+    // Collapse graph, converting communities into nodes
+    Cmty.CollapseGraph();
+    GraphCopy = Cmty.Graph; // update working graph copy
+    
+    // -------
+    
+    phase++;
     
   }
+  
+  return Cmty.GetQuality(); // return modularity
   
 }
 
 } // namespace TSnap
 
+namespace TSnap {
+
+// Summary method
+void CmtyHierarchySummary(const TIntIntVH& NIdCmtyVH, const int& NCmtyThreshold);
+
+} // namespace TSnap
 
 #endif

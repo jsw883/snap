@@ -6,7 +6,7 @@
 
 // Headers (?)
 
-// #include "Snap.h"
+#include "enums.h"
 
 //#//////////////////////////////////////////////
 /// Weighted directed graphs
@@ -19,7 +19,7 @@
 // NOTE: In order to define smart pointers, TEdgeW needs to be defined (C++98)
 template <class TEdgeW> class TWNGraph;
 
-/// Integer weighted directed graph (TWNGraph<TInt>)./r  
+/// Integer weighted directed graph (TWNGraph<TInt>)
 typedef TWNGraph<TInt> TIntWNGraph;
 /// Float weighted directed graph (TWNGraph<TFlt>)
 typedef TWNGraph<TFlt> TFltWNGraph;
@@ -51,7 +51,7 @@ typedef TPt<TIntWNEGraph> PIntWNEGraph;
 typedef TPt<TFltWNEGraph> PFltWNEGraph;
 
 //#//////////////////////////////////////////////
-/// Weighted directed graph. ##TWNGraph::Class
+/// Weighted directed graph.
 template <class TEdgeW> // TEdgeW can be TInt or TFlt (which must be numeric typed, should this be restricted (?))
 class TWNGraph {
 public:
@@ -82,12 +82,51 @@ public:
     int GetInDeg() const { return InNIdEdgeWV.Len(); }
     int GetOutDeg() const { return OutNIdEdgeWV.Len(); }
     int GetDeg() const { return GetInDeg() + GetOutDeg(); }
-    TEdgeW GetInEW(const int& EdgeN) const { return InNIdEdgeWV[EdgeN].GetVal2(); }
-    TEdgeW GetOutEW(const int& EdgeN) const { return OutNIdEdgeWV[EdgeN].GetVal2(); }
-    TEdgeW GetNbrEW(const int& EdgeN) const { return EdgeN < GetOutDeg() ? GetOutEW(EdgeN) : GetInEW(EdgeN - GetOutDeg()); }
+    int GetDeg(const TEdgeDir& dir) const {
+      int Deg = -1;
+      switch(dir) {
+        case edInDirected: Deg = GetInDeg(); break;
+        case edOutDirected: Deg = GetOutDeg(); break;
+        case edUnDirected: Deg = GetDeg(); break;
+      }
+      return Deg;
+    }
+    TEdgeW GetWInDeg() const;
+    TEdgeW GetWOutDeg() const;
+    TEdgeW GetWDeg() const { return GetWInDeg() + GetWOutDeg(); }
+    TEdgeW GetWDeg(const TEdgeDir& dir) const {
+      TEdgeW WDeg = -1;
+      switch(dir) {
+        case edInDirected: WDeg = GetWInDeg(); break;
+        case edOutDirected: WDeg = GetWOutDeg(); break;
+        case edUnDirected: WDeg = GetWDeg(); break;
+      }
+      return WDeg;
+    }
     int GetInNId(const int& NodeN) const { return InNIdEdgeWV[NodeN].GetVal1(); }
     int GetOutNId(const int& NodeN) const { return OutNIdEdgeWV[NodeN].GetVal1(); }
     int GetNbrNId(const int& NodeN) const { return NodeN < GetOutDeg() ? GetOutNId(NodeN) : GetInNId(NodeN - GetOutDeg()); }
+    int GetNbrNId(const int& EdgeN, const TEdgeDir& dir) const {
+      int NId = -1;
+      switch(dir) {
+        case edInDirected: NId = GetInNId(EdgeN); break;
+        case edOutDirected: NId = GetOutNId(EdgeN); break;
+        case edUnDirected: NId = GetNbrNId(EdgeN); break;
+      }
+      return NId;
+    }
+    TEdgeW GetInEW(const int& EdgeN) const { return InNIdEdgeWV[EdgeN].GetVal2(); }
+    TEdgeW GetOutEW(const int& EdgeN) const { return OutNIdEdgeWV[EdgeN].GetVal2(); }
+    TEdgeW GetNbrEW(const int& EdgeN) const { return EdgeN < GetOutDeg() ? GetOutEW(EdgeN) : GetInEW(EdgeN - GetOutDeg()); }
+    TEdgeW GetNbrEW(const int& EdgeN, const TEdgeDir& dir) const {
+      TEdgeW W = -1;
+      switch(dir) {
+        case edInDirected: W = GetInEW(EdgeN); break;
+        case edOutDirected: W = GetOutEW(EdgeN); break;
+        case edUnDirected: W = GetNbrEW(EdgeN); break;
+      }
+      return W;
+    }
     
     // Needed for IsEdge method
     bool IsInNId(const int& NId, int& NodeN) const;
@@ -124,24 +163,38 @@ public:
     bool operator > (const TNodeI& NodeI) const { return NodeHI > NodeI.NodeHI; }
     /// Returns ID of the current node.
     int GetId() const { return NodeHI.GetDat().GetId(); }
-    /// Returns degree of the current node, the sum of in-degree and out-degree.
-    int GetDeg() const { return NodeHI.GetDat().GetDeg(); }
     /// Returns in-degree of the current node.
     int GetInDeg() const { return NodeHI.GetDat().GetInDeg(); }
     /// Returns out-degree of the current node.
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
+    /// Returns degree of the current node, the sum of in-degree and out-degree.
+    int GetDeg() const { return NodeHI.GetDat().GetDeg(); }
+    /// Returns degree of the current node, for the direction specified.
+    int GetDeg(const TEdgeDir& dir) const { return NodeHI.GetDat().GetDeg(dir); }
     /// Returns weighted in-degree of the current node.
-    TEdgeW GetWInDeg() const;
+    TEdgeW GetWInDeg() const { return NodeHI.GetDat().GetWInDeg(); }
     /// Returns weighted out-degree of the current node.
-    TEdgeW GetWOutDeg() const;
+    TEdgeW GetWOutDeg() const { return NodeHI.GetDat().GetWOutDeg(); }
     /// Returns weighted degree of the current node, the sum of weighted in-degree and weighted out-degree.
-    TEdgeW GetWDeg() const { return GetWInDeg() + GetWOutDeg(); }
-    /// Returns ID of NodeN-th in-node (the node pointing to the current node). ##TWNGraph::TNodeI::GetInNId
+    TEdgeW GetWDeg() const { return NodeHI.GetDat().GetWDeg(); }
+    /// Returns weighted degree of the current node, for the direction specified.
+    TEdgeW GetWDeg(const TEdgeDir& dir) const { return NodeHI.GetDat().GetWDeg(dir); }
+    /// Returns ID of NodeN-th in-node (the node pointing to the current node).
     int GetInNId(const int& EdgeN) const { return NodeHI.GetDat().GetInNId(EdgeN); }
-    /// Returns ID of NodeN-th out-node (the node the current node points to). ##TWNGraph::TNodeI::GetOutNId
+    /// Returns ID of NodeN-th out-node (the node the current node points to).
     int GetOutNId(const int& EdgeN) const { return NodeHI.GetDat().GetOutNId(EdgeN); }
-    /// Returns ID of NodeN-th neighboring node ##TWNGraph::TNodeI::GetNbrNId
+    /// Returns ID of NodeN-th neighboring node.
     int GetNbrNId(const int& EdgeN) const { return NodeHI.GetDat().GetNbrNId(EdgeN); }
+    /// Returns ID of NodeN-th neighboring node, for the direction specififed.
+    int GetNbrNId(const int& EdgeN, const TEdgeDir& dir) const { return NodeHI.GetDat().GetNbrNId(EdgeN, dir); }
+    /// Returns weight of EdgeN-th in-edge.
+    TEdgeW GetInEW(const int& EdgeN) const { return NodeHI.GetDat().GetInEW(EdgeN); }
+    /// Returns weight of EdgeN-th out-edge.
+    TEdgeW GetOutEW(const int& EdgeN) const { return NodeHI.GetDat().GetOutEW(EdgeN); }
+    /// Returns weight of EdgeN-th edge.
+    TEdgeW GetNbrEW(const int& EdgeN) const { return NodeHI.GetDat().GetNbrEW(EdgeN); }
+    /// Returns weight of EdgeN-th edge.
+    TEdgeW GetNbrEW(const int& EdgeN, const TEdgeDir& dir) const { return NodeHI.GetDat().GetNbrEW(EdgeN, dir); }
     
     /// Tests whether node with ID NId points to the current node.
     bool IsInNId(const int& NId) const { return NodeHI.GetDat().IsInNId(NId); }
@@ -150,12 +203,6 @@ public:
     /// Tests whether node with ID NId is a neighbor of the current node.
     bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     
-    /// Returns weight of EdgeN-th in-edge.
-    TEdgeW GetInEW(const int& EdgeN) const { return NodeHI.GetDat().GetInEW(EdgeN); }
-    /// Returns weight of EdgeN-th out-edge.
-    TEdgeW GetOutEW(const int& EdgeN) const { return NodeHI.GetDat().GetOutEW(EdgeN); }
-    /// Returns weight of EdgeN-th edge.
-    TEdgeW GetNbrEW(const int& EdgeN) const { return NodeHI.GetDat().GetNbrEW(EdgeN); }
     friend class TWNGraph<TEdgeW>;
   };
   /// Edge iterator. Only forward iteration (operator++) is supported.
@@ -179,7 +226,7 @@ public:
       if (CurNode.GetOutDeg() != 0) {
         CurEdge++;
         if (CurEdge >= CurNode.GetOutDeg()) {
-          CurEdge=0;
+          CurEdge = 0;
           CurNode++;
           while (CurNode < EndNode && CurNode.GetOutDeg() == 0) {
             CurNode++;
@@ -201,10 +248,10 @@ public:
       CurEdge--;
       if (CurEdge < 0) {
         CurNode--;
-        CurEdge = CurNode.GetOutDeg() - 1;
         while (CurNode > BegNode && CurNode.GetOutDeg() == 0) {
           CurNode--;
         }
+        CurEdge = CurNode.GetOutDeg() - 1;
       }
       return *this;
     }
@@ -243,7 +290,7 @@ public:
   void Save(TSOut& SOut) const { MxNId.Save(SOut); NodeH.Save(SOut); }
   /// Static constructor that returns a pointer to the graph. Call: PNGraph Graph = TWNGraph::New().
   static PNet New() { return PNet(new TNet()); }
-  /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TWNGraph::New
+  /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges.
   static PNet New(const int& Nodes, const int& Edges) { return PNet(new TNet(Nodes, Edges)); }
   /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
   static PNet Load(TSIn& SIn) { return PNet(new TNet(SIn)); }
@@ -255,14 +302,14 @@ public:
   
   /// Returns the number of nodes in the graph.
   int GetNodes() const { return NodeH.Len(); }
-  /// Adds a node of ID NId to the graph. ##TWNGraph::AddNode
+  /// Adds a node of ID NId to the graph.
   int AddNode(int NId = -1);
   /// Adds a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId()); }
-  /// Deletes node of ID NId from the graph. ##TWNGraph::DelNode
+  /// Deletes node of ID NId from the graph. 
   void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the graph.
-  void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }
+  void DelNode(TNode& NodeI) { DelNode(NodeI.GetId()); }
   /// Tests whether ID NId is a node.
   bool IsNode(const int& NId) const { return NodeH.IsKey(NId); }
   /// Returns an iterator referring to the first node in the graph.
@@ -276,12 +323,14 @@ public:
   
   /// Returns the number of edges in the graph.
   int GetEdges() const;
-  /// Adds an edge from node IDs SrcNId to node DstNId to the graph. ##TWNGraph::AddEdge
-  int AddEdge(const int& SrcNId, const int& DstNId, TEdgeW W = 1);
+  /// Adds an edge from node IDs SrcNId to node DstNId to the graph.
+  int AddEdge(const int& SrcNId, const int& DstNId, const TEdgeW& W = 1);
   /// Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() to the graph.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI.GetW()); }
-  /// Deletes an edge from node IDs SrcNId to DstNId from the graph. ##TWNGraph::DelEdge
+  /// Deletes an edge from node IDs SrcNId to DstNId from the graph.
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
+  /// Deletes an edge from the edge iterator EI, checking internal consistency for EI
+  void DelEdge(TEdgeI& EdgeI);
   /// Tests whether an edge from node IDs SrcNId to DstNId exists in the graph.
   bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const;
   /// Returns an iterator referring to the first edge in the graph.
@@ -334,7 +383,7 @@ public:
   void ReserveNIdOutDeg(const int& NId, const int& OutDeg) { GetNode(NId).OutNIdEdgeWV.Reserve(OutDeg); }
   /// Defragments the graph. ##TWNGraph::Defrag
   void Defrag(const bool& OnlyNodeLinks = false);
-  /// Checks the graph data structure for internal consistency. ##TWNGraph::IsOk
+  /// Checks the graph data structure for internal consistency.
   bool IsOk(const bool& ThrowExcept = true) const;
   /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF = stdout) const;
@@ -393,7 +442,7 @@ bool TWNGraph<TEdgeW>::TNode::IsOutNId(const int& NId, int& NodeN) const {
 // TNodeI methods implemented
 
 template <class TEdgeW>
-TEdgeW TWNGraph<TEdgeW>::TNodeI::GetWInDeg() const {
+TEdgeW TWNGraph<TEdgeW>::TNode::GetWInDeg() const {
   TEdgeW WDeg = 0;
   for (int edge = 0; edge < GetInDeg(); edge++) {
     WDeg += GetInEW(edge); // Graph->GetEdge(NodeHI.GetDat().GetInEId(edge)).GetW();
@@ -402,7 +451,7 @@ TEdgeW TWNGraph<TEdgeW>::TNodeI::GetWInDeg() const {
 }
 
 template <class TEdgeW>
-TEdgeW TWNGraph<TEdgeW>::TNodeI::GetWOutDeg() const {
+TEdgeW TWNGraph<TEdgeW>::TNode::GetWOutDeg() const {
   TEdgeW WDeg = 0;
   for (int edge = 0; edge < GetOutDeg(); edge++) {
     WDeg += GetOutEW(edge); // Graph->GetEdge(NodeHI.GetDat().GetOutEId(edge)).GetW();
@@ -453,11 +502,19 @@ int TWNGraph<TEdgeW>::GetEdges() const {
 }
 
 template <class TEdgeW>
-int TWNGraph<TEdgeW>::AddEdge(const int& SrcNId, const int& DstNId, TEdgeW W) {
+int TWNGraph<TEdgeW>::AddEdge(const int& SrcNId, const int& DstNId, const TEdgeW& W) {
   typedef TPair<TInt, TEdgeW> TNIdEdgeW;
   IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   IAssertR(W > 0, "Weight not positive (stricly).");
-  if (IsEdge(SrcNId, DstNId)) { return -2; }
+  if (IsEdge(SrcNId, DstNId)) {
+    // increment edge weight if edge exists
+    int EdgeN;
+    GetNode(SrcNId).IsOutNId(DstNId, EdgeN);
+    GetNode(SrcNId).OutNIdEdgeWV[EdgeN].Val2 += W;
+    GetNode(DstNId).IsInNId(SrcNId, EdgeN);
+    GetNode(DstNId).InNIdEdgeWV[EdgeN].Val2 += W;
+    return -1;
+  }
   GetNode(SrcNId).OutNIdEdgeWV.AddSorted(TNIdEdgeW(DstNId, W));
   GetNode(DstNId).InNIdEdgeWV.AddSorted(TNIdEdgeW(SrcNId, W));
   return -1;
@@ -480,6 +537,15 @@ void TWNGraph<TEdgeW>::DelEdge(const int& SrcNId, const int& DstNId, const bool&
     { TNode& N = GetNode(DstNId);
     N.IsOutNId(SrcNId, node);
     if (node != -1) { N.OutNIdEdgeWV.Del(node); } }
+  }
+}
+
+template <class TEdgeW>
+void TWNGraph<TEdgeW>::DelEdge(TEdgeI& EdgeI) {
+  const int SrcNId = EdgeI.GetSrcNId(), DstNId = EdgeI.GetDstNId();
+  DelEdge(SrcNId, DstNId);
+  if (EdgeI.CurEdge >= EdgeI.CurNode.GetOutDeg()) {
+    EdgeI++;
   }
 }
 
@@ -637,14 +703,14 @@ void TWNGraph<TEdgeW>::Dump(FILE *OutF) const {
 }
 
 //#//////////////////////////////////////////////
-/// Weighted directed multigraph. ##TWNEGraph::Class
+/// Weighted directed multigraph.
 template <class TEdgeW> // TEdgeW can be TInt or TFlt (which must be numeric typed, should this be restricted (?))
 class TWNEGraph {
 public:
   typedef TWNEGraph<TEdgeW> TNet;
   typedef TPt<TNet> PNet;
 public:
-  /// Edge class used to store edge information ##TWNEGraph::TEdge::Class
+  /// Edge class used to store edge information
   class TEdge {
   private:
     TInt Id, SrcNId, DstNId;
@@ -665,7 +731,7 @@ public:
     int GetSrcNId() const { return SrcNId; }
     int GetDstNId() const { return DstNId; }
     // Edge weight accessor method
-    TEdgeW GetW() const { return EdgeW; } // don't need to use references, only TInt or TFlt being used
+    TEdgeW GetW() const { return EdgeW; }
     friend class TWNEGraph<TEdgeW>;
   };
   class TNode {
@@ -690,15 +756,63 @@ public:
     int GetInDeg() const { return InEdgeV.Len(); }
     int GetOutDeg() const { return OutEdgeV.Len(); }
     int GetDeg() const { return GetInDeg() + GetOutDeg(); }
-    TEdgeW GetInEW(const int& EdgeN) const { return InEdgeV[EdgeN].GetW(); }
-    TEdgeW GetOutEW(const int& EdgeN) const { return OutEdgeV[EdgeN].GetW(); }
-    TEdgeW GetNbrEW(const int& EdgeN) const { return EdgeN < GetOutDeg() ? GetOutEW(EdgeN) : GetInEW(EdgeN - GetOutDeg()); }
+    int GetDeg(const TEdgeDir& dir) const {
+      int Deg = -1;
+      switch(dir) {
+        case edInDirected: Deg = GetInDeg(); break;
+        case edOutDirected: Deg = GetOutDeg(); break;
+        case edUnDirected: Deg = GetDeg(); break;
+      }
+      return Deg;
+    }
+    TEdgeW GetWInDeg() const;
+    TEdgeW GetWOutDeg() const;
+    TEdgeW GetWDeg() const { return GetWInDeg() + GetWOutDeg(); }
+    TEdgeW GetWDeg(const TEdgeDir& dir) const {
+      TEdgeW WDeg = -1;
+      switch(dir) {
+        case edInDirected: WDeg = GetWInDeg(); break;
+        case edOutDirected: WDeg = GetWOutDeg(); break;
+        case edUnDirected: WDeg = GetWDeg(); break;
+      }
+      return WDeg;
+    }
     int GetInNId(const int& NodeN) const { return InEdgeV[NodeN].GetSrcNId(); }
     int GetOutNId(const int& NodeN) const { return OutEdgeV[NodeN].GetDstNId(); }
     int GetNbrNId(const int& NodeN) const { return NodeN < GetOutDeg() ? GetOutNId(NodeN) : GetInNId(NodeN - GetOutDeg()); }
+    int GetNbrNId(const int& EdgeN, const TEdgeDir& dir) const {
+      int NId = -1;
+      switch(dir) {
+        case edInDirected: NId = GetInNId(EdgeN); break;
+        case edOutDirected: NId = GetOutNId(EdgeN); break;
+        case edUnDirected: NId = GetNbrNId(EdgeN); break;
+      }
+      return NId;
+    }
     int GetInEId(const int& EdgeN) const { return InEdgeV[EdgeN].GetId(); }
     int GetOutEId(const int& EdgeN) const { return OutEdgeV[EdgeN].GetId(); }
     int GetNbrEId(const int& EdgeN) const { return EdgeN < GetOutDeg() ? GetOutEId(EdgeN) : GetInEId(EdgeN - GetOutDeg()); }
+    int GetNbrEId(const int& EdgeN, const TEdgeDir& dir) const {
+      int EId = -1;
+      switch(dir) {
+        case edInDirected: EId = GetInEId(EdgeN); break;
+        case edOutDirected: EId = GetOutEId(EdgeN); break;
+        case edUnDirected: EId = GetNbrEId(EdgeN); break;
+      }
+      return EId;
+    }
+    TEdgeW GetInEW(const int& EdgeN) const { return InEdgeV[EdgeN].GetW(); }
+    TEdgeW GetOutEW(const int& EdgeN) const { return OutEdgeV[EdgeN].GetW(); }
+    TEdgeW GetNbrEW(const int& EdgeN) const { return EdgeN < GetOutDeg() ? GetOutEW(EdgeN) : GetInEW(EdgeN - GetOutDeg()); }
+    TEdgeW GetNbrEW(const int& EdgeN, const TEdgeDir& dir) const {
+      TEdgeW W = -1;
+      switch(dir) {
+        case edInDirected: W = GetInEW(EdgeN); break;
+        case edOutDirected: W = GetOutEW(EdgeN); break;
+        case edUnDirected: W = GetNbrEW(EdgeN); break;
+      }
+      return W;
+    }
     
     // Not sure if these are needed, only used in centr for EventImportance (?)
     // bool IsInNId(const int& NId) const { return ... != -1; }
@@ -732,37 +846,38 @@ public:
     bool operator > (const TNodeI& NodeI) const { return NodeHI > NodeI.NodeHI; }
     /// Returns ID of the current node.
     int GetId() const { return NodeHI.GetDat().GetId(); }
-    /// Returns degree of the current node, the sum of in-degree and out-degree.
-    int GetDeg() const { return NodeHI.GetDat().GetDeg(); }
     /// Returns in-degree of the current node.
     int GetInDeg() const { return NodeHI.GetDat().GetInDeg(); }
     /// Returns out-degree of the current node.
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
-    //// Returns weighted in-degree of the current node.
-    TEdgeW GetWInDeg() const;
+    /// Returns degree of the current node, the sum of in-degree and out-degree.
+    int GetDeg() const { return NodeHI.GetDat().GetDeg(); }
+    /// Returns degree of the current node, for the direction specified.
+    int GetDeg(const TEdgeDir& dir) const { return NodeHI.GetDat().GetDeg(dir); }
+    /// Returns weighted in-degree of the current node.
+    TEdgeW GetWInDeg() const { return NodeHI.GetDat().GetWInDeg(); }
     /// Returns weighted out-degree of the current node.
-    TEdgeW GetWOutDeg() const;
-    // Returns weighted degree of the current node, the sum of weighted in-degree and weighted out-degree.
-    TEdgeW GetWDeg() const { return GetWInDeg() + GetWOutDeg(); }
-    /// Returns ID of NodeN-th in-node (the node pointing to the current node). ##TWNEGraph::TNodeI::GetInNId
+    TEdgeW GetWOutDeg() const { return NodeHI.GetDat().GetWOutDeg(); }
+    /// Returns weighted degree of the current node, the sum of weighted in-degree and weighted out-degree.
+    TEdgeW GetWDeg() const { return NodeHI.GetDat().GetWDeg(); }
+    /// Returns weighted degree of the current node, for the direction specified.
+    TEdgeW GetWDeg(const TEdgeDir& dir) const { return NodeHI.GetDat().GetWDeg(dir); }
+    /// Returns ID of NodeN-th in-node (the node pointing to the current node).
     int GetInNId(const int& EdgeN) const { return NodeHI.GetDat().GetInNId(EdgeN); }
-    /// Returns ID of NodeN-th out-node (the node the current node points to). ##TWNEGraph::TNodeI::GetOutNId
+    /// Returns ID of NodeN-th out-node (the node the current node points to).
     int GetOutNId(const int& EdgeN) const { return NodeHI.GetDat().GetOutNId(EdgeN); }
-    /// Returns ID of NodeN-th neighboring node ##TWNEGraph::TNodeI::GetNbrNId
+    /// Returns ID of NodeN-th neighboring node.
     int GetNbrNId(const int& EdgeN) const { return NodeHI.GetDat().GetNbrNId(EdgeN); }
+    /// Returns ID of NodeN-th neighboring node, for the direction specififed.
+    int GetNbrNId(const int& EdgeN, const TEdgeDir& dir) const { return NodeHI.GetDat().GetNbrNId(EdgeN, dir); }
     /// Returns ID of EdgeN-th in-edge.
     int GetInEId(const int& EdgeN) const { return NodeHI.GetDat().GetInEId(EdgeN); }
     /// Returns ID of EdgeN-th out-edge.
     int GetOutEId(const int& EdgeN) const { return NodeHI.GetDat().GetOutEId(EdgeN); }
     /// Returns ID of EdgeN-th edge.
     int GetNbrEId(const int& EdgeN) const { return NodeHI.GetDat().GetNbrEId(EdgeN); }
-    
-    // Tests whether node with ID NId points to the current node.
-    // bool IsInNId(const int& NId) const { return NodeHI.GetDat().IsInNId(NId); }
-    // Tests whether the current node points to node with ID NId.
-    // bool IsOutNId(const int& NId) const { return NodeHI.GetDat().IsOutNId(NId); }
-    // Tests whether node with ID NId is a neighbor of the current node.
-    // bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
+    /// Returns ID of EdgeN-th edge, for the direction specified.
+    int GetNbrEId(const int& EdgeN, const TEdgeDir& dir) const { return NodeHI.GetDat().GetNbrEId(EdgeN, dir); }
     
     /// Returns weight of EdgeN-th in-edge.
     TEdgeW GetInEW(const int& EdgeN) const { return NodeHI.GetDat().GetInEW(EdgeN); }
@@ -770,6 +885,16 @@ public:
     TEdgeW GetOutEW(const int& EdgeN) const { return NodeHI.GetDat().GetOutEW(EdgeN); }
     /// Returns weight of EdgeN-th edge.
     TEdgeW GetNbrEW(const int& EdgeN) const { return NodeHI.GetDat().GetNbrEW(EdgeN); }
+    /// Returns weight of EdgeN-th edge, for the direction specified.
+    TEdgeW GetNbrEW(const int& EdgeN, const TEdgeDir& dir) const { return NodeHI.GetDat().GetNbrEW(EdgeN, dir); }
+        
+    // // Tests whether node with ID NId points to the current node.
+    // bool IsInNId(const int& NId) const { return NodeHI.GetDat().IsInNId(NId); }
+    // Tests whether the current node points to node with ID NId.
+    // bool IsOutNId(const int& NId) const { return NodeHI.GetDat().IsOutNId(NId); }
+    // Tests whether node with ID NId is a neighbor of the current node.
+    // bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
+    
     friend class TWNEGraph<TEdgeW>;
   };
   /// Edge iterator. Only forward iteration (operator++) is supported.
@@ -823,7 +948,7 @@ public:
   void Save(TSOut& SOut) const { MxNId.Save(SOut); MxEId.Save(SOut); NodeH.Save(SOut); EdgeH.Save(SOut); }
   /// Static constructor that returns a pointer to the graph. Call: PNGraph Graph = TWNEGraph::New().
   static PNet New() { return PNet(new TNet()); }
-  /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TWNEGraph::New
+  /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges.
   static PNet New(const int& Nodes, const int& Edges) { return PNet(new TNet(Nodes, Edges)); }
   /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
   static PNet Load(TSIn& SIn) { return PNet(new TNet(SIn)); }
@@ -835,11 +960,11 @@ public:
   
   /// Returns the number of nodes in the graph.
   int GetNodes() const { return NodeH.Len(); }
-  /// Adds a node of ID NId to the graph. ##TWNEGraph::AddNode
+  /// Adds a node of ID NId to the graph.
   int AddNode(int NId = -1);
   /// Adds a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId()); }
-  /// Deletes node of ID NId from the graph. ##TWNEGraph::DelNode
+  /// Deletes node of ID NId from the graph.
   void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the graph.
   void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }
@@ -856,14 +981,16 @@ public:
   
   /// Returns the number of edges in the graph.
   int GetEdges() const { return EdgeH.Len(); }
-  /// Adds an edge from node IDs SrcNId to node DstNId to the graph. ##TWNEGraph::AddEdge
+  /// Adds an edge from node IDs SrcNId to node DstNId to the graph.
   int AddEdge(const int& SrcNId, const int& DstNId, TEdgeW W = 1, int EId = -1);
   /// Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() to the graph.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI.GetW(), EdgeI.GetId()); }
-  /// Deletes an edge with edge ID EId from the graph. ##TWNEGraph::DelEdge
+  /// Deletes an edge with edge ID EId from the graph.
   void DelEdge(const int& EId);
-  /// Deletes all edges from node IDs SrcNId to DstNId from the graph. ##TWNEGraph::DelEdge
+  /// Deletes all edges from node IDs SrcNId to DstNId from the graph.
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
+  /// Deletes edge of ID EdgeI.GetId() from the graph.
+  void DelNode(TEdge& EdgeI) { DelEdge(EdgeI.GetId()); }
   /// Tests whether an edge with edge ID EId exists in the graph.
   bool IsEdge(const int& EId) const { return EdgeH.IsKey(EId); }
   
@@ -918,11 +1045,11 @@ public:
   void ReserveNIdOutDeg(const int& NId, const int& OutDeg) { GetNode(NId).OutEdgeV.Reserve(OutDeg); }
   /// Defragments the graph. ##TWNEGraph::Defrag
   void Defrag(const bool& OnlyNodeLinks = false);
-  /// Checks the graph data structure for internal consistency. ##TWNEGraph::IsOk
+  /// Checks the graph data structure for internal consistency.
   bool IsOk(const bool& ThrowExcept = true) const;
   /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF = stdout) const;
-  /// Returns a small graph on 5 nodes and 6 edges. ##TWNEGraph::GetSmallGraph
+  /// Returns a small graph on 5 nodes and 6 edges.
   static PNet GetSmallGraph();
   friend class TPt<TWNEGraph<TEdgeW> >;
   // friend class TWNEGraphWMtx<TEdgeW>; // required for weighted adjacency matrix SVD
@@ -941,19 +1068,19 @@ template <class TEdgeW> struct IsDirected<TWNEGraph<TEdgeW> > { enum { Val = 1 }
 // TNodeI methods implemented
 
 template <class TEdgeW>
-TEdgeW TWNEGraph<TEdgeW>::TNodeI::GetWInDeg() const {
+TEdgeW TWNEGraph<TEdgeW>::TNode::GetWInDeg() const {
   TEdgeW WDeg = 0;
   for (int edge = 0; edge < GetInDeg(); edge++) {
-    WDeg += GetInEW(edge); // Graph->GetEdge(NodeHI.GetDat().GetInEId(edge)).GetW();
+    WDeg += GetInEW(edge);
   }
   return WDeg;
 }
 
 template <class TEdgeW>
-TEdgeW TWNEGraph<TEdgeW>::TNodeI::GetWOutDeg() const {
+TEdgeW TWNEGraph<TEdgeW>::TNode::GetWOutDeg() const {
   TEdgeW WDeg = 0;
   for (int edge = 0; edge < GetOutDeg(); edge++) {
-    WDeg += GetOutEW(edge); // Graph->GetEdge(NodeHI.GetDat().GetOutEId(edge)).GetW();
+    WDeg += GetOutEW(edge);
   }
   return WDeg;
 }
