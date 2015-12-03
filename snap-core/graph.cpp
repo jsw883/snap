@@ -104,20 +104,18 @@ void TUNGraph::DelEdge(const int& SrcNId, const int& DstNId) {
   }
 }
 
+void TUNGraph::DelEdge(TEdgeI& EdgeI) {
+  const int SrcNId = EdgeI.GetSrcNId(), DstNId = EdgeI.GetDstNId();
+  DelEdge(SrcNId, DstNId);
+  if (EdgeI.CurEdge >= EdgeI.CurNode.GetOutDeg()) {
+    EdgeI++;
+  }
+}
+
 // Test whether an edge between node IDs SrcNId and DstNId exists the graph.
 bool TUNGraph::IsEdge(const int& SrcNId, const int& DstNId) const {
   if (! IsNode(SrcNId) || ! IsNode(DstNId)) return false;
   return GetNode(SrcNId).IsNbrNId(DstNId);
-}
-
-// Return an iterator referring to edge (SrcNId, DstNId) in the graph.
-TUNGraph::TEdgeI TUNGraph::GetEI(const int& SrcNId, const int& DstNId) const {
-  const int MnNId = TMath::Mn(SrcNId, DstNId);
-  const int MxNId = TMath::Mx(SrcNId, DstNId);
-  const TNodeI SrcNI = GetNI(MnNId);
-  const int NodeN = SrcNI.NodeHI.GetDat().NIdV.SearchBin(MxNId);
-  IAssert(NodeN != -1);
-  return TEdgeI(SrcNI, EndNI(), NodeN);
 }
 
 
@@ -275,6 +273,14 @@ void TNGraph::DelNode(const int& NId) {
   NodeH.DelKey(NId);
 }
 
+void TNGraph::DelEdge(TEdgeI& EdgeI) {
+  const int SrcNId = EdgeI.GetSrcNId(), DstNId = EdgeI.GetDstNId();
+  DelEdge(SrcNId, DstNId);
+  if (EdgeI.CurEdge >= EdgeI.CurNode.GetOutDeg()) {
+    EdgeI++;
+  }
+}
+
 int TNGraph::GetEdges() const {
   int edges=0;
   for (int N=NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
@@ -314,13 +320,6 @@ bool TNGraph::IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) co
   if (! IsNode(SrcNId) || ! IsNode(DstNId)) { return false; }
   if (IsDir) { return GetNode(SrcNId).IsOutNId(DstNId); }
   else { return GetNode(SrcNId).IsOutNId(DstNId) || GetNode(DstNId).IsOutNId(SrcNId); }
-}
-
-TNGraph::TEdgeI TNGraph::GetEI(const int& SrcNId, const int& DstNId) const {
-  const TNodeI SrcNI = GetNI(SrcNId);
-  const int NodeN = SrcNI.NodeHI.GetDat().OutNIdV.SearchBin(DstNId);
-  IAssert(NodeN != -1);
-  return TEdgeI(SrcNI, EndNI(), NodeN);
 }
 
 void TNGraph::GetNIdV(TIntV& NIdV) const {

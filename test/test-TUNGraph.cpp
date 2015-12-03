@@ -232,6 +232,23 @@ TEST(TUNGraph, ManipulateEdges) {
         EXPECT_TRUE(EdgeSet.Empty());
         EXPECT_TRUE(DelEdgeV.Len() == NEdges);
         
+        // edges forward iterator
+        NCount = 0;
+        for (TUNGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+          NCount++;
+          EXPECT_TRUE(Graph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()));
+        }
+        EXPECT_EQ(NEdges,NCount);
+
+        // edges backward iterator
+        NCount = 0;
+        for (TUNGraph::TEdgeI EI = Graph->EndEI(); EI > Graph->BegEI(); ) {
+          EI--;
+          NCount++;
+          EXPECT_TRUE(Graph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()));
+        }
+        EXPECT_EQ(NEdges,NCount);
+        
         // Randomly delete node, check to make sure edges were deleted
         NodeIds.Shuffle(TInt::Rnd);
         for (int n = 0; n < NNodes; n++) {

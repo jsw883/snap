@@ -44,9 +44,12 @@ public:
     int GetInNId(const int& NodeN) const { return GetNbrNId(NodeN); }
     int GetOutNId(const int& NodeN) const { return GetNbrNId(NodeN); }
     int GetNbrNId(const int& NodeN) const { return NIdV[NodeN]; }
-    bool IsNbrNId(const int& NId) const { return NIdV.SearchBin(NId)!=-1; }
+    bool IsInNId(const int& NId, int& NodeN) const { return IsNbrNId(NId, NodeN); };
     bool IsInNId(const int& NId) const { return IsNbrNId(NId); }
+    bool IsOutNId(const int& NId, int& NodeN) const { return IsNbrNId(NId, NodeN); };
     bool IsOutNId(const int& NId) const { return IsNbrNId(NId); }
+    bool IsNbrNId(const int& NId, int& NodeN) const { NodeN = NIdV.SearchBin(NId); return NodeN != -1; }
+    bool IsNbrNId(const int& NId) const { int NodeN; return IsNbrNId(NId, NodeN); }
     void PackOutNIdV() { NIdV.Pack(); }
     void PackNIdV() { NIdV.Pack(); }
     friend class TUNGraph;
@@ -97,17 +100,46 @@ public:
   /// Edge iterator. Only forward iteration (operator++) is supported.
   class TEdgeI {
   private:
-    TNodeI CurNode, EndNode;
+    TNodeI BegNode, CurNode, EndNode;
     int CurEdge;
   public:
-    TEdgeI() : CurNode(), EndNode(), CurEdge(0) { }
-    TEdgeI(const TNodeI& NodeI, const TNodeI& EndNodeI, const int& EdgeN=0) : CurNode(NodeI), EndNode(EndNodeI), CurEdge(EdgeN) { }
-    TEdgeI(const TEdgeI& EdgeI) : CurNode(EdgeI.CurNode), EndNode(EdgeI.EndNode), CurEdge(EdgeI.CurEdge) { }
-    TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { CurNode=EdgeI.CurNode; EndNode=EdgeI.EndNode; CurEdge=EdgeI.CurEdge; } return *this; }
+    TEdgeI() : BegNode(), CurNode(), EndNode(), CurEdge(0) { }
+    TEdgeI(const TNodeI& BegNodeI, const TNodeI& NodeI, const TNodeI& EndNodeI, const int& EdgeN=0) : BegNode(BegNodeI), CurNode(NodeI), EndNode(EndNodeI), CurEdge(EdgeN) { }
+    TEdgeI(const TEdgeI& EdgeI) : BegNode(EdgeI.BegNode), CurNode(EdgeI.CurNode), EndNode(EdgeI.EndNode), CurEdge(EdgeI.CurEdge) { }
+    TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { BegNode=EdgeI.BegNode; CurNode=EdgeI.CurNode; EndNode=EdgeI.EndNode; CurEdge=EdgeI.CurEdge; } return *this; }
     /// Increment iterator.
-    TEdgeI& operator++ (int) { do { CurEdge++; if (CurEdge >= CurNode.GetOutDeg()) { CurEdge=0; CurNode++; while (CurNode < EndNode && CurNode.GetOutDeg()==0) { CurNode++; } } } while (CurNode < EndNode && GetSrcNId()>GetDstNId()); return *this; }
-    bool operator < (const TEdgeI& EdgeI) const { return CurNode<EdgeI.CurNode || (CurNode==EdgeI.CurNode && CurEdge<EdgeI.CurEdge); }
+    TEdgeI& operator++ (int) {
+      do {
+        CurEdge++;
+        if (CurEdge >= CurNode.GetOutDeg()) {
+          CurEdge = 0;
+          CurNode++;
+          while (CurNode < EndNode && CurNode.GetOutDeg() == 0) {
+            CurNode++;
+          }
+        }
+      } while (CurNode < EndNode && GetSrcNId() > GetDstNId());
+      return *this;
+    }
+    /// Decrement operator.
+    TEdgeI& operator-- (int) {
+      do {
+        CurEdge--;
+        if (CurEdge < 0) {
+          CurNode--;
+          while (CurNode > BegNode && CurNode.GetOutDeg() == 0) {
+            CurNode--;
+          }
+          CurEdge = CurNode.GetOutDeg() - 1;
+        }
+      } while (CurNode > BegNode && GetSrcNId() > GetDstNId()); // also swap edge direction (?)
+      return *this;
+    }
+    // Methods for ordering.
     bool operator == (const TEdgeI& EdgeI) const { return CurNode == EdgeI.CurNode && CurEdge == EdgeI.CurEdge; }
+    bool operator != (const TEdgeI& EdgeI) const { return CurNode != EdgeI.CurNode || CurEdge != EdgeI.CurEdge; }
+    bool operator < (const TEdgeI& EdgeI) const { return CurNode < EdgeI.CurNode || (CurNode == EdgeI.CurNode && CurEdge < EdgeI.CurEdge); }
+    bool operator > (const TEdgeI& EdgeI) const { return CurNode > EdgeI.CurNode || (CurNode == EdgeI.CurNode && CurEdge > EdgeI.CurEdge); }
     /// Returns edge ID. Always returns -1 since only edges in multigraphs have explicit IDs.
     int GetId() const { return -1; }
     /// Returns the source of the edge. Since the graph is undirected, this is the node with a smaller ID of the edge endpoints.
@@ -176,16 +208,39 @@ public:
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }
   /// Deletes an edge between node IDs SrcNId and DstNId from the graph. ##TUNGraph::DelEdge
   void DelEdge(const int& SrcNId, const int& DstNId);
+  /// Deletes an edge from the edge iterator EI, checking internal consistency for EI
+  void DelEdge(TEdgeI& EdgeI);
   /// Tests whether an edge between node IDs SrcNId and DstNId exists in the graph.
   bool IsEdge(const int& SrcNId, const int& DstNId) const;
   /// Returns an iterator referring to the first edge in the graph.
-  TEdgeI BegEI() const { TNodeI NI = BegNI(); TEdgeI EI(NI, EndNI(), 0); if (GetNodes() != 0 && (NI.GetOutDeg()==0 || NI.GetId()>NI.GetOutNId(0))) { EI++; } return EI; }
+  TEdgeI BegEI() const {
+    // TNodeI NI = BegNI();
+    // while (NI < EndNI() && (NI.GetOutDeg() == 0 || NI.GetId() > NI.GetOutNId(0))) {
+    //   NI++;
+    // }
+    // return TEdgeI(BegNI(), NI, EndNI());
+    TNodeI NI = BegNI();
+    TEdgeI EI(BegNI(), NI, EndNI(), 0);
+    if (GetNodes() != 0 && (NI.GetOutDeg()==0 || NI.GetId()>NI.GetOutNId(0))) {
+      EI++;
+    }
+    return EI;
+  }
   /// Returns an iterator referring to the past-the-end edge in the graph.
-  TEdgeI EndEI() const { return TEdgeI(EndNI(), EndNI()); }
+  TEdgeI EndEI() const {
+    return TEdgeI(BegNI(), EndNI(), EndNI());
+  }
   /// Not supported/implemented!
   TEdgeI GetEI(const int& EId) const;
   /// Returns an iterator referring to edge (SrcNId, DstNId) in the graph. ##TUNGraph::GetEI
-  TEdgeI GetEI(const int& SrcNId, const int& DstNId) const;
+  TEdgeI GetEI(const int& SrcNId, const int& DstNId) const {
+    const int MnNId = TMath::Mn(SrcNId, DstNId);
+    const int MxNId = TMath::Mx(SrcNId, DstNId);
+    const TNode& MnNode = GetNode(MnNId);
+    int EdgeN;
+    MnNode.IsOutNId(MxNId, EdgeN);
+    return(TEdgeI(BegNI(), GetNI(MnNId), EndNI(), EdgeN));
+  };
 
   /// Returns an ID of a random node in the graph.
   int GetRndNId(TRnd& Rnd=TInt::Rnd) { return NodeH.GetKey(NodeH.GetRndKeyId(Rnd, 0.8)); }
@@ -239,8 +294,11 @@ public:
     int GetInNId(const int& NodeN) const { return InNIdV[NodeN]; }
     int GetOutNId(const int& NodeN) const { return OutNIdV[NodeN]; }
     int GetNbrNId(const int& NodeN) const { return NodeN<GetOutDeg()?GetOutNId(NodeN):GetInNId(NodeN-GetOutDeg()); }
-    bool IsInNId(const int& NId) const { return InNIdV.SearchBin(NId) != -1; }
-    bool IsOutNId(const int& NId) const { return OutNIdV.SearchBin(NId) != -1; }
+    bool IsInNId(const int& NId, int& NodeN) const { NodeN = InNIdV.SearchBin(NId); return NodeN != -1; };
+    bool IsInNId(const int& NId) const { int NodeN; return IsInNId(NId, NodeN); }
+    bool IsOutNId(const int& NId, int& NodeN) const { NodeN = OutNIdV.SearchBin(NId); return NodeN != -1; };
+    bool IsOutNId(const int& NId) const { int NodeN; return IsOutNId(NId, NodeN); }
+    bool IsNbrNId(const int& NId, int& NodeN) const { if (IsOutNId(NId, NodeN)) { return true; } else if (IsInNId(NId, NodeN)) { NodeN += GetOutDeg(); return true; } else { return false; } }
     bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     void PackOutNIdV() { OutNIdV.Pack(); }
     void PackNIdV() { InNIdV.Pack(); }
@@ -289,18 +347,42 @@ public:
   /// Edge iterator. Only forward iteration (operator++) is supported.
   class TEdgeI {
   private:
-    TNodeI CurNode, EndNode;
+    TNodeI BegNode, CurNode, EndNode;
     int CurEdge;
   public:
-    TEdgeI() : CurNode(), EndNode(), CurEdge(0) { }
-    TEdgeI(const TNodeI& NodeI, const TNodeI& EndNodeI, const int& EdgeN=0) : CurNode(NodeI), EndNode(EndNodeI), CurEdge(EdgeN) { }
-    TEdgeI(const TEdgeI& EdgeI) : CurNode(EdgeI.CurNode), EndNode(EdgeI.EndNode), CurEdge(EdgeI.CurEdge) { }
-    TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { CurNode=EdgeI.CurNode; EndNode=EdgeI.EndNode; CurEdge=EdgeI.CurEdge; }  return *this; }
+    TEdgeI() : BegNode(), CurNode(), EndNode(), CurEdge(0) { }
+    TEdgeI(const TNodeI& BegNodeI, const TNodeI& NodeI, const TNodeI& EndNodeI, const int& EdgeN=0) : BegNode(BegNodeI), CurNode(NodeI), EndNode(EndNodeI), CurEdge(EdgeN) { }
+    TEdgeI(const TEdgeI& EdgeI) : BegNode(EdgeI.BegNode), CurNode(EdgeI.CurNode), EndNode(EdgeI.EndNode), CurEdge(EdgeI.CurEdge) { }
+    TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { BegNode=EdgeI.BegNode; CurNode=EdgeI.CurNode; EndNode=EdgeI.EndNode; CurEdge=EdgeI.CurEdge; } return *this; }
     /// Increment iterator.
-    TEdgeI& operator++ (int) { CurEdge++; if (CurEdge >= CurNode.GetOutDeg()) { CurEdge=0; CurNode++;
-      while (CurNode < EndNode && CurNode.GetOutDeg()==0) { CurNode++; } }  return *this; }
-    bool operator < (const TEdgeI& EdgeI) const { return CurNode<EdgeI.CurNode || (CurNode==EdgeI.CurNode && CurEdge<EdgeI.CurEdge); }
+    TEdgeI& operator++ (int) {
+      CurEdge++;
+      if (CurEdge >= CurNode.GetOutDeg()) {
+        CurEdge = 0;
+        CurNode++;
+        while (CurNode < EndNode && CurNode.GetOutDeg() == 0) {
+          CurNode++;
+        }
+      }
+      return *this;
+    }
+    /// Decrement operator.
+    TEdgeI& operator-- (int) {
+      CurEdge--;
+      if (CurEdge < 0) {
+        CurNode--;
+        while (CurNode > BegNode && CurNode.GetOutDeg() == 0) {
+          CurNode--;
+        }
+        CurEdge = CurNode.GetOutDeg() - 1;
+      }
+      return *this;
+    }
+    // Methods for ordering.
     bool operator == (const TEdgeI& EdgeI) const { return CurNode == EdgeI.CurNode && CurEdge == EdgeI.CurEdge; }
+    bool operator != (const TEdgeI& EdgeI) const { return CurNode != EdgeI.CurNode || CurEdge != EdgeI.CurEdge; }
+    bool operator < (const TEdgeI& EdgeI) const { return CurNode < EdgeI.CurNode || (CurNode == EdgeI.CurNode && CurEdge < EdgeI.CurEdge); }
+    bool operator > (const TEdgeI& EdgeI) const { return CurNode > EdgeI.CurNode || (CurNode == EdgeI.CurNode && CurEdge > EdgeI.CurEdge); }
     /// Returns edge ID. Always returns -1 since only edges in multigraphs have explicit IDs.
     int GetId() const { return -1; }
     /// Returns the source node of the edge.
@@ -371,16 +453,31 @@ public:
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }
   /// Deletes an edge from node IDs SrcNId to DstNId from the graph. ##TNGraph::DelEdge
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
+  /// Deletes an edge from the edge iterator EI, checking internal consistency for EI
+  void DelEdge(TEdgeI& EdgeI);
   /// Tests whether an edge from node IDs SrcNId to DstNId exists in the graph.
   bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const;
   /// Returns an iterator referring to the first edge in the graph.
-  TEdgeI BegEI() const { TNodeI NI=BegNI(); while(NI<EndNI() && NI.GetOutDeg()==0){NI++;} return TEdgeI(NI, EndNI()); }
+  TEdgeI BegEI() const {
+    TNodeI NI = BegNI();
+    while (NI < EndNI() && NI.GetOutDeg() == 0) {
+      NI++;
+    }
+    return TEdgeI(BegNI(), NI, EndNI());
+  }
   /// Returns an iterator referring to the past-the-end edge in the graph.
-  TEdgeI EndEI() const { return TEdgeI(EndNI(), EndNI()); }
+  TEdgeI EndEI() const {
+    return TEdgeI(BegNI(), EndNI(), EndNI());
+  }
   /// Not supported/implemented!
-  TEdgeI GetEI(const int& EId) const; // not supported
-  /// Returns an iterator referring to edge (SrcNId, DstNId) in the graph.
-  TEdgeI GetEI(const int& SrcNId, const int& DstNId) const;
+  TEdgeI GetEI(const int& EId) const;
+  /// Returns an iterator referring to edge (SrcNId, DstNId) in the graph. ##TUNGraph::GetEI
+  TEdgeI GetEI(const int& SrcNId, const int& DstNId) const {
+    const TNode& SrcNode = GetNode(SrcNId);
+    int EdgeN;
+    SrcNode.IsOutNId(DstNId, EdgeN);
+    return(TEdgeI(BegNI(), GetNI(SrcNId), EndNI(), EdgeN));
+  };
 
   /// Returns an ID of a random node in the graph.
   int GetRndNId(TRnd& Rnd=TInt::Rnd) { return NodeH.GetKey(NodeH.GetRndKeyId(Rnd, 0.8)); }
@@ -517,16 +614,18 @@ public:
   private:
     typedef THash<TInt, TEdge>::TIter THashIter;
     THashIter EdgeHI;
-    const TNEGraph *Graph;
   public:
-    TEdgeI() : EdgeHI(), Graph(NULL) { }
-    TEdgeI(const THashIter& EdgeHIter, const TNEGraph *GraphPt) : EdgeHI(EdgeHIter), Graph(GraphPt) { }
-    TEdgeI(const TEdgeI& EdgeI) : EdgeHI(EdgeI.EdgeHI), Graph(EdgeI.Graph) { }
-    TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { EdgeHI=EdgeI.EdgeHI; Graph=EdgeI.Graph; }  return *this; }
+    TEdgeI() : EdgeHI() { }
+    TEdgeI(const THashIter& EdgeHIter) : EdgeHI(EdgeHIter) { }
+    TEdgeI(const TEdgeI& EdgeI) : EdgeHI(EdgeI.EdgeHI) { }
+    TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { EdgeHI=EdgeI.EdgeHI; }  return *this; }
     /// Increment iterator.
     TEdgeI& operator++ (int) { EdgeHI++; return *this; }
-    bool operator < (const TEdgeI& EdgeI) const { return EdgeHI < EdgeI.EdgeHI; }
+    /// Methods for ordering.
     bool operator == (const TEdgeI& EdgeI) const { return EdgeHI == EdgeI.EdgeHI; }
+    bool operator != (const TEdgeI& EdgeI) const { return EdgeHI != EdgeI.EdgeHI; }
+    bool operator < (const TEdgeI& EdgeI) const { return EdgeHI < EdgeI.EdgeHI; }
+    bool operator > (const TEdgeI& EdgeI) const { return EdgeHI > EdgeI.EdgeHI; }
     /// Gets edge ID.
     int GetId() const { return EdgeHI.GetDat().GetId(); }
     /// Gets the source of an edge.
@@ -597,20 +696,22 @@ public:
   void DelEdge(const int& EId);
   /// Deletes all edges between node IDs SrcNId and DstNId from the graph. ##TNEGraph::DelEdge
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
+  /// Deletes an edge from the edge iterator EI, checking internal consistency for EI
+  void DelEdge(TEdgeI& EdgeI);
   /// Tests whether an edge with edge ID EId exists in the graph.
   bool IsEdge(const int& EId) const { return EdgeH.IsKey(EId); }
-  /// Tests whether an edge between node IDs SrcNId and DstNId exists in the graph.
+  /// Tests whether an edge between node IDs SrcNId and DstNId exists in` the graph.
   bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const { int EId; return IsEdge(SrcNId, DstNId, EId, IsDir); }
   /// Tests whether an edge between node IDs SrcNId and DstNId exists in the graph. if an edge exists, return its edge ID in EId
   bool IsEdge(const int& SrcNId, const int& DstNId, int& EId, const bool& IsDir = true) const;
   /// Returns an edge ID between node IDs SrcNId and DstNId, if such an edge exists. Otherwise, return -1.
   int GetEId(const int& SrcNId, const int& DstNId) const { int EId; return IsEdge(SrcNId, DstNId, EId)?EId:-1; }
   /// Returns an iterator referring to the first edge in the graph.
-  TEdgeI BegEI() const { return TEdgeI(EdgeH.BegI(), this); }
+  TEdgeI BegEI() const { return TEdgeI(EdgeH.BegI()); }
   /// Returns an iterator referring to the past-the-end edge in the graph.
-  TEdgeI EndEI() const { return TEdgeI(EdgeH.EndI(), this); }
+  TEdgeI EndEI() const { return TEdgeI(EdgeH.EndI()); }
   /// Returns an iterator referring to edge with edge ID EId. 
-  TEdgeI GetEI(const int& EId) const { return TEdgeI(EdgeH.GetI(EId), this); }
+  TEdgeI GetEI(const int& EId) const { return TEdgeI(EdgeH.GetI(EId)); }
   /// Returns an iterator referring to edge (SrcNId, DstNId) in the graph. 
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const { return GetEI(GetEId(SrcNId, DstNId)); }
 
