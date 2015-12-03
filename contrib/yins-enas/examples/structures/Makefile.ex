@@ -2,14 +2,12 @@
 #	configuration variables for the example
 #
 
-MAIN = diameters
+MAIN = structures
 DEPH = \
     $(EXCORE)/galg.h \
     $(EXCORE)/stats.h \
-    $(EXCORE)/io.h \
-    $(EXCORE)/rand.h
+    $(EXCORE)/io.h
 DEPCPP = \
     $(EXCORE)/galg.cpp \
     $(EXCORE)/stats.cpp \
-    $(EXCORE)/io.cpp \
-    $(EXCORE)/rand.cpp
+    $(EXCORE)/io.cpp

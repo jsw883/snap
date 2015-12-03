@@ -33,6 +33,7 @@ Usage: ./statistics -i:<input network> -o:<output prefix> [Options]
 Options:
     -i          input network (tab separated list of edges with edge weights)
     -o          output prefix (filename extensions added)
+    --exact     compute exact neighborhood function: T / F (default: T)
 ```
 
 ### Example ###
@@ -46,4 +47,5 @@ rm -rf $DATASET/statistics
 mkdir $DATASET/statistics
 ./statistics -i:$DATASET/USairport2010.snap \
              -o:$DATASET/statistics/USairport2010
+             --exact:T
 ```

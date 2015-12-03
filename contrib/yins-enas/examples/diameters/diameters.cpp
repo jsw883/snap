@@ -1,19 +1,28 @@
 #include "stdafx.h"
 
-void diameters(const PNGraph& Graph, const TIntV& NIdV, const TEdgeDir& d, const TStr& OutFNm, const TStr& BseFNm, const TStr& SubNm, const bool& collate, const TExeTm& ExeTm) {
+void ComputeINFH(const PNGraph& Graph, const TIntV& NIdV, const TEdgeDir& d, const TStr& OutFNm, const TStr& BseFNm, const TStr& SubNm, const bool& collate, const TExeTm& ExeTm) {
   
   // Declare variables
+  TIntIntVH INFH;
   TIntIntH NodesH, DiameterH;
   TIntV::TIter VI;
   
-  // SUBSET DIAMETER AND NODE COUNTS
+  // SUBSET NEIGHBORHOOD FUNCTION
   
   printf("\nComputing %s subset diameter and node counts...", SubNm.CStr());
-  TSnap::TFixedMemorySubsetDiameter<PNGraph> FixedMemorySubsetDiameter(Graph);
-  FixedMemorySubsetDiameter.ComputeSubsetDiameter(NIdV, d, NodesH, DiameterH);
-  printf(" DONE: %s (%s)", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  TSnap::TFixedMemoryExactNF<PNGraph> FixedMemoryExactNF(Graph);
+  FixedMemoryExactNF.ComputeSubsetINFH(NIdV, d, INFH);
+  printf(" DONE: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  
+  // Compute diameters as the maximum quantiles of the INF
+  TSnap::GetNodesINFH(INFH, NodesH);
+  TSnap::GetDiameterINFH(INFH, DiameterH);
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
+  
+  printf("\nSaving %s.%s.INFH...", BseFNm.CStr(), SubNm.CStr());
+  TSnap::SaveTxt(INFH, TStr::Fmt("%s.%s.INFH", OutFNm.CStr(), SubNm.CStr()), TStr::Fmt("Exact individual neighborhood function with d = %d", d), "Node", "INFVH");
+  printf(" DONE\n");   
   
   if (collate) {
     
@@ -34,7 +43,7 @@ void diameters(const PNGraph& Graph, const TIntV& NIdV, const TEdgeDir& d, const
     
     printf("\nSaving %s.%s.nodes...", BseFNm.CStr(), SubNm.CStr());
     TSnap::SaveTxt(NodesH, TStr::Fmt("%s.%s.nodes", OutFNm.CStr(), SubNm.CStr()), TStr::Fmt("Node counts with d = %d", d), "Node", "Number");
-    printf(" DONE\n");
+    printf(" DONE");
    
     printf("\nSaving %s.%s.diameter...", BseFNm.CStr(), SubNm.CStr());
     TSnap::SaveTxt(DiameterH, TStr::Fmt("%s.%s.diameter", OutFNm.CStr(), SubNm.CStr()), TStr::Fmt("Diameter of neighborhood with d = %d", d), "Node", "Diameter");
@@ -82,21 +91,11 @@ int main(int argc, char* argv[]) {
   NIdV.Diff(SubNIdV);
   RndNIdV = TSnap::GetRndSubV(NIdV, SubNIdV.Len(), Rnd);
   
-  // printf("SubNIdV\n");
-  // for (TIntV::TIter VI = SubNIdV.BegI(); VI < SubNIdV.EndI(); VI++) {
-  //   printf("%d\n", VI->Val);
-  // }
-  
-  // printf("RndNIdV\n");
-  // for (TIntV::TIter VI = RndNIdV.BegI(); VI < RndNIdV.EndI(); VI++) {
-  //   printf("%d\n", VI->Val);
-  // }
-  
   // SUBSET DIAMETER AND NODE COUNTS
   
-  diameters(Graph, SubNIdV, d, OutFNm, BseFNm, SubNm, collate, ExeTm);
+  ComputeINFH(Graph, SubNIdV, d, OutFNm, BseFNm, SubNm, collate, ExeTm);
   if (compare) {
-    diameters(Graph, RndNIdV, d, OutFNm, BseFNm, TStr("random"), collate, ExeTm);
+    ComputeINFH(Graph, RndNIdV, d, OutFNm, BseFNm, TStr("random"), collate, ExeTm);
   }
     
   Catch
