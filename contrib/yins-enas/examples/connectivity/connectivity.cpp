@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
   PNGraph WSubGraph, SSubGraph, BSubGraph, FSubGraph, TeSubGraph;
   TCnComV WCnComV, SCnComV, BCnComV, FCnComV, TeCnComV;
   TCnCom BCnCom, FCnCom;
-  TVec<TCnCom>::TIter CnComI;
+  TCnComV::TIter CnComI;
   
   // CONNECTIVITY (computations)
   

@@ -12,7 +12,7 @@ namespace TSnap {
 template <class PGraph>
 void GetWccSccCores(PGraph& Graph, TCnComV& WCnComV, TCnComV& SCnComV) {
   PNGraph WSubGraph, SSubGraph;
-  TVec<TCnCom>::TIter WCnComI;
+  TCnComV::TIter WCnComI;
   TIntV SNIdV;
   SCnComV.Clr();
   for (WCnComI = WCnComV.BegI(); WCnComI < WCnComV.EndI(); WCnComI++) {
@@ -28,7 +28,7 @@ void GetWccSccCores(PGraph& Graph, TCnComV& WCnComV, TCnComV& SCnComV) {
 template <class PGraph>
 void GetIns(const PGraph& Graph, const TCnComV& WCnComV, TCnComV& BCnComV) {
   PNGraph WSubGraph, SSubGraph;
-  TVec<TCnCom>::TIter WCnComI;
+  TCnComV::TIter WCnComI;
   TCnCom BCnCom;
   TIntV SNIdV;
   BCnComV.Clr();
@@ -47,7 +47,7 @@ void GetIns(const PGraph& Graph, const TCnComV& WCnComV, TCnComV& BCnComV) {
 template <class PGraph>
 void GetOuts(const PGraph& Graph, const TCnComV& WCnComV, TCnComV& FCnComV) {
   PNGraph WSubGraph, SSubGraph;
-  TVec<TCnCom>::TIter WCnComI;
+  TCnComV::TIter WCnComI;
   TCnCom FCnCom;
   TIntV SNIdV;
   FCnComV.Clr();
