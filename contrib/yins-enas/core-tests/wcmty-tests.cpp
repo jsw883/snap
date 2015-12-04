@@ -47,41 +47,9 @@ TYPED_TEST(TWNGraphWCmtyTest, LouvainMethod) {
   TIntIntVH NIdCmtyVH;
   
   // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
-
-  // // create nodes
-  // for (counter = 0; counter < Nodes; counter++) {
-  //   Graph->AddNode(counter);
-  // }
-  // EXPECT_TRUE(Graph->IsOk());
-
-  // // create edges (unique with random weights)
-  // for (counter = 0; counter < Edges; ) {
-  //   SrcNId = (long) (Nodes * drand48());
-  //   DstNId = (long) (Nodes * drand48());
-  //   W = (TEdgeW) (MxW * drand48() + 1);
-  //   if (SrcNId != DstNId  &&  !Graph->IsEdge(SrcNId, DstNId)) {
-  //     // create edge
-  //     Graph->AddEdge(SrcNId, DstNId, W);
-  //     counter++;
-  //   }
-  // }
-
-  Graph->AddNode(0);
-  Graph->AddNode(1);
-  Graph->AddNode(2);
-  Graph->AddNode(3);
-  Graph->AddNode(4);
-
-  Graph->AddEdge(0, 1, 1);
-  Graph->AddEdge(1, 0, 1);
-  Graph->AddEdge(1, 2, 1);
-  Graph->AddEdge(2, 3, 1);
-  Graph->AddEdge(2, 4, 1);
-  Graph->AddEdge(3, 4, 1);
-  Graph->AddEdge(3, 2, 1);
-  Graph->AddEdge(4, 2, 1);
-  Graph->AddEdge(4, 3, 1);
-
+  
+  CreateSmallGraph(Graph);
+  
   // LOUVAIN METHOD
   
   quality = TSnap::LouvainMethod<TSnap::ModularityCommunity<TEdgeW>, TEdgeW>(Graph, NIdCmtyVH, edUnDirected, 1e-5, 1e-2, 1000);
@@ -94,12 +62,14 @@ TYPED_TEST(TWNGraphWCmtyTest, LouvainMethod) {
     NId = NI.GetId();
     EXPECT_EQ(NId, NIdCmtyVH.GetDat(NId)[0]);
   }
-  int CmtyA = NIdCmtyVH.GetDat(0)[1];
-  int CmtyB = NIdCmtyVH.GetDat(2)[1];
+  int CmtyA = NIdCmtyVH.GetDat(1)[1];
+  int CmtyB = NIdCmtyVH.GetDat(3)[1];
   EXPECT_EQ(CmtyA, NIdCmtyVH.GetDat(0)[1]);
   EXPECT_EQ(CmtyA, NIdCmtyVH.GetDat(1)[1]);
-  EXPECT_EQ(CmtyB, NIdCmtyVH.GetDat(2)[1]);
+  EXPECT_EQ(CmtyA, NIdCmtyVH.GetDat(2)[1]);
   EXPECT_EQ(CmtyB, NIdCmtyVH.GetDat(3)[1]);
   EXPECT_EQ(CmtyB, NIdCmtyVH.GetDat(4)[1]);
+  EXPECT_EQ(CmtyB, NIdCmtyVH.GetDat(5)[1]);
+  EXPECT_EQ(CmtyB, NIdCmtyVH.GetDat(6)[1]);
   
 }

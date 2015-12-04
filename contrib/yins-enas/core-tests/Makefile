@@ -21,19 +21,25 @@ LIBS += -lpthread -lgtest
 MAIN = run-core-tests
 
 TEST_SRCS = \
+	stats-tests.cpp \
+	wgraph-tests.cpp \
+	wdeg-tests.cpp \
 	wcmty-tests.cpp
-	# wgraph-tests.cpp \
-	# wdeg-tests.cpp
+	
 
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 
 DEPH = \
     $(CCORE)/wgraph.h \
+		$(CCORE)/galg.h \
+		$(CCORE)/stats.h \
     $(CCORE)/wgio.h \
     $(CCORE)/wdeg.h \
     $(CCORE)/wcmty.h
 DEPCPP = \
     $(CCORE)/wgraph.cpp \
+		$(CCORE)/galg.cpp \
+		$(CCORE)/stats.cpp \
     $(CCORE)/wgio.cpp \
     $(CCORE)/wdeg.cpp \
     $(CCORE)/wcmty.cpp

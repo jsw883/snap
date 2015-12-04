@@ -33,31 +33,23 @@ int TSnap::GetMxOutDeg(PNGraph& Graph) {
 
 double TSnap::InterpolateNF(const TIntV& NF, const double& p) {
   TIntV::TIter VI;
-  int CumSum, depth;
+  int Diff, depth;
   if (p == 0 || NF.Len() == 0 || NF.Len() == 1) {
     return 0;
   }
-  CumSum = 0;
-  for (VI = NF.BegI(); VI < NF.EndI(); VI++) {
-    CumSum += VI->Val;
-  }
   if (p == 1) {
-    return CumSum;
+    return NF.Len() - 1;
   }
-  double quantileThreshold = p * CumSum;
-  CumSum = 0;
-  for (VI = NF.BegI(), depth = 0; VI < NF.EndI(); VI++, depth++) {
-    int Diff = VI-> Val;
-    int LSum = CumSum;
-    int RSum = CumSum + VI->Val;
-    if (RSum >= quantileThreshold) {
+  double quantileThreshold = NF[0] + p * (NF.Last() - NF[0]);
+  for (depth = 0; depth < NF.Len() - 1; depth++) {
+    if (NF[depth + 1] >= quantileThreshold) {
+      Diff = NF[depth + 1] - NF[depth];
       if (Diff > 0) {
-        return depth + (quantileThreshold - LSum) / ((double) Diff); // linearly interpolated
+        return depth + (quantileThreshold - NF[depth]) / ((double) Diff); // linearly interpolated
       } else {
         return depth;
       }
     }
-    CumSum += VI->Val;
   }
   return -1;
 }
@@ -66,19 +58,6 @@ void TSnap::InterpolateINFH(const TIntIntVH& INFH, TIntIntH& QuantileH, const do
   TIntIntVH::TIter HI;
   for (HI = INFH.BegI(); HI < INFH.EndI(); HI++) {
     QuantileH.AddDat(HI.GetKey(), InterpolateNF(HI.GetDat(), p));
-  }
-}
-
-void TSnap::GetNodesINFH(const TIntIntVH& INFH, TIntIntH& NodesH) {
-  TIntIntVH::TIter HI;
-  TIntV::TIter VI;
-  int Nodes;
-  for (HI = INFH.BegI(); HI < INFH.EndI(); HI++) {
-    Nodes = 0;
-    for (VI = HI.GetDat().BegI(); VI < HI.GetDat().EndI(); VI++) {
-      Nodes += VI->Val;
-    }
-    NodesH.AddDat(HI.GetKey(), Nodes);
   }
 }
 

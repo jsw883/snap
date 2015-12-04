@@ -186,10 +186,18 @@ public:
     TINFisitor() { }
     void Start() { }
     void DiscoverNode(const int& NId, const int& depth) {
+      // printf("%d: %d\n", NId, depth);
       if (depth < INF.Len()) {
         INF[depth]++;
       } else {
         INF.Add(1);
+        // if (INF.Empty()) {
+        //   INF.Add(1);
+        // } else {
+        //   const int& temp = INF.Last();
+        //   printf("temp: %d\n", temp);
+        //   INF.Add(temp + 1);
+        // }
       }
     }
     void FinishNode(const int& NId, const int& depth) { }
@@ -198,7 +206,7 @@ public:
     void BackEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
     void ForwardEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
     void Finish() {
-      INF[0]--;
+      // INF[0]--;
     }
     void Clr() {
       INF.Clr();
@@ -255,6 +263,9 @@ void TFixedMemoryExactNF<PGraph>::ComputeSubsetExactNF(const TIntV& NIdV, const 
   // Variables
   TIntV::TIter VI;
   TIntV INF;
+  int depth;
+  // Clear NF
+  NF.Clr();
   // For each node in NIdV
   for (VI = NIdV.BegI(); VI < NIdV.EndI();  VI++) {
     // Compute the INFH
@@ -270,6 +281,9 @@ void TFixedMemoryExactNF<PGraph>::ComputeSubsetExactNF(const TIntV& NIdV, const 
       NF[depth] += INF[depth];
     }
     // printf("Computed INF for NId: %d\n", VI->Val);
+  }
+  for (depth = 1; depth < NF.Len(); depth++) {
+    NF[depth] += NF[depth - 1];
   }
 }
 
