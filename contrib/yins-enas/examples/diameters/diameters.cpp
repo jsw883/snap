@@ -26,8 +26,8 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& NIdV, const TEdgeDir& d, con
   
   if (collate) {
     
-    printf("\nSaving %s.%s.diameters.combined...", BseFNm.CStr(), SubNm.CStr());
-    const TStr CombinedFNm = TStr::Fmt("%s.%s.diameters.combined", OutFNm.CStr(), SubNm.CStr());
+    printf("\nSaving %s.%s.diameters.summary...", BseFNm.CStr(), SubNm.CStr());
+    const TStr CombinedFNm = TStr::Fmt("%s.%s.diameters.summary", OutFNm.CStr(), SubNm.CStr());
     FILE *F = fopen(CombinedFNm.CStr(), "wt");
     fprintf(F, "# Subset diameters and node counts with d = %d\n", d);
     fprintf(F, "# Nodes: %d\tEdges: %d\t Subset size: %d\n", Graph->GetNodes(), Graph->GetEdges(), NIdV.Len());
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
   const TStr SubNm = SubNIdVFNm.RightOfLast('/').LeftOfLast('.');
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
-  const TEdgeDir d = (TEdgeDir) Env.GetIfArgPrefixInt("-d:", 3, "dection of ego traversal: in = 1, out = 2, undected = 3");
+  const TEdgeDir d = (TEdgeDir) Env.GetIfArgPrefixInt("-d:", 3, "direction of traversal: in = 1, out = 2, undected = 3");
   const bool compare = Env.GetIfArgPrefixBool("--compare:", true, "compare to a random subset of nodes: T / F");
   const bool collate = Env.GetIfArgPrefixBool("--collate:", true, "collate properties into matrix: T / F");
   
