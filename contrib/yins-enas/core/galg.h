@@ -347,39 +347,26 @@ void TFixedMemoryBFS<PGraph>::Clr(const bool& DoDel) {
 
 namespace TSnap {
 
-template <class PGraph> void PercolateGraph(const PGraph& Graph, const double& p = 0.5);
+template <class PGraph> static PGraph PercolateGraph(const PGraph& Graph, const double& p = 0.5);
 
 template <class PGraph>
-void PercolateGraph(const PGraph& Graph, PGraph& GraphCopy, TCnComV& WCnComV, const double& p) {
+static PGraph PercolateGraph(const PGraph& Graph, const double& p) {
   // PGraph GraphCopy = Graph;
   typename PGraph::TObj::TEdgeI EI;
   // TCnComV WCnComV;
   TCnComV::TIter WCnComI;
-  // Clear graph copy and connected components
-  GraphCopy = Graph;
-  WCnComV.Clr();
+  // Copy graph (must be initialized for copy)
+  PGraph GraphCopy = PGraph::TObj::New();
+  *GraphCopy = *Graph;
   // Iterate through the edges, randomly delete with percolation probability
-  // printf("nodes: %d edges: %d\n", Graph->GetNodes(), Graph->GetEdges());
-  // srand48(time(NULL));
   for (EI = GraphCopy->BegEI(); EI < GraphCopy->EndEI(); ) {
     if (drand48() < p) {
-      // GraphCopy.DelEdge(EI); // can't assume method exists for unweighted
       GraphCopy->DelEdge(EI);
     } else {
       EI++;
     }
   }
-  // Get weakly connected components (cluster)
-  TSnap::GetWccs(GraphCopy, WCnComV);
-  // ncncoms = WCnComV.Len() - 1;
-  // printf("Clusters:\n");
-  // for (WCnComI = WCnComV.BegI(), CnComId = 0; CnComId < 10; WCnComI++, CnComId++) {
-  //   int size = WCnComI->Len();
-  //   printf("%d: %d\n", CnComId, size);
-  //   sizes += size;
-  // }
-  // printf("number of clusters: %d, average cluster size: %f\n", ncncoms, sizes / ncncoms);
-  // printf("nodes: %d edges: %d\n", Graph->GetNodes(), Graph->GetEdges());
+  return GraphCopy;
 }
 
 } // namespace TSnap
