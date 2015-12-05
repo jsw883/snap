@@ -45,6 +45,8 @@ int main(int argc, char* argv[]) {
 
   // STRUCTURES (computations)
   
+  // printf("\nStarting percolation method\n");
+  Progress progress(ExeTm, iters, 5, "Computing percolation method"); 
   for (iter = 0; iter < iters; iter++) {
     // Percolate graph according to percolation probability
     GraphCopy = TSnap::PercolateGraph<PNGraph>(Graph, p);
@@ -79,7 +81,9 @@ int main(int argc, char* argv[]) {
     AvRadiusToSizeRatioV.Add(AvRadiusToSizeRatio / NCnComV.Last());
     AvDiameterV.Add(AvDiameter / NCnComV.Last());
     AvDiameterToSizeRatioV.Add(AvDiameterToSizeRatio / NCnComV.Last());
+    progress++;
   }
+  printf("DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   

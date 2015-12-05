@@ -4,6 +4,20 @@ structures (percolation algorithms)
 Applies edge percolation algorithms to explore the topology of networks
 and star or chain structures that arise near the percolation threshold.
 
+The method removes edges from the graph randomly with uniform probability,
+and then computes the following topological statistics for the remaining
+connected components:
+
+  * *Giant components (can be used to estimate percolation threshold)*
+    * Giant size (largest component size)
+    * Giant ratio (largest component size : next largest component size)
+  * *Averages*
+    * Size
+    * Radius (average path length)
+    * Radius / size (ratio)
+    * Diameter
+    * Diameter / size (ratio) ***
+
 **This is currently under active delopment and is not yet completed.**
 
 Makefiles are provided for compilation under Windows with Cygwin and gcc,

@@ -21,9 +21,9 @@ public:
   Progress& operator++ (int) { step(1); return *this; }
   void step(const int& steps) {
     stepsCompleted += steps;
-    int percentage = floor(double(stepsCompleted) / double(stepsRequired) * 100);
-    if (percentage >= percentageCompleted + percentageThreshold) {
-      percentageCompleted = percentageCompleted + percentageThreshold;
+    int newPercentageCompleted = floor(double(stepsCompleted) / double(stepsRequired) * 100);
+    if (newPercentageCompleted >= percentageCompleted + percentageThreshold) {
+      percentageCompleted = newPercentageCompleted;
       display();
     }
     if (percentageCompleted == 100) {
@@ -31,7 +31,7 @@ public:
     }
   }
   void display() {
-    printf("%03d%% : %s (%s)\n", percentageCompleted, ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+    printf("%03d%% : %s (%s)\n", (percentageCompleted / percentageThreshold) * percentageThreshold, ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   }
   void done() {
     printf("----------------------------------------\n");
