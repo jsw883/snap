@@ -46,6 +46,6 @@ DATASET=../../datasets/USairport2010
 rm -rf $DATASET/statistics
 mkdir $DATASET/statistics
 ./statistics -i:$DATASET/USairport2010.snap \
-             -o:$DATASET/statistics/USairport2010
+             -o:$DATASET/statistics/USairport2010 \
              --exact:T
 ```

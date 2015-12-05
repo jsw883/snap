@@ -34,24 +34,21 @@ int main(int argc, char* argv[]) {
   // Loop over egonets (node iterator)
   Progress progress(ExeTm, WGraph->GetNodes(), 5, "Computing egonet statistics"); 
   for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
-    progress++;
-    
-    // get node id for computing and storing egonet statistics
+    // Get node id for computing and storing egonet statistics
     const int NId = NI.GetId();
-    
-    // compute egonet statistics (computationally expensive)
+    // Compute egonet statistics (computationally expensive)
     TSnap::TFixedMemorykWEgo<TFlt, TWNGraph> FixedMemorykWEgo(WGraph, k);
     FixedMemorykWEgo.ComputeEgonetStatistics(NId, d);
-    
-    // get results
+    // Get results
     NodesH.AddDat(NId, FixedMemorykWEgo.GetNodes());
     EdgesH.AddDat(NId, FixedMemorykWEgo.GetEdges());
     DensityH.AddDat(NId, FixedMemorykWEgo.GetDensity());
     TotalWH.AddDat(NId, FixedMemorykWEgo.GetTotalW());
     GiniH.AddDat(NId, FixedMemorykWEgo.GetGiniCoefficient());
     
-    // Need to implement a different efficient subgraphing class for centrality 
+    // TODO: implement a different efficient subgraphing class for centrality 
     
+    progress++;
   }
   
   if (collate) {

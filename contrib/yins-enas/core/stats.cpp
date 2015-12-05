@@ -61,6 +61,14 @@ void TSnap::InterpolateINFH(const TIntIntVH& INFH, TIntIntH& QuantileH, const do
   }
 }
 
+void TSnap::GetNodesINFH(const TIntIntVH& INFH, TIntIntH& NodesH) {
+  // InterpolateINFH(INFH, NodesH, 0.0);
+  TIntIntVH::TIter HI;
+  for (HI = INFH.BegI(); HI < INFH.EndI(); HI++) {
+    NodesH.AddDat(HI.GetKey(), HI.GetDat().Last());
+  }
+}
+
 void TSnap::GetDiameterINFH(const TIntIntVH& INFH, TIntIntH& DiameterH) {
   // InterpolateINFH(INFH, DiameterH, 1.0);
   TIntIntVH::TIter HI;

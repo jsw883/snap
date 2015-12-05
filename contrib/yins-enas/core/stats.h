@@ -83,114 +83,22 @@ void GetAnfEffDiam(const PGraph& Graph, const bool& IsDir, const TFltV& Percenti
   }
 }
 
-// template <class PGraph>
-// class TFixedMemorySubsetDiameter : public TFixedMemoryBFS<PGraph> {
-// public:
-//   // Backward / forward visitor (degree only)
-//   class TSubsetDiameterVisitor {
-//   public:
-//     int nodes;
-//     int diameter;
-//   public:
-//     TSubsetDiameterVisitor() : nodes(0), diameter(0) { }
-//     void Start() { }
-//     void DiscoverNode(const int& NId, const int& depth) {
-//       nodes++;
-//       if (depth > diameter) {
-//         diameter = depth;
-//       }
-//     }
-//     void FinishNode(const int& NId, const int& depth) { }
-//     void ExamineEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
-//     void TreeEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
-//     void BackEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
-//     void ForwardEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
-//     void Finish() { }
-//     void Clr() {
-//       nodes = 0;
-//       diameter = 0;
-//     }
-//   };
-// private:
-//   TSubsetDiameterVisitor Visitor;
-// public:
-//   TFixedMemorySubsetDiameter(const PGraph& Graph) : TFixedMemoryBFS<PGraph>(Graph), Visitor(TSubsetDiameterVisitor()) { }
-
-//   // Get diameter and node count for a single node (int / out / undirected)
-//   void ComputeInDiameter(const int& NId, int& nodes, int& diameter) {
-//     ComputeDiameter(NId, edInDirected, nodes, diameter);
-//   }
-//   void ComputeOutDiameter(const int& NId, int& nodes, int& diameter) {
-//     ComputeDiameter(NId, edOutDirected, nodes, diameter);
-//   }
-//   void ComputeDiameter(const int& NId, int& nodes, int& diameter) {
-//     ComputeDiameter(NId, edUnDirected, nodes, diameter);
-//   }
-//   // Get diameter and node count for a single node using the direction specified 
-//   void ComputeDiameter(const int& NId, const TEdgeDir& Dir, int& nodes, int& diameter);
-
-//   // Get diameters and node counts for the subset of nodes (int / out / undirected)
-//   void ComputeInSubsetDiameter(const TIntV& NIdV, TIntIntH& NodesH, TIntIntH& DiameterH) {
-//     ComputeSubsetDiameter(NIdV, edInDirected, NodesH, DiameterH);
-//   }
-//   void ComputeOutSubsetDiameter(const TIntV& NIdV, TIntIntH& NodesH, TIntIntH& DiameterH) {
-//     ComputeSubsetDiameter(NIdV, edOutDirected, NodesH, DiameterH);
-//   }
-//   void ComputeSubsetDiameter(const TIntV& NIdV, TIntIntH& NodesH, TIntIntH& DiameterH) {
-//     ComputeSubsetDiameter(NIdV, edUnDirected, NodesH, DiameterH);
-//   }
-//   // Get diameters and node counts for the subset of nodes using the direction specified
-//   void ComputeSubsetDiameter(const TIntV& NIdV, const TEdgeDir& Dir, TIntIntH& NodesH, TIntIntH& DiameterH);
-  
-//   void Clr(const bool& DoDel = false);
-// };
-
-// // Compute diameter using the direction specified
-// template <class PGraph>
-// void TFixedMemorySubsetDiameter<PGraph>::ComputeDiameter(const int& NId, const TEdgeDir& Dir, int& nodes, int& diameter) {
-//   PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId);
-//   Visitor.Clr();
-//   this->GetBfsVisitor<TSubsetDiameterVisitor>(Ego, Visitor, Dir);
-//   nodes = Visitor.nodes;
-//   diameter = Visitor.diameter;
-// }
-
-// // Compute subset diameters using the direction specified
-// template <class PGraph>
-// void TFixedMemorySubsetDiameter<PGraph>::ComputeSubsetDiameter(const TIntV& NIdV, const TEdgeDir& Dir, TIntIntH& NodesH, TIntIntH& DiameterH) {
-//   TIntV::TIter VI;
-//   int nodes, diameter;
-//   for (VI = NIdV.BegI(); VI < NIdV.EndI();  VI++) {
-//     ComputeDiameter(VI->Val, Dir, nodes, diameter);
-//     NodesH.AddDat(VI->Val, nodes);
-//     DiameterH.AddDat(VI->Val, diameter);
-//   }
-// }
-
-// template <class PGraph>
-// void TFixedMemorySubsetDiameter<PGraph>::Clr(const bool& DoDel) {
-//   TFixedMemoryBFS<PGraph>::Clr(DoDel);
-//   Visitor.Clr(); // resets the degree visitor to have zero nodes and diameter
-// }
-
-
-
 template <class PGraph>
-class TFixedMemoryExactNF : public TFixedMemoryBFS<PGraph> {
+class TFixedMemoryNeighborhood : public TFixedMemoryBFS<PGraph> {
 public:
   // Backward / forward visitor (degree only)
-  class TINFisitor {
+  class TNeighborhoodVisitor {
   public:
-    TIntV INF;
+    TIntV Neighborhood;
   public:
-    TINFisitor() { }
+    TNeighborhoodVisitor() { }
     void Start() { }
     void DiscoverNode(const int& NId, const int& depth) {
       // printf("%d: %d\n", NId, depth);
-      if (depth < INF.Len()) {
-        INF[depth]++;
+      if (depth < Neighborhood.Len()) {
+        Neighborhood[depth]++;
       } else {
-        INF.Add(1);
+        Neighborhood.Add(1);
         // if (INF.Empty()) {
         //   INF.Add(1);
         // } else {
@@ -209,13 +117,16 @@ public:
       // INF[0]--;
     }
     void Clr() {
-      INF.Clr();
+      Neighborhood.Clr();
     }
   };
 private:
-  TINFisitor Visitor;
+  TNeighborhoodVisitor Visitor;
 public:
-  TFixedMemoryExactNF(const PGraph& Graph) : TFixedMemoryBFS<PGraph>(Graph), Visitor(TINFisitor()) { }
+  TFixedMemoryNeighborhood(const PGraph& Graph) : TFixedMemoryBFS<PGraph>(Graph), Visitor(TNeighborhoodVisitor()) { }
+
+// Compute neighborhood depth counts using the direction specified
+  void ComputeNeighborhood(const int& NId, const TEdgeDir& Dir, TIntV& Neigborhood);
 
   // Get INF for a single node (int / out / undirected)
   void ComputeInINF(const int& NId, TIntV& INF) {
@@ -248,48 +159,58 @@ public:
   void Clr(const bool& DoDel = false);
 };
 
-// Compute INF using the direction specified
+// Compute neighborhood depth counts using the direction specified
 template <class PGraph>
-void TFixedMemoryExactNF<PGraph>::ComputeINF(const int& NId, const TEdgeDir& Dir, TIntV& INF) {
+void TFixedMemoryNeighborhood<PGraph>::ComputeNeighborhood(const int& NId, const TEdgeDir& Dir, TIntV& Neighborhood) {
   PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId);
   Visitor.Clr();
-  this->GetBfsVisitor<TINFisitor>(Ego, Visitor, Dir);
-  INF = Visitor.INF;
+  this->GetBfsVisitor<TNeighborhoodVisitor>(Ego, Visitor, Dir);
+  Neighborhood = Visitor.Neighborhood;
+}
+
+// Compute INF using the direction specified
+template <class PGraph>
+void TFixedMemoryNeighborhood<PGraph>::ComputeINF(const int& NId, const TEdgeDir& Dir, TIntV& INF) {
+  ComputeNeighborhood(NId, Dir, INF);
+  // Aggregate
+  for (int depth = 2; depth < INF.Len(); depth++) {
+    INF[depth] += INF[depth - 1];
+  }
 }
 
 // Compute subset NF using the direction specified
 template <class PGraph>
-void TFixedMemoryExactNF<PGraph>::ComputeSubsetExactNF(const TIntV& NIdV, const TEdgeDir& Dir, TIntV& NF) {
+void TFixedMemoryNeighborhood<PGraph>::ComputeSubsetExactNF(const TIntV& NIdV, const TEdgeDir& Dir, TIntV& NF) {
   // Variables
   TIntV::TIter VI;
-  TIntV INF;
+  TIntV Neighborhood;
   int depth;
   // Clear NF
   NF.Clr();
   // For each node in NIdV
   for (VI = NIdV.BegI(); VI < NIdV.EndI();  VI++) {
     // Compute the INFH
-    ComputeINF(VI->Val, Dir, INF);
+    ComputeNeighborhood(VI->Val, Dir, Neighborhood);
     // Ensure that all depths exist in the NFH
-    if (INF.Len() > NF.Len()) {
-      for (int depth = NF.Len(); depth < INF.Len(); depth++) {
+    if (Neighborhood.Len() > NF.Len()) {
+      for (int depth = NF.Len(); depth < Neighborhood.Len(); depth++) {
         NF.Add(0);
       }
     }
     // Increment depth counts
-    for (int depth = 0; depth < INF.Len(); depth++) {
-      NF[depth] += INF[depth];
+    for (int depth = 0; depth < Neighborhood.Len(); depth++) {
+      NF[depth] += Neighborhood[depth];
     }
-    // printf("Computed INF for NId: %d\n", VI->Val);
   }
-  for (depth = 1; depth < NF.Len(); depth++) {
+  // Aggregate
+  for (depth = 2; depth < NF.Len(); depth++) {
     NF[depth] += NF[depth - 1];
   }
 }
 
 // Compute subset INFH using the direction specified
 template <class PGraph>
-void TFixedMemoryExactNF<PGraph>::ComputeSubsetINFH(const TIntV& NIdV, const TEdgeDir& Dir, TIntIntVH& INFH) {
+void TFixedMemoryNeighborhood<PGraph>::ComputeSubsetINFH(const TIntV& NIdV, const TEdgeDir& Dir, TIntIntVH& INFH) {
   // Variables
   TIntV::TIter VI;
   TIntV INF;
@@ -308,7 +229,7 @@ void TFixedMemoryExactNF<PGraph>::ComputeSubsetINFH(const TIntV& NIdV, const TEd
 
 
 template <class PGraph>
-void TFixedMemoryExactNF<PGraph>::Clr(const bool& DoDel) {
+void TFixedMemoryNeighborhood<PGraph>::Clr(const bool& DoDel) {
   TFixedMemoryBFS<PGraph>::Clr(DoDel);
   Visitor.Clr(); // resets the degree visitor to have zero nodes and diameter
 }
@@ -318,7 +239,7 @@ double InterpolateNF(const TIntV& NF, const double& p);
 void InterpolateINFH(const TIntIntVH& INFH, TIntIntH& QuantileH, const double& p);
 
 void GetNodesINFH(const TIntIntVH& INFH, TIntIntH& NodesH);
-void GetDiameterINFH(const TIntIntVH& INFH, TIntIntH& NodesH);
+void GetDiameterINFH(const TIntIntVH& INFH, TIntIntH& DiameterH);
 
 } // namespace TSnap
 

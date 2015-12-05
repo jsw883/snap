@@ -68,16 +68,16 @@ int main(int argc, char* argv[]) {
     Graph->GetNIdV(NIdV);
     
     printf("\nComputing exact neighborhood function...");
-    TSnap::TFixedMemoryExactNF<PNGraph> FixedMemoryExactNF(Graph);
-    FixedMemoryExactNF.ComputeSubsetExactNF(NIdV, edOutDirected, NF);
+    TSnap::TFixedMemoryNeighborhood<PNGraph> FixedMemoryNeighborhood(Graph);
+    FixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edOutDirected, NF);
     printf(" DONE: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
     
-      printf("NF:\n");
-      TIntV::TIter VI;
-      int depth = 0;
-      for (VI = NF.BegI(), depth = 0; VI < NF.EndI(); VI++, depth++) {
-        printf("%d: %d\n", depth, VI->Val);
-      }
+      // printf("NF:\n");
+      // TIntV::TIter VI;
+      // int depth = 0;
+      // for (VI = NF.BegI(), depth = 0; VI < NF.EndI(); VI++, depth++) {
+      //   printf("%d: %d\n", depth, VI->Val);
+      // }
     
     EffDiam = TSnap::InterpolateNF(NF, 0.9);
     AppDiam = TSnap::InterpolateNF(NF, 1.0);
