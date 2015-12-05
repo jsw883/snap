@@ -10,8 +10,8 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& NIdV, const TEdgeDir& d, con
   // SUBSET NEIGHBORHOOD FUNCTION
   
   printf("\nComputing %s subset diameter and node counts...", SubNm.CStr());
-  TSnap::TFixedMemoryExactNF<PNGraph> FixedMemoryExactNF(Graph);
-  FixedMemoryExactNF.ComputeSubsetINFH(NIdV, d, INFH);
+  TSnap::TFixedMemoryNeighborhood<PNGraph> FixedMemoryNeighborhood(Graph);
+  FixedMemoryNeighborhood.ComputeSubsetINFH(NIdV, d, INFH);
   printf(" DONE: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Compute diameters as the maximum quantiles of the INF

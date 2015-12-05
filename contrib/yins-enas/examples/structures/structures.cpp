@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
     GiantSizeV.Add(WCnComV[0].Len());
     GiantSizeRatioV.Add(((double) WCnComV[1].Len()) / ((double) WCnComV[0].Len()));
     // Compute average size, radius, diameter, and size ratios
-    TSnap::TFixedMemoryExactNF<PNGraph> FixedMemoryExactNF(GraphCopy);
+    TSnap::TFixedMemoryNeighborhood<PNGraph> FixedMemoryNeighborhood(GraphCopy);
     AvSize = 0;
     AvRadius = 0;
     AvRadiusToSizeRatio = 0;
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     AvDiameterToSizeRatio = 0;
     for (WCnComI = WCnComV.BegI(); WCnComI < WCnComV.EndI(); WCnComI++) {
       // Compute the nodes, radius, and diameter
-      FixedMemoryExactNF.ComputeSubsetExactNF(WCnComI->NIdV, edOutDirected, NF);
+      FixedMemoryNeighborhood.ComputeSubsetExactNF(WCnComI->NIdV, edOutDirected, NF);
       nodes = WCnComI->Len();
       radius = TSnap::InterpolateNF(NF, 0.5);
       diameter = TSnap::InterpolateNF(NF, 1.0);
