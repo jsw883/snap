@@ -7,4 +7,4 @@
 #include "galg.h"
 #include "stats.h"
 #include "io.h"
-#include "rand.h"
+#include "utils.h"

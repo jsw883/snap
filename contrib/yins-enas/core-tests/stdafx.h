@@ -2,5 +2,7 @@
 
 #include "Snap.h"
 
-#include "wgraph.h"
+#include "tests-helper.h"
 #include "enums.h"
+
+#include "wgraph.h"

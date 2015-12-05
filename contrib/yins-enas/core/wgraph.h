@@ -223,9 +223,9 @@ public:
       // This is possible if a pruning algorithm is being
       // applied, removing edges in place; if no edges are
       // left, this case will occur.
-      if (CurNode.GetOutDeg() != 0) {
+      // if (CurNode.GetOutDeg() != 0) {
         CurEdge++;
-        if (CurEdge >= CurNode.GetOutDeg()) {
+        if (CurEdge >= CurNode.GetOutDeg()) { // this will already take into account the case for the code that is commented
           CurEdge = 0;
           CurNode++;
           while (CurNode < EndNode && CurNode.GetOutDeg() == 0) {
@@ -236,12 +236,12 @@ public:
       // This handles the case detailed above by skipping over
       // empty nodes until it reaches one that has edges to be
       // iterated over.
-      } else {
-        while (CurNode < EndNode && CurNode.GetOutDeg() == 0) {
-          CurNode++;
-        }
-        return *this;
-      }
+      // } else {
+      //   while (CurNode < EndNode && CurNode.GetOutDeg() == 0) {
+      //     CurNode++;
+      //   }
+      //   return *this;
+      // }
     }
     /// Decrement iterator.
     TEdgeI& operator-- (int) {
@@ -343,10 +343,6 @@ public:
   }
   /// Returns an iterator referring to the past-the-end edge in the graph.
   TEdgeI EndEI() const {
-    TNodeI NI = EndNI();
-    while(NI > BegNI() && NI.GetOutDeg() == 0) {
-      NI--;
-    }
     return TEdgeI(BegNI(), EndNI(), EndNI());
   }
   /// Returns an iterator referring to edge (SrcNId, DstNId) in the graph.
@@ -990,7 +986,7 @@ public:
   /// Deletes all edges from node IDs SrcNId to DstNId from the graph.
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
   /// Deletes edge of ID EdgeI.GetId() from the graph.
-  void DelNode(TEdge& EdgeI) { DelEdge(EdgeI.GetId()); }
+  void DelEdge(TEdge& EdgeI) { DelEdge(EdgeI.GetId()); }
   /// Tests whether an edge with edge ID EId exists in the graph.
   bool IsEdge(const int& EId) const { return EdgeH.IsKey(EId); }
   

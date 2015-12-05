@@ -7,6 +7,7 @@
 // Headers (?)
 
 #include "enums.h"
+#include <ctime>
 
 //#//////////////////////////////////////////////
 /// DFS and BFS algorithms (white / grey / black)
@@ -339,96 +340,36 @@ void TFixedMemoryBFS<PGraph>::Clr(const bool& DoDel) {
   Color.Clr(DoDel);
 }
 
+} // namespace TSnap
+
+//#//////////////////////////////////////////////
+/// Graph percolation theory
+
+namespace TSnap {
+
+template <class PGraph> static PGraph PercolateGraph(const PGraph& Graph, const double& p = 0.5);
+
 template <class PGraph>
-class TFixedMemorySubsetDiameter : public TFixedMemoryBFS<PGraph> {
-public:
-  // Backward / forward visitor (degree only)
-  class TSubsetDiameterVisitor {
-  public:
-    int nodes;
-    int diameter;
-  public:
-    TSubsetDiameterVisitor() : nodes(0), diameter(0) { }
-    void Start() { }
-    void DiscoverNode(const int& NId, const int& depth) {
-      nodes++;
-      if (depth > diameter) {
-        diameter = depth;
-      }
+static PGraph PercolateGraph(const PGraph& Graph, const double& p) {
+  // PGraph GraphCopy = Graph;
+  typename PGraph::TObj::TEdgeI EI;
+  // TCnComV WCnComV;
+  TCnComV::TIter WCnComI;
+  // Copy graph (must be initialized for copy)
+  PGraph GraphCopy = PGraph::TObj::New();
+  *GraphCopy = *Graph;
+  // Iterate through the edges, randomly delete with percolation probability
+  for (EI = GraphCopy->BegEI(); EI < GraphCopy->EndEI(); ) {
+    if (drand48() < p) {
+      GraphCopy->DelEdge(EI);
+    } else {
+      EI++;
     }
-    void FinishNode(const int& NId, const int& depth) { }
-    void ExamineEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
-    void TreeEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
-    void BackEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
-    void ForwardEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
-    void Finish() { }
-    void Clr() {
-      nodes = 0;
-      diameter = 0;
-    }
-  };
-private:
-  TSubsetDiameterVisitor Visitor;
-public:
-  TFixedMemorySubsetDiameter(const PGraph& Graph) : TFixedMemoryBFS<PGraph>(Graph), Visitor(TSubsetDiameterVisitor()) { }
-
-  // Get diameter and node count for a single node (int / out / undirected)
-  void ComputeInDiameter(const int& NId, int& nodes, int& diameter) {
-    ComputeDiameter(NId, edInDirected);
   }
-  void ComputeOutDiameter(const int& NId, int& nodes, int& diameter) {
-    ComputeDiameter(NId, edOutDirected);
-  }
-  void ComputeDiameter(const int& NId, int& nodes, int& diameter) {
-    ComputeDiameter(NId, edUnDirected);
-  }
-  // Get diameter and node count for a single node using the direction specified 
-  void ComputeDiameter(const int& NId, const TEdgeDir& Dir, int& nodes, int& diameter);
-
-  // Get diameters and node counts for the subset of nodes (int / out / undirected)
-  void ComputeInSubsetDiameter(const TIntV& NIdV, TIntIntH& NodesH, TIntIntH& DiameterH) {
-    ComputeSubsetDiameter(NIdV, edInDirected, NodesH, DiameterH);
-  }
-  void ComputeOutSubsetDiameter(const TIntV& NIdV, TIntIntH& NodesH, TIntIntH& DiameterH) {
-    ComputeSubsetDiameter(NIdV, edOutDirected, NodesH, DiameterH);
-  }
-  void ComputeSubsetDiameter(const TIntV& NIdV, TIntIntH& NodesH, TIntIntH& DiameterH) {
-    ComputeSubsetDiameter(NIdV, edUnDirected, NodesH, DiameterH);
-  }
-  // Get diameters and node counts for the subset of nodes using the direction specified
-  void ComputeSubsetDiameter(const TIntV& NIdV, const TEdgeDir& Dir, TIntIntH& NodesH, TIntIntH& DiameterH);
-  
-  void Clr(const bool& DoDel = false);
-};
-
-// Compute egonet statistics using the direction specified
-template <class PGraph>
-void TFixedMemorySubsetDiameter<PGraph>::ComputeDiameter(const int& NId, const TEdgeDir& Dir, int& nodes, int& diameter) {
-  PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId);
-  Visitor.Clr();
-  this->GetBfsVisitor<TSubsetDiameterVisitor>(Ego, Visitor, Dir);
-  nodes = Visitor.nodes;
-  diameter = Visitor.diameter;
-}
-
-// Compute subset using the direction specified
-template <class PGraph>
-void TFixedMemorySubsetDiameter<PGraph>::ComputeSubsetDiameter(const TIntV& NIdV, const TEdgeDir& Dir, TIntIntH& NodesH, TIntIntH& DiameterH) {
-  TIntV::TIter VI;
-  int nodes, diameter;
-  for (VI = NIdV.BegI(); VI < NIdV.EndI();  VI++) {
-    ComputeDiameter(VI->Val, Dir, nodes, diameter);
-    NodesH.AddDat(VI->Val, nodes);
-    DiameterH.AddDat(VI->Val, diameter);
-  }
-}
-
-template <class PGraph>
-void TFixedMemorySubsetDiameter<PGraph>::Clr(const bool& DoDel) {
-  TFixedMemoryBFS<PGraph>::Clr(DoDel);
-  Visitor.Clr(); // resets the degree visitor to have zero nodes and diameter
+  return GraphCopy;
 }
 
 } // namespace TSnap
+
 
 #endif

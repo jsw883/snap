@@ -22,7 +22,7 @@ Options:
     -i          input network (tab separated list of edges)
     -s          subset nodes (column of nodes)
     -o          output prefix (filename extensions added)
-    -d          direction of ego traversal: in = 1, out = 2, undirected = 3
+    -d          direction of traversal: in = 1, out = 2, undirected = 3
                     (default: 3)
     --compare   compare to a random subset of nodes: T / F (default: T)
     --collate   collate properties into matrix: T / F (default: F)

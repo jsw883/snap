@@ -67,8 +67,11 @@ and a local clustering method with an arbitrary measure of centrality.
 
 Community detection algorithms currently implemented:
 
-  - *Louvain method (arbitrary quality objective)*
-    - *Modularity*
+  - Louvain method (arbitrary quality objective)
+    - Modularity
+
+To be implemented:
+
   - *Local clustering method*
 
 **This is currently under active delopment and is not yet completed.**
@@ -156,6 +159,28 @@ Note that diameter and average path length are found using the approximate
 neighbourhood function / shortest path cumulative density as described in
 the paper [ANF: A Fast and Scalable Tool for Data Mining in Massive Graphs](http://www.cs.cmu.edu/~christos/PUBLICATIONS/kdd02-anf.pdf)
 by C. R. Palmer, P. B. Gibbons, and C. Faloutsos and implemented in SNAP.
+
+#### structures (percolation algorithms) ####
+
+Applies edge percolation algorithms to explore the topology of networks
+and star or chain structures that arise near the percolation threshold.
+
+The method removes edges from the graph randomly with uniform probability,
+and then computes the following topological statistics for the remaining
+connected components:
+
+  * *Giant components (can be used to estimate percolation threshold)*
+    * Giant size (largest component size)
+    * Giant ratio (largest component size : next largest component size)
+  * *Averages*
+    * Size
+    * Radius (average path length)
+    * Radius / size (ratio)
+    * Diameter
+    * Diameter / size (ratio) ***
+
+**This is currently under active delopment and is not yet completed.**
+
 
 #### vespignani (multiscale backbone extraction) ####
 

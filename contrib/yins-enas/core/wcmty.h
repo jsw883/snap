@@ -4,9 +4,6 @@
 // Headers (?)
 
 //#//////////////////////////////////////////////
-/// Generic community functions
-
-//#//////////////////////////////////////////////
 /// Louvain method
 
 // TODO: implement local improvements (for any community detection method)
@@ -299,7 +296,8 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, 
     
     while (iter == 0 || (iterImprov > eps && moves > MinMove && iter < MaxIter)) { // while quality improving and parameters not exceeded
       
-      // Reset iter improvement in modularity
+      // Reset moves and iter improvement in modularity
+      moves = 0;
       iterImprov = 0.0;
       
       // TODO: randomly permute nodes (?)
