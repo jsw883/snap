@@ -71,11 +71,12 @@ int main(int argc, char* argv[]) {
   Try
   
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network (tab separated list of edges)");
-  const TStr SubNIdVFNm = Env.GetIfArgPrefixStr("-s:", "", "subset nodes (column of nodes)");
+  const TStr SubNIdVFNm = Env.GetIfArgPrefixStr("-s:", "", "subset of nodes (new line separated)");
   const TStr SubNm = SubNIdVFNm.RightOfLast('/').LeftOfLast('.');
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
   const TEdgeDir d = (TEdgeDir) Env.GetIfArgPrefixInt("-d:", 3, "direction of traversal: in = 1, out = 2, undected = 3");
+  const bool exhaustive = Env.GetIfArgPrefixBool("--exhaustive:", false, "compute for every node (overrides -s, --compare): T / F");
   const bool compare = Env.GetIfArgPrefixBool("--compare:", true, "compare to a random subset of nodes: T / F");
   const bool collate = Env.GetIfArgPrefixBool("--collate:", true, "collate properties into matrix: T / F");
   
@@ -93,19 +94,26 @@ int main(int argc, char* argv[]) {
   
   // Load subset nodes and compute disjoint random subset of nodes (same size) 
   SubNIdV = TSnap::LoadTxtIntV(SubNIdVFNm);
-  SubNIdV.Sort();
   Graph->GetNIdV(NIdV);
-  NIdV.Sort();
-  NIdV.Diff(SubNIdV);
-  RndNIdV = TSnap::GetRndSubV(NIdV, SubNIdV.Len(), Rnd);
   
   // SUBSET DIAMETER AND NODE COUNTS
   
-  ComputeINFH(Graph, SubNIdV, d, OutFNm, BseFNm, SubNm, collate, ExeTm);
-  if (compare) {
-    ComputeINFH(Graph, RndNIdV, d, OutFNm, BseFNm, TStr("random"), collate, ExeTm);
+  if (exhaustive) {
+    // EXHAUSTIVE
+    ComputeINFH(Graph, NIdV, d, OutFNm, BseFNm, TStr("exhaustive"), collate, ExeTm);
+  } else {
+    // SUBSET
+    ComputeINFH(Graph, SubNIdV, d, OutFNm, BseFNm, SubNm, collate, ExeTm);
+    // RANDOM
+    if (compare) {
+      SubNIdV.Sort();
+      NIdV.Sort();
+      NIdV.Diff(SubNIdV);
+      RndNIdV = TSnap::GetRndSubV(NIdV, SubNIdV.Len(), Rnd);
+      ComputeINFH(Graph, RndNIdV, d, OutFNm, BseFNm, TStr("random"), collate, ExeTm);
+    }
   }
-    
+  
   Catch
   
   printf("\nTotal run time: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
