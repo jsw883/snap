@@ -5,6 +5,7 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& NIdV, const TEdgeDir& d, con
   // Declare variables
   TIntIntVH INFH;
   TIntIntH NodesH, DiameterH;
+  TIntFltH RadiusH; // Radius is "average path length"
   TIntV::TIter VI;
   
   // SUBSET NEIGHBORHOOD FUNCTION
@@ -16,6 +17,7 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& NIdV, const TEdgeDir& d, con
   
   // Compute diameters as the maximum quantiles of the INF
   TSnap::GetNodesINFH(INFH, NodesH);
+  TSnap::InterpolateINFH(INFH, RadiusH, 0.5);
   TSnap::GetDiameterINFH(INFH, DiameterH);
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
@@ -29,12 +31,12 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& NIdV, const TEdgeDir& d, con
     printf("\nSaving %s.%s.diameters.summary...", BseFNm.CStr(), SubNm.CStr());
     const TStr CombinedFNm = TStr::Fmt("%s.%s.diameters.summary", OutFNm.CStr(), SubNm.CStr());
     FILE *F = fopen(CombinedFNm.CStr(), "wt");
-    fprintf(F, "# Subset diameters and node counts with d = %d\n", d);
+    fprintf(F, "# Subset node counts, radius (average path length), and diameter with d = %d\n", d);
     fprintf(F, "# Nodes: %d\tEdges: %d\t Subset size: %d\n", Graph->GetNodes(), Graph->GetEdges(), NIdV.Len());
-    fprintf(F, "# SubsetNodeId\tDiameter\tNodes\n");
+    fprintf(F, "# SubsetNodeId\tNodes\tRadius\tDiameter\n");
     for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
       const int NId = VI->Val; fprintf(F, "%d", NId);
-      fprintf(F, "\t%d\t%d", int(DiameterH.GetDat(NId)), int(NodesH.GetDat(NId)));
+      fprintf(F, "\t%d\t%f\t%d", (int) NodesH.GetDat(NId), (double) RadiusH.GetDat(NId), (int) DiameterH.GetDat(NId));
       fprintf(F, "\n");
     }
     printf(" DONE\n");
@@ -42,11 +44,15 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& NIdV, const TEdgeDir& d, con
   } else {
     
     printf("\nSaving %s.%s.nodes...", BseFNm.CStr(), SubNm.CStr());
-    TSnap::SaveTxt(NodesH, TStr::Fmt("%s.%s.nodes", OutFNm.CStr(), SubNm.CStr()), TStr::Fmt("Node counts with d = %d", d), "Node", "Number");
+    TSnap::SaveTxt(NodesH, TStr::Fmt("%s.%s.nodes", OutFNm.CStr(), SubNm.CStr()), TStr::Fmt("Node counts with d = %d", d), "Node", "Nodes");
     printf(" DONE");
    
     printf("\nSaving %s.%s.diameter...", BseFNm.CStr(), SubNm.CStr());
     TSnap::SaveTxt(DiameterH, TStr::Fmt("%s.%s.diameter", OutFNm.CStr(), SubNm.CStr()), TStr::Fmt("Diameter of neighborhood with d = %d", d), "Node", "Diameter");
+    printf(" DONE\n");
+ 
+    printf("\nSaving %s.%s.radius...", BseFNm.CStr(), SubNm.CStr());
+    TSnap::SaveTxt(RadiusH, TStr::Fmt("%s.%s.radius", OutFNm.CStr(), SubNm.CStr()), TStr::Fmt("Radius (average path length) of neighborhood with d = %d", d), "Node", "Radius");
     printf(" DONE\n");
  
   }
@@ -87,7 +93,9 @@ int main(int argc, char* argv[]) {
   
   // Load subset nodes and compute disjoint random subset of nodes (same size) 
   SubNIdV = TSnap::LoadTxtIntV(SubNIdVFNm);
+  SubNIdV.Sort();
   Graph->GetNIdV(NIdV);
+  NIdV.Sort();
   NIdV.Diff(SubNIdV);
   RndNIdV = TSnap::GetRndSubV(NIdV, SubNIdV.Len(), Rnd);
   

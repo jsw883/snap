@@ -236,7 +236,7 @@ void TFixedMemoryNeighborhood<PGraph>::Clr(const bool& DoDel) {
 
 // Interpolate quantiles
 double InterpolateNF(const TIntV& NF, const double& p);
-void InterpolateINFH(const TIntIntVH& INFH, TIntIntH& QuantileH, const double& p);
+void InterpolateINFH(const TIntIntVH& INFH, TIntFltH& QuantileH, const double& p);
 
 void GetNodesINFH(const TIntIntVH& INFH, TIntIntH& NodesH);
 void GetDiameterINFH(const TIntIntVH& INFH, TIntIntH& DiameterH);

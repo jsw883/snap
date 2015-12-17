@@ -54,7 +54,7 @@ double TSnap::InterpolateNF(const TIntV& NF, const double& p) {
   return -1;
 }
 
-void TSnap::InterpolateINFH(const TIntIntVH& INFH, TIntIntH& QuantileH, const double& p) {
+void TSnap::InterpolateINFH(const TIntIntVH& INFH, TIntFltH& QuantileH, const double& p) {
   TIntIntVH::TIter HI;
   for (HI = INFH.BegI(); HI < INFH.EndI(); HI++) {
     QuantileH.AddDat(HI.GetKey(), InterpolateNF(HI.GetDat(), p));

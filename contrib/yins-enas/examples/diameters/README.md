@@ -1,12 +1,19 @@
 diameters (subset connectivity)
 -------------------------------
 
-Computes neighborhood diameters and node counts for a subset of nodes in the
-graph, and the average diameter of the neighborhoods for the subset overall.
+Computes neighborhood node counts, radius, and diameter for a subset of nodes
+specified, and optionally computes the same for a random subset of nodes for
+a comparison (where the random subset is disjoint from the subset specified).
 
-Effectively, this computes the extreme of the neighborhood function isolated
-to each node in the subset (although this could possibly be changed to take
-advantage of the edge iteration / bit string approximation method).
+  * For each node in the subset of nodes specified (formatted as TIntV)
+    * Node counts
+    * Radius (average path length)
+    * Diameter
+
+Effectively, this computes the individual neighborhood function for each node
+in the subset (although this could possibly be changed to use a faster edge
+iteration / bit string approximation method), and then computes the quantiles
+for the radius (average path length) and diameter.
 
 As this computation is exhaustive, the cost is O(|U|(|V| + |E|)) for U in V.
 
