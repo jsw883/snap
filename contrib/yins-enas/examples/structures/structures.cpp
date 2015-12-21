@@ -30,8 +30,10 @@ int main(int argc, char* argv[]) {
   PNGraph GraphCopy;
   TCnComV WCnComV;
   TCnComV::TIter WCnComI;
-  int iter, nodes;
+  int iter, wcncom, nodes;
   double radius, diameter;
+  TIntV WCnComNodesV;
+  TFltV WCnComRadiusV, WCnComDiameterV;
   double AvSize, AvRadius, AvDiameter;
   double AvRadiusToSizeRatio, AvDiameterToSizeRatio;
   TIntV NF, NCnComV;
@@ -39,7 +41,7 @@ int main(int argc, char* argv[]) {
   TFltV GiantSizeRatioV;
   TFltV AvSizeV, AvRadiusV, AvDiameterV;
   TFltV AvRadiusToSizeRatioV, AvDiameterToSizeRatioV;
-
+  
   // Set random seed based on time (hacky, but better than not setting)
   srand48(time(NULL));
 
@@ -48,6 +50,7 @@ int main(int argc, char* argv[]) {
   // printf("\nStarting percolation method\n");
   Progress progress(ExeTm, iters, 5, "Computing percolation method"); 
   for (iter = 0; iter < iters; iter++) {
+    
     // Percolate graph according to percolation probability
     GraphCopy = TSnap::PercolateGraph<PNGraph>(Graph, p);
     // Get weakly connected components (cluster)
@@ -56,8 +59,13 @@ int main(int argc, char* argv[]) {
     NCnComV.Add(WCnComV.Len());
     GiantSizeV.Add(WCnComV[0].Len());
     GiantSizeRatioV.Add(((double) WCnComV[1].Len()) / ((double) WCnComV[0].Len()));
+    
     // Compute average size, radius, diameter, and size ratios
     TSnap::TFixedMemoryNeighborhood<PNGraph> FixedMemoryNeighborhood(GraphCopy);
+    // Variables
+    WCnComNodesV.Clr();
+    WCnComRadiusV.Clr();
+    WCnComDiameterV.Clr();
     AvSize = 0;
     AvRadius = 0;
     AvRadiusToSizeRatio = 0;
@@ -69,18 +77,38 @@ int main(int argc, char* argv[]) {
       nodes = WCnComI->Len();
       radius = TSnap::InterpolateNF(NF, 0.5);
       diameter = TSnap::InterpolateNF(NF, 1.0);
-      // Increment averages
+      // Save
+      WCnComNodesV.Add(nodes);
+      WCnComRadiusV.Add(radius);
+      WCnComDiameterV.Add(diameter);
+      // Averages
       AvSize += nodes;
       AvRadius += radius;
       AvRadiusToSizeRatio += radius / nodes;
       AvDiameter += diameter;
       AvDiameterToSizeRatio += diameter / nodes;
     }
+    
+    // Save
+    // printf("\nSaving %s.iter.summary.%d...", BseFNm.CStr(), iter);
+    const TStr CombinedFNm = TStr::Fmt("%s.iter.summary.%d", OutFNm.CStr(), iter);
+    FILE *F = fopen(CombinedFNm.CStr(), "wt");
+    fprintf(F, "# Percolation weakly connected components summary for p = %f, d = %d, iter = %d\n", p, d, iter);
+    fprintf(F, "# WCnComs: %d\n", WCnComV.Len());
+    fprintf(F, "# WCnComId\tNodes\tRadius\tDiameter\n");
+    for (wcncom = 0; wcncom < WCnComV.Len(); wcncom++) {
+      fprintf(F, "%d\t%d\t%f\t%f", wcncom, (int) WCnComNodesV[wcncom], (double) WCnComRadiusV[wcncom], (double) WCnComDiameterV[wcncom]);
+      fprintf(F, "\n");
+    }
+    // printf(" DONE\n");
+
+    // Averages
     AvSizeV.Add(AvSize / NCnComV.Last());
     AvRadiusV.Add(AvRadius / NCnComV.Last());
     AvRadiusToSizeRatioV.Add(AvRadiusToSizeRatio / NCnComV.Last());
     AvDiameterV.Add(AvDiameter / NCnComV.Last());
     AvDiameterToSizeRatioV.Add(AvDiameterToSizeRatio / NCnComV.Last());
+    
     progress++;
   }
   printf("DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
