@@ -177,7 +177,7 @@ template <class PGraph>
 void TFixedMemoryNeighborhood<PGraph>::ComputeINF(const int& NId, const TEdgeDir& Dir, TIntV& INF) {
   ComputeNeighborhood(NId, Dir, INF);
   // Aggregate
-  for (int depth = 2; depth < INF.Len(); depth++) {
+  for (int depth = 1; depth < INF.Len(); depth++) {
     INF[depth] += INF[depth - 1];
   }
 }
@@ -207,7 +207,7 @@ void TFixedMemoryNeighborhood<PGraph>::ComputeSubsetExactNF(const TIntV& NIdV, c
     }
   }
   // Aggregate
-  for (depth = 2; depth < NF.Len(); depth++) {
+  for (depth = 1; depth < NF.Len(); depth++) {
     NF[depth] += NF[depth - 1];
   }
 }
