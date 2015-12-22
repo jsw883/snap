@@ -20,7 +20,11 @@ template<class PGraph>
 double GetGlobClustCf(PGraph& Graph, int SampleNodes) {
   int64 ClosedTriadsX, OpenTriadsX;
   GetTriads(Graph, ClosedTriadsX, OpenTriadsX, SampleNodes);
-  return double(ClosedTriadsX) / double(ClosedTriadsX + OpenTriadsX);
+  if (OpenTriadsX == 0) {
+    return 0;
+  } else {
+    return double(ClosedTriadsX) / double(ClosedTriadsX + OpenTriadsX);
+  }
 }
 
 // Computes average clustering coefficient (need to check this for method)

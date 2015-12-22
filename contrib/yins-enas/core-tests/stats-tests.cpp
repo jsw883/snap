@@ -54,11 +54,11 @@ TYPED_TEST(StatsTest, SmallGraphStatistics) {
   
   // Fixed memory exact neighborhood function (exhaustive BFS)
   
-  TSnap::TFixedMemoryExactNF<PGraph> FixedMemoryExactNF(Graph);
+  TSnap::TFixedMemoryNeighborhood<PGraph> TFixedMemoryNeighborhood(Graph);
   Graph->GetNIdV(NIdV);
-  FixedMemoryExactNF.ComputeSubsetExactNF(NIdV, edInDirected, InNF);
-  FixedMemoryExactNF.ComputeSubsetExactNF(NIdV, edOutDirected, OutNF);
-  FixedMemoryExactNF.ComputeSubsetExactNF(NIdV, edUnDirected, NF);
+  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edInDirected, InNF);
+  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edOutDirected, OutNF);
+  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edUnDirected, NF);
   
   // Check number of nodes
   EXPECT_EQ(7, InNF[0]);
@@ -98,6 +98,67 @@ TYPED_TEST(StatsTest, SmallGraphStatistics) {
     EXPECT_TRUE(TSnap::InterpolateNF(NF, p + 1e-10) - TSnap::InterpolateNF(NF, p) < 1e-5);
     EXPECT_TRUE(TSnap::InterpolateNF(NF, p) - TSnap::InterpolateNF(NF, p - 1e-10) < 1e-5);
   }
+  
+}
+
+// Test graph edge weight consistency
+TYPED_TEST(StatsTest, TinyGraphStatistics) {
+
+  // DECLARATIONS AND INITIALIZATIONS
+
+  typedef TypeParam TGraph;
+  typedef TPt<TGraph> PGraph;
+
+  typename TGraph::TNodeI NI;
+  typename TGraph::TEdgeI EI;
+  TIntIntVH::TIter HI;
+  TIntV::TIter VI;
+
+  PGraph Graph = TGraph::New();
+  
+  double GlobClustCf, AvClustCf;
+  int depth, counter, divisions = 100;
+  double p;
+  TIntV NIdV;
+  TIntV InNF, OutNF, NF;
+  
+  // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
+  
+  Graph->AddNode(0);
+  
+  // Clustering coefficients
+  
+  GlobClustCf = TSnap::GetGlobClustCf(Graph);
+  AvClustCf = TSnap::GetAvClustCf(Graph);
+  
+  // Known answers
+  EXPECT_EQ(0, GlobClustCf); 
+  EXPECT_EQ(0, AvClustCf);
+  
+  // Fixed memory exact neighborhood function (exhaustive BFS)
+  
+  TSnap::TFixedMemoryNeighborhood<PGraph> TFixedMemoryNeighborhood(Graph);
+  Graph->GetNIdV(NIdV);
+  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edInDirected, InNF);
+  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edOutDirected, OutNF);
+  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edUnDirected, NF);
+  
+  // Check number of nodes
+  EXPECT_EQ(1, InNF[0]);
+  EXPECT_EQ(1, OutNF[0]);
+  EXPECT_EQ(1, NF[0]);
+  
+  // Check diameters
+  EXPECT_EQ(1, InNF.Len());
+  EXPECT_EQ(1, OutNF.Len());
+  EXPECT_EQ(1, NF.Len());
+  
+  // Interpolate
+  
+  // Limits
+  EXPECT_EQ(0, TSnap::InterpolateNF(NF, 0));
+  EXPECT_EQ(0, TSnap::InterpolateNF(NF, 0.5));
+  EXPECT_EQ(0, TSnap::InterpolateNF(NF, 1));
   
 }
 
@@ -159,11 +220,11 @@ TYPED_TEST(StatsTest, RandomGraphStatistics) {
   
   // Fixed memory exact neighborhood function (exhaustive BFS)
   
-  TSnap::TFixedMemoryExactNF<PGraph> FixedMemoryExactNF(Graph);
+  TSnap::TFixedMemoryNeighborhood<PGraph> TFixedMemoryNeighborhood(Graph);
   Graph->GetNIdV(NIdV);
-  FixedMemoryExactNF.ComputeSubsetExactNF(NIdV, edInDirected, InNF);
-  FixedMemoryExactNF.ComputeSubsetExactNF(NIdV, edOutDirected, OutNF);
-  FixedMemoryExactNF.ComputeSubsetExactNF(NIdV, edUnDirected, NF);
+  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edInDirected, InNF);
+  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edOutDirected, OutNF);
+  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edUnDirected, NF);
   
   // Check number of nodes
   EXPECT_EQ(Graph->GetNodes(), InNF[0]);
