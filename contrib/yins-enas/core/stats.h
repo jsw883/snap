@@ -103,13 +103,6 @@ public:
         Neighborhood[depth]++;
       } else {
         Neighborhood.Add(1);
-        // if (INF.Empty()) {
-        //   INF.Add(1);
-        // } else {
-        //   const int& temp = INF.Last();
-        //   printf("temp: %d\n", temp);
-        //   INF.Add(temp + 1);
-        // }
       }
     }
     void FinishNode(const int& NId, const int& depth) { }
@@ -117,9 +110,7 @@ public:
     void TreeEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
     void BackEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
     void ForwardEdge(const int& SrcNId, const int&  depth, const int& edge, const int& DstNId) { }
-    void Finish() {
-      // INF[0]--;
-    }
+    void Finish() { }
     void Clr() {
       Neighborhood.Clr();
     }
@@ -177,7 +168,7 @@ template <class PGraph>
 void TFixedMemoryNeighborhood<PGraph>::ComputeINF(const int& NId, const TEdgeDir& Dir, TIntV& INF) {
   ComputeNeighborhood(NId, Dir, INF);
   // Aggregate
-  for (int depth = 2; depth < INF.Len(); depth++) {
+  for (int depth = 1; depth < INF.Len(); depth++) {
     INF[depth] += INF[depth - 1];
   }
 }
@@ -207,7 +198,7 @@ void TFixedMemoryNeighborhood<PGraph>::ComputeSubsetExactNF(const TIntV& NIdV, c
     }
   }
   // Aggregate
-  for (depth = 2; depth < NF.Len(); depth++) {
+  for (depth = 1; depth < NF.Len(); depth++) {
     NF[depth] += NF[depth - 1];
   }
 }
