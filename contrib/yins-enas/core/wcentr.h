@@ -89,11 +89,11 @@ void GetWDegreeCentrVH(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltVH& WDegCentrV
 
 // Standard power method for computing leading eigenvector and eigenvalue
 template <class TEdgeW, template <class> class TGraph >
-double GetWDirEigenVectorCentr(const TPt<TGraph<TEdgeW> >& Graph, TIntFltH& WEigCentrH, const TEdgeDir& dir, const double& eps, const int& MaxIter) {
+double GetWDirEigenVectorCentr(const TPt<TGraph<TEdgeW> >& Graph, TIntFltH& WEigCentrH, double& weig, const TEdgeDir& dir, const double& eps, const int& MaxIter) {
   typename TGraph<TEdgeW>::TNodeI NI;
   const int NNodes = Graph->GetNodes();
   int deg = 0;
-  double eig = 0.0, diff = 0.0;
+  double diff = 0.0;
   WEigCentrH.Gen(NNodes);
   // initialize vector values
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
@@ -120,13 +120,13 @@ double GetWDirEigenVectorCentr(const TPt<TGraph<TEdgeW> >& Graph, TIntFltH& WEig
       }
     }
     // normalise entire vector by sum of squares rather than each row normalised already (which is PageRank)
-    eig = 0;
+    weig = 0.0;
     for (int i = 0; i < TmpV.Len(); i++) {
-      eig += pow(TmpV[i], 2.0);
+      weig += pow(TmpV[i], 2.0);
     }
-    eig = sqrt(eig);
+    weig = sqrt(weig);
     for (int i = 0; i < TmpV.Len(); i++) {
-      TmpV[i] /= eig;
+      TmpV[i] /= weig;
     }
     // compute difference
     diff = 0.0;
@@ -144,33 +144,37 @@ double GetWDirEigenVectorCentr(const TPt<TGraph<TEdgeW> >& Graph, TIntFltH& WEig
   return(diff); // didn't converge return(-1) (?)
 }
 template <class TEdgeW, template <class> class TGraph >
-double GetWInEigenVectorCentr(const TPt<TGraph<TEdgeW> >& Graph, TIntFltH& InWEigCentrH, const double& eps, const int& MaxIter) {
-  return GetWDirEigenVectorCentr(Graph, InWEigCentrH, edInDirected, eps, MaxIter);
+double GetWInEigenVectorCentr(const TPt<TGraph<TEdgeW> >& Graph, TIntFltH& InWEigCentrH,  double& weig, const double& eps, const int& MaxIter) {
+  return GetWDirEigenVectorCentr(Graph, InWEigCentrH, weig, edInDirected, eps, MaxIter);
 }
 template <class TEdgeW, template <class> class TGraph >
-double GetWOutEigenVectorCentr(const TPt<TGraph<TEdgeW> >& Graph, TIntFltH& OutWEigCentrH, const double& eps, const int& MaxIter) {
-  return GetWDirEigenVectorCentr(Graph, OutWEigCentrH, edOutDirected, eps, MaxIter);
+double GetWOutEigenVectorCentr(const TPt<TGraph<TEdgeW> >& Graph, TIntFltH& OutWEigCentrH,  double& weig, const double& eps, const int& MaxIter) {
+  return GetWDirEigenVectorCentr(Graph, OutWEigCentrH, weig, edOutDirected, eps, MaxIter);
 }
 template <class TEdgeW, template <class> class TGraph >
-double GetWEigenVectorCentr(const TPt<TGraph<TEdgeW> >& Graph, TIntFltH& WEigCentrH, const double& eps, const int& MaxIter) {
-  return GetWDirEigenVectorCentr(Graph, WEigCentrH, edUnDirected, eps, MaxIter);
+double GetWEigenVectorCentr(const TPt<TGraph<TEdgeW> >& Graph, TIntFltH& WEigCentrH,  double& weig, const double& eps, const int& MaxIter) {
+  return GetWDirEigenVectorCentr(Graph, WEigCentrH, weig, edUnDirected, eps, MaxIter);
 }
 
 template <class TEdgeW, template <class> class TGraph >
-TFltV GetWEigenVectorCentrVH(const TPt<TGraph<TEdgeW> >& Graph, TIntFltVH& WEigCentrVH, const double& eps, const int& MaxIter) {
+TFltV GetWEigenVectorCentrVH(const TPt<TGraph<TEdgeW> >& Graph, TIntFltVH& WEigCentrVH, TFltV& WEigV,  const double& eps, const int& MaxIter) {
   typename TGraph<TEdgeW>::TNodeI NI;
+  double weig;
   TIntFltH WInEigCentrH, WOutEigCentrH, WEigCentrH;
-  TFltV DiffV, WEigV;
+  TFltV DiffV, WEigCentrV;
   DiffV.Clr();
-  DiffV.Add(GetWInEigenVectorCentr(Graph, WInEigCentrH, eps, MaxIter));
-  DiffV.Add(GetWOutEigenVectorCentr(Graph, WOutEigCentrH, eps, MaxIter));
-  DiffV.Add(GetWEigenVectorCentr(Graph, WEigCentrH, eps, MaxIter));
+  DiffV.Add(GetWInEigenVectorCentr(Graph, WInEigCentrH, weig, eps, MaxIter));
+  WEigV.Add(weig);
+  DiffV.Add(GetWOutEigenVectorCentr(Graph, WOutEigCentrH, weig, eps, MaxIter));
+  WEigV.Add(weig);
+  DiffV.Add(GetWEigenVectorCentr(Graph, WEigCentrH, weig, eps, MaxIter));
+  WEigV.Add(weig);
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    WEigV.Clr();
-    WEigV.Add(WInEigCentrH.GetDat(NI.GetId()));
-    WEigV.Add(WOutEigCentrH.GetDat(NI.GetId()));
-    WEigV.Add(WEigCentrH.GetDat(NI.GetId()));
-    WEigCentrVH.AddDat(NI.GetId(), WEigV);
+    WEigCentrV.Clr();
+    WEigCentrV.Add(WInEigCentrH.GetDat(NI.GetId()));
+    WEigCentrV.Add(WOutEigCentrH.GetDat(NI.GetId()));
+    WEigCentrV.Add(WEigCentrH.GetDat(NI.GetId()));
+    WEigCentrVH.AddDat(NI.GetId(), WEigCentrV);
   }
   return(DiffV);
 }
@@ -225,7 +229,7 @@ double GetWDirAlphaCentr(const TPt<TGraph<TEdgeW> >& Graph, const TIntFltH& ExoH
   typename TGraph<TEdgeW>::TNodeI NI;
   const int NNodes = Graph->GetNodes();
   int deg = 0;
-  double ssq = 0.0, diff = 0.0;
+  double diff = 0.0;
   WAlphaCentrH.Gen(NNodes);
   // initialize vector values
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
@@ -254,15 +258,15 @@ double GetWDirAlphaCentr(const TPt<TGraph<TEdgeW> >& Graph, const TIntFltH& ExoH
       TmpV[j] *= alpha;
       TmpV[j] += ExoH.GetDat(NI.GetId());
     }
-    // normalise entire vector by sum of squares rather than each row normalised already (which is PageRank)
-    ssq = 0;
-    for (int i = 0; i < TmpV.Len(); i++) {
-      ssq += pow(TmpV[i], 2.0);
-    }
-    ssq = sqrt(ssq);
-    for (int i = 0; i < TmpV.Len(); i++) {
-      TmpV[i] /= ssq;
-    }
+    // don't normalize vector as the exogenous contribution can't be normalized
+    // double ssq = 0;
+    // for (int i = 0; i < TmpV.Len(); i++) {
+    //   ssq += pow(TmpV[i], 2.0);
+    // }
+    // ssq = sqrt(ssq);
+    // for (int i = 0; i < TmpV.Len(); i++) {
+    //   TmpV[i] /= ssq;
+    // }
     // compute difference
     diff = 0.0;
     j = 0;

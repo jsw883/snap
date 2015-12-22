@@ -13,7 +13,10 @@ Alpha centrality has been added, as defined by Bonacich and Lloyd (2001). This
 measure of centrality is better for asymmetric graphs, and comes from the same
 family as eigenvector centrality. Also, it is equivalent to Katz centrality
 when no exogenous source of centrality is provided, as the default source of 1
-gives Katz centrality.
+gives Katz centrality. For the algorithm to converge, alpha must be strictly 
+less than the inverse of the leading eigenvalue of the graph adjacency matrix,
+which is displayed in the example log file for reference (run once, check the
+log, and run again with a new alpha value as needed).
 
 Node centrality measures / distributions (in / out / undirected):
 
@@ -47,7 +50,7 @@ Options:
     -o          output prefix (filename extensions added)
     -k          depth of degree traversal (default: 1)
     -c          personalization parameter for PageRank (default: 0.85)
-    -a          endogenous parameter for alpha centrality (default: 1)
+    -a          endogenous parameter for alpha centrality (default: 5.0e-3)
     --eps       precision for power method convergence (default: 1.0e-4)
     --iters     maximum number of iterations (default 1.0e+3)
     --collate   collate properties into matrix: T / F (default: F)
@@ -65,7 +68,7 @@ mkdir $DATASET/centrality
 ./centrality -i:$DATASET/USairport2010.snap \
              -e:$DATASET/exogenous.status.TIntFltH \
              -o:$DATASET/centrality/USairport2010 \
-             -k:3 -c:0.85 -a:0.5 \
+             -k:3 -c:0.85 -a:5.0e-3 \
              --eps:1.0e-5 --iters:1e+4 \
              --collate:T
 ```
