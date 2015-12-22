@@ -45,6 +45,9 @@ void SaveTxt(const THash<TKey, TVal>& GenH, const TStr& FNm, const TStr& Desc = 
   fclose(F);
 }
 
+TIntIntH LoadTxtIntIntH(const TStr& FNm);
+TIntFltH LoadTxtIntFltH(const TStr& FNm);
+
 // TODO: implement LoadTxtIntIntH and LoadTxtIntFltH
 
 /// Generic SaveTxt for THash template class with TVec data using GetStr()

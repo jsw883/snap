@@ -27,6 +27,31 @@ TFltV TSnap::LoadTxtFltV(const TStr& FNm) {
   return GenV;
 }
 
+TIntIntH TSnap::LoadTxtIntIntH(const TStr& FNm) {
+  TSsParser Ss(FNm);
+  TIntIntH GenH;
+  int Key, Val;
+  while (Ss.Next()) {
+    if (Ss.GetInt(0, Key) && Ss.GetInt(1, Val)) {
+      GenH.AddDat(Key, Val);
+    }
+  }
+  return GenH;
+}
+
+TIntFltH TSnap::LoadTxtIntFltH(const TStr& FNm) {
+  TSsParser Ss(FNm);
+  TIntFltH GenH;
+  int Key;
+  double Val;
+  while (Ss.Next()) {
+    if (Ss.GetInt(0, Key) && Ss.GetFlt(1, Val)) {
+      GenH.AddDat(Key, Val);
+    }
+  }
+  return GenH;
+}
+
 // Specific SaveTxt for TIntV
 // void TSnap::SaveTxtTIntV(const TIntV& NIdV, const TStr& FNm, const TStr& Desc) {
 //   typename TIntV::TIter VI;
