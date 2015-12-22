@@ -302,7 +302,7 @@ TFltV GetAlphaCentrVH(const PGraph& Graph, const TIntFltH& ExoH, TIntFltVH& Alph
   DiffV.Clr();
   DiffV.Add(GetInAlphaCentr(Graph, ExoH, InAlphaCentrH, alpha, eps, MaxIter));
   DiffV.Add(GetOutAlphaCentr(Graph, ExoH, OutAlphaCentrH, alpha, eps, MaxIter));
-  DiffV.Add(GetAlphaCentr(Graph, ExoH, AlphaCentrH, alpha, eps, MaxIter));
+  DiffV.Add(GetAlphaCentr(Graph, ExoH, AlphaCentrH, alpha / 2.0, eps, MaxIter));
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     AlphaV.Clr();
     AlphaV.Add(InAlphaCentrH.GetDat(NI.GetId()));

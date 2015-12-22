@@ -303,7 +303,7 @@ TFltV GetWAlphaCentrVH(const TPt<TGraph<TEdgeW> >& Graph, const TIntFltH& ExoH, 
   DiffV.Clr();
   DiffV.Add(GetWInAlphaCentr(Graph, ExoH, WInAlphaCentrH, alpha, eps, MaxIter));
   DiffV.Add(GetWOutAlphaCentr(Graph, ExoH, WOutAlphaCentrH, alpha, eps, MaxIter));
-  DiffV.Add(GetWAlphaCentr(Graph, ExoH, WAlphaCentrH, alpha, eps, MaxIter));
+  DiffV.Add(GetWAlphaCentr(Graph, ExoH, WAlphaCentrH, alpha / 2.0, eps, MaxIter));
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     WEigV.Clr();
     WEigV.Add(WInAlphaCentrH.GetDat(NI.GetId()));
