@@ -31,9 +31,10 @@ int TSnap::GetMxOutDeg(PNGraph& Graph) {
 //#//////////////////////////////////////////////
 /// Exact neighborhood function using BFS
 
-double TSnap::InterpolateNF(const TIntV& NF, const double& p) {
+double TSnap::InterpolateNF(const TUInt64V& NF, const double& p) {
   TIntV::TIter VI;
-  int Diff, depth;
+  TUInt64 Diff;
+  int depth;
   if (p == 0 || NF.Len() == 0 || NF.Len() == 1) {
     return 0;
   }
@@ -54,25 +55,25 @@ double TSnap::InterpolateNF(const TIntV& NF, const double& p) {
   return -1;
 }
 
-void TSnap::InterpolateINFH(const TIntIntVH& INFH, TIntFltH& QuantileH, const double& p) {
-  TIntIntVH::TIter HI;
+void TSnap::InterpolateINFH(const THash<TInt, TUInt64V>& INFH, TIntFltH& QuantileH, const double& p) {
+  THash<TInt, TUInt64V>::TIter HI;
   for (HI = INFH.BegI(); HI < INFH.EndI(); HI++) {
     QuantileH.AddDat(HI.GetKey(), InterpolateNF(HI.GetDat(), p));
   }
 }
 
-void TSnap::GetNodesINFH(const TIntIntVH& INFH, TIntIntH& NodesH) {
+void TSnap::GetNodesINFH(const THash<TInt, TUInt64V>& INFH, TIntIntH& NodesH) {
   // InterpolateINFH(INFH, NodesH, 0.0);
-  TIntIntVH::TIter HI;
+  THash<TInt, TUInt64V>::TIter HI;
   for (HI = INFH.BegI(); HI < INFH.EndI(); HI++) {
-    NodesH.AddDat(HI.GetKey(), HI.GetDat().Last());
+    NodesH.AddDat(HI.GetKey(), (int) HI.GetDat().Last());
   }
 }
 
-void TSnap::GetDiameterINFH(const TIntIntVH& INFH, TIntIntH& DiameterH) {
+void TSnap::GetDiameterINFH(const THash<TInt, TUInt64V>& INFH, TIntIntH& DiameterH) {
   // InterpolateINFH(INFH, DiameterH, 1.0);
-  TIntIntVH::TIter HI;
+  THash<TInt, TUInt64V>::TIter HI;
   for (HI = INFH.BegI(); HI < INFH.EndI(); HI++) {
-    DiameterH.AddDat(HI.GetKey(), HI.GetDat().Len() - 1);
+    DiameterH.AddDat(HI.GetKey(), (int) HI.GetDat().Len() - 1);
   }
 }

@@ -3,7 +3,7 @@
 void ComputeINFH(const PNGraph& Graph, const TIntV& NIdV, const TEdgeDir& d, const TStr& OutFNm, const TStr& BseFNm, const TStr& SubNm, const bool& collate, const TExeTm& ExeTm) {
   
   // Declare variables
-  TIntIntVH INFH;
+  THash<TInt, TUInt64V> INFH;
   TIntIntH NodesH, DiameterH;
   TIntFltH RadiusH; // Radius is "average path length"
   TIntV::TIter VI;

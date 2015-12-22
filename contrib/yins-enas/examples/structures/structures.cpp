@@ -36,7 +36,8 @@ int main(int argc, char* argv[]) {
   TFltV WCnComRadiusV, WCnComDiameterV;
   double AvSize, AvRadius, AvDiameter;
   double AvRadiusToSizeRatio, AvDiameterToSizeRatio;
-  TIntV NF, NCnComV;
+  TUInt64V NF;
+  TIntV NCnComV;
   TIntV GiantSizeV;
   TFltV GiantSizeRatioV;
   TFltV AvSizeV, AvRadiusV, AvDiameterV;
