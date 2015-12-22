@@ -217,6 +217,101 @@ double GetWPageRank(const TPt<TGraph<TEdgeW> >& WGraph, TIntFltH& WPRankH, const
   return(diff);
 }
 
+
+
+// Standard power method for computing alpha centrality
+template <class TEdgeW, template <class> class TGraph >
+double GetWDirAlphaCentr(const TPt<TGraph<TEdgeW> >& Graph, const TIntFltH& ExoH, TIntFltH& WAlphaCentrH, const double& alpha, const TEdgeDir& dir, const double& eps, const int& MaxIter) {
+  typename TGraph<TEdgeW>::TNodeI NI;
+  const int NNodes = Graph->GetNodes();
+  int deg = 0;
+  double ssq = 0.0, diff = 0.0;
+  WAlphaCentrH.Gen(NNodes);
+  // initialize vector values
+  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    WAlphaCentrH.AddDat(NI.GetId(), 1.0 / NNodes); // uniform distribution initially
+    IAssert(NI.GetId() == WAlphaCentrH.GetKey(WAlphaCentrH.Len() - 1));
+  }
+  TFltV TmpV(NNodes);
+  for (int iter = 0; iter < MaxIter; iter++) {
+    // add neighbor values
+    int j;
+    for (NI = Graph->BegNI(), j = 0; NI < Graph->EndNI(); NI++, j++) {
+      switch(dir) {
+        case edInDirected: deg = NI.GetInDeg(); break;
+        case edOutDirected: deg = NI.GetOutDeg(); break;
+        case edUnDirected: deg = NI.GetDeg(); break;
+      }
+      TmpV[j] = 0;
+      for (int e = 0; e < deg; e++) { // this is now directed in / out / undirected centrality
+        switch(dir) {
+          case edInDirected: TmpV[j] += double(NI.GetInEW(e)) * WAlphaCentrH.GetDat(NI.GetInNId(e)); break;
+          case edOutDirected: TmpV[j] += double(NI.GetOutEW(e)) * WAlphaCentrH.GetDat(NI.GetOutNId(e)); break;
+          case edUnDirected: TmpV[j] += double(NI.GetNbrEW(e)) * WAlphaCentrH.GetDat(NI.GetNbrNId(e)); break;
+        }
+      }
+      // alpha centrality scaling
+      TmpV[j] *= alpha;
+      TmpV[j] += ExoH.GetDat(NI.GetId());
+    }
+    // normalise entire vector by sum of squares rather than each row normalised already (which is PageRank)
+    ssq = 0;
+    for (int i = 0; i < TmpV.Len(); i++) {
+      ssq += pow(TmpV[i], 2.0);
+    }
+    ssq = sqrt(ssq);
+    for (int i = 0; i < TmpV.Len(); i++) {
+      TmpV[i] /= ssq;
+    }
+    // compute difference
+    diff = 0.0;
+    j = 0;
+    for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++, j++) {
+      diff += fabs(WAlphaCentrH.GetDat(NI.GetId()) - TmpV[j]);
+    }
+    // set new values
+    j = 0;
+    for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++, j++) {
+      WAlphaCentrH.AddDat(NI.GetId(), TmpV[j]);
+    }
+    if (diff < eps) { break; }
+  }
+  return(diff); // didn't converge return(-1) (?)
+}
+template <class TEdgeW, template <class> class TGraph >
+double GetWInAlphaCentr(const TPt<TGraph<TEdgeW> >& Graph, const TIntFltH& ExoH, TIntFltH& InWAlphaCentrH, const double& alpha, const double& eps, const int& MaxIter) {
+  return GetWDirAlphaCentr(Graph, ExoH, InWAlphaCentrH, alpha, edInDirected, eps, MaxIter);
+}
+template <class TEdgeW, template <class> class TGraph >
+double GetWOutAlphaCentr(const TPt<TGraph<TEdgeW> >& Graph, const TIntFltH& ExoH, TIntFltH& OutWAlphaCentrH, const double& alpha, const double& eps, const int& MaxIter) {
+  return GetWDirAlphaCentr(Graph, ExoH, OutWAlphaCentrH, alpha, edOutDirected, eps, MaxIter);
+}
+template <class TEdgeW, template <class> class TGraph >
+double GetWAlphaCentr(const TPt<TGraph<TEdgeW> >& Graph, const TIntFltH& ExoH, TIntFltH& WAlphaCentrH, const double& alpha, const double& eps, const int& MaxIter) {
+  return GetWDirAlphaCentr(Graph, ExoH, WAlphaCentrH, alpha, edUnDirected, eps, MaxIter);
+}
+
+template <class TEdgeW, template <class> class TGraph >
+TFltV GetWAlphaCentrVH(const TPt<TGraph<TEdgeW> >& Graph, const TIntFltH& ExoH, TIntFltVH& WAlphaCentrVH, const double& alpha, const double& eps, const int& MaxIter) {
+  typename TGraph<TEdgeW>::TNodeI NI;
+  TIntFltH WInAlphaCentrH, WOutAlphaCentrH, WAlphaCentrH;
+  TFltV DiffV, WEigV;
+  DiffV.Clr();
+  DiffV.Add(GetWInAlphaCentr(Graph, ExoH, WInAlphaCentrH, alpha, eps, MaxIter));
+  DiffV.Add(GetWOutAlphaCentr(Graph, ExoH, WOutAlphaCentrH, alpha, eps, MaxIter));
+  DiffV.Add(GetWAlphaCentr(Graph, ExoH, WAlphaCentrH, alpha, eps, MaxIter));
+  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    WEigV.Clr();
+    WEigV.Add(WInAlphaCentrH.GetDat(NI.GetId()));
+    WEigV.Add(WOutAlphaCentrH.GetDat(NI.GetId()));
+    WEigV.Add(WAlphaCentrH.GetDat(NI.GetId()));
+    WAlphaCentrVH.AddDat(NI.GetId(), WEigV);
+  }
+  return(DiffV);
+}
+
+
+
 } // namespace TSnap
 
 #endif

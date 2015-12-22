@@ -63,9 +63,9 @@ DATASET=../../datasets/USairport2010
 rm -rf $DATASET/centrality
 mkdir $DATASET/centrality
 ./centrality -i:$DATASET/USairport2010.snap \
-          -e:$DATASET/exogenous.status.TIntFltH \
-          -o:$DATASET/centrality/USairport2010 \
-          -k:3 -c:0.85 -a:0.5 \
-          --eps:1.0e-5 --iters:1e+4 \
-          --collate:T
+             -e:$DATASET/exogenous.status.TIntFltH \
+             -o:$DATASET/centrality/USairport2010 \
+             -k:3 -c:0.85 -a:0.5 \
+             --eps:1.0e-5 --iters:1e+4 \
+             --collate:T
 ```
