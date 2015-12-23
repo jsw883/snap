@@ -34,7 +34,8 @@ int main(int argc, char* argv[]) {
   double AvClustCf, GlobClustCf;
   TStrFltH StatsV;
   
-  TIntV NIdV, NF;
+  TIntV NIdV;
+  TUInt64V NF;
   
   // STATISTICS (computations)
   
