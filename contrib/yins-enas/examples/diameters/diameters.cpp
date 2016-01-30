@@ -3,9 +3,10 @@
 void ComputeINFH(const PNGraph& Graph, const TIntV& NIdV, const TEdgeDir& d, const TStr& OutFNm, const TStr& BseFNm, const TStr& SubNm, const bool& collate, const TExeTm& ExeTm) {
   
   // Declare variables
+  TUInt64V NF;
   THash<TInt, TUInt64V> INFH;
   TIntIntH NodesH, DiameterH;
-  TIntFltH RadiusH; // Radius is "average path length"
+  TIntFltH RadiusH; // Radius is "median path length"
   TIntV::TIter VI;
   
   // SUBSET NEIGHBORHOOD FUNCTION
@@ -13,6 +14,7 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& NIdV, const TEdgeDir& d, con
   printf("\nComputing %s subset diameter and node counts...", SubNm.CStr());
   TSnap::TFixedMemoryNeighborhood<PNGraph> FixedMemoryNeighborhood(Graph);
   FixedMemoryNeighborhood.ComputeSubsetINFH(NIdV, d, INFH);
+  TSnap::ConvertSubsetINFHSubsetNF(INFH, NF);
   printf(" DONE: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Compute diameters as the maximum quantiles of the INF
@@ -26,12 +28,16 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& NIdV, const TEdgeDir& d, con
   TSnap::SaveTxt(INFH, TStr::Fmt("%s.%s.INFH", OutFNm.CStr(), SubNm.CStr()), TStr::Fmt("Exact individual neighborhood function with d = %d", d), "Node", "INFVH");
   printf(" DONE\n");   
   
+  printf("\nSaving %s.%s.hop.NF...", BseFNm.CStr(), SubNm.CStr());
+  TSnap::SaveTxt(NF, TStr::Fmt("%s.%s.hop.NF", OutFNm.CStr(), SubNm.CStr()), "Exact subset neighbourhood function / shortest path cumulative density (hop)");
+  printf(" DONE\n");
+  
   if (collate) {
     
     printf("\nSaving %s.%s.diameters.summary...", BseFNm.CStr(), SubNm.CStr());
     const TStr CombinedFNm = TStr::Fmt("%s.%s.diameters.summary", OutFNm.CStr(), SubNm.CStr());
     FILE *F = fopen(CombinedFNm.CStr(), "wt");
-    fprintf(F, "# Subset node counts, radius (average path length), and diameter with d = %d\n", d);
+    fprintf(F, "# Subset node counts, radius (median path length), and diameter with d = %d\n", d);
     fprintf(F, "# Nodes: %d\tEdges: %d\t Subset size: %d\n", Graph->GetNodes(), Graph->GetEdges(), NIdV.Len());
     fprintf(F, "# SubsetNodeId\tNodes\tRadius\tDiameter\n");
     for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
@@ -52,7 +58,7 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& NIdV, const TEdgeDir& d, con
     printf(" DONE\n");
  
     printf("\nSaving %s.%s.radius...", BseFNm.CStr(), SubNm.CStr());
-    TSnap::SaveTxt(RadiusH, TStr::Fmt("%s.%s.radius", OutFNm.CStr(), SubNm.CStr()), TStr::Fmt("Radius (average path length) of neighborhood with d = %d", d), "Node", "Radius");
+    TSnap::SaveTxt(RadiusH, TStr::Fmt("%s.%s.radius", OutFNm.CStr(), SubNm.CStr()), TStr::Fmt("Radius (median path length) of neighborhood with d = %d", d), "Node", "Radius");
     printf(" DONE\n");
  
   }

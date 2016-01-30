@@ -5,6 +5,9 @@
 
 #include "galg.h"
 
+//#//////////////////////////////////////////////
+/// Wrappers for first degrees
+
 namespace TSnap {
 
 /// Computes in degree distribution using graph degrees
@@ -57,6 +60,9 @@ void GetDegVH(const PGraph& Graph, TIntIntVH& DegVH) {
 }
 
 } // namespace TSnap
+
+//#//////////////////////////////////////////////
+/// First k degrees using fixed memory BFS
 
 namespace TSnap {
 

@@ -5,6 +5,9 @@
 
 #include "galg.h"
 
+//#//////////////////////////////////////////////
+/// Wrappers for weighted first degrees
+
 namespace TSnap {
 
 /// Computes weighted in degrees
@@ -16,7 +19,6 @@ template <class TEdgeW, template <class> class TGraph > void GetWDegH(const TPt<
 
 /// Computes weighted degree distributions (in / out / undirected)
 template <class TEdgeW, template <class> class TGraph > void GetWDegVH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TVec<TEdgeW> >& WDegVH);
-
 
 // Computes weighted in degrees
 template <class TEdgeW, template <class> class TGraph >
@@ -62,6 +64,9 @@ void GetWDegVH(const TPt<TGraph<TEdgeW> >& WGraph, THash<TInt, TVec<TEdgeW> >& W
 }
 
 } // namespace TSnap
+
+//#//////////////////////////////////////////////
+/// Weighted k degrees using fixed memory BFS
 
 namespace TSnap {
 

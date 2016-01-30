@@ -26,18 +26,13 @@ TYPED_TEST(StatsTest, SmallGraphStatistics) {
   typedef TypeParam TGraph;
   typedef TPt<TGraph> PGraph;
 
-  typename TGraph::TNodeI NI;
-  typename TGraph::TEdgeI EI;
-  TIntIntVH::TIter HI;
-  TIntV::TIter VI;
-
   PGraph Graph = TGraph::New();
   
   double GlobClustCf, AvClustCf;
   int depth, counter, divisions = 100;
   double p;
   TIntV NIdV;
-  TIntV InNF, OutNF, NF;
+  TUInt64V InNF, OutNF, NF;
   
   // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
   
@@ -56,9 +51,9 @@ TYPED_TEST(StatsTest, SmallGraphStatistics) {
   
   TSnap::TFixedMemoryNeighborhood<PGraph> TFixedMemoryNeighborhood(Graph);
   Graph->GetNIdV(NIdV);
-  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edInDirected, InNF);
-  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edOutDirected, OutNF);
-  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edUnDirected, NF);
+  TFixedMemoryNeighborhood.ComputeSubsetNF(NIdV, edInDirected, InNF);
+  TFixedMemoryNeighborhood.ComputeSubsetNF(NIdV, edOutDirected, OutNF);
+  TFixedMemoryNeighborhood.ComputeSubsetNF(NIdV, edUnDirected, NF);
   
   // Check number of nodes
   EXPECT_EQ(7, InNF[0]);
@@ -109,18 +104,11 @@ TYPED_TEST(StatsTest, TinyGraphStatistics) {
   typedef TypeParam TGraph;
   typedef TPt<TGraph> PGraph;
 
-  typename TGraph::TNodeI NI;
-  typename TGraph::TEdgeI EI;
-  TIntIntVH::TIter HI;
-  TIntV::TIter VI;
-
   PGraph Graph = TGraph::New();
   
   double GlobClustCf, AvClustCf;
-  int depth, counter, divisions = 100;
-  double p;
   TIntV NIdV;
-  TIntV InNF, OutNF, NF;
+  TUInt64V InNF, OutNF, NF;
   
   // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
   
@@ -139,9 +127,9 @@ TYPED_TEST(StatsTest, TinyGraphStatistics) {
   
   TSnap::TFixedMemoryNeighborhood<PGraph> TFixedMemoryNeighborhood(Graph);
   Graph->GetNIdV(NIdV);
-  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edInDirected, InNF);
-  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edOutDirected, OutNF);
-  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edUnDirected, NF);
+  TFixedMemoryNeighborhood.ComputeSubsetNF(NIdV, edInDirected, InNF);
+  TFixedMemoryNeighborhood.ComputeSubsetNF(NIdV, edOutDirected, OutNF);
+  TFixedMemoryNeighborhood.ComputeSubsetNF(NIdV, edUnDirected, NF);
   
   // Check number of nodes
   EXPECT_EQ(1, InNF[0]);
@@ -170,42 +158,22 @@ TYPED_TEST(StatsTest, RandomGraphStatistics) {
   typedef TypeParam TGraph;
   typedef TPt<TGraph> PGraph;
 
-  typename TGraph::TNodeI NI;
-  typename TGraph::TEdgeI EI;
-  TIntIntVH::TIter HI;
-  TIntV::TIter VI;
-
   PGraph Graph = TGraph::New();
   
   int Nodes = 1000;
   int Edges = 10000;
 
-  int counter, SrcNId, DstNId;
+  int counter;
 
   double GlobClustCf, AvClustCf;
   int depth, divisions = 100;
   double p;
   TIntV NIdV;
-  TIntV InNF, OutNF, NF;
+  TUInt64V InNF, OutNF, NF;
   
   // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
 
-  // create nodes
-  for (counter = 0; counter < Nodes; counter++) {
-    Graph->AddNode(counter);
-  }
-  EXPECT_TRUE(Graph->IsOk());
-
-  // create edges (unique with random weights)
-  for (counter = 0; counter < Edges; ) {
-    SrcNId = (long) (Nodes * drand48());
-    DstNId = (long) (Nodes * drand48());
-    if (SrcNId != DstNId  &&  !Graph->IsEdge(SrcNId, DstNId)) {
-      // create edge
-      Graph->AddEdge(SrcNId, DstNId);
-      counter++;
-    }
-  }
+  CreateRandomGraph(Graph, Nodes, Edges);
 
   // Clustering coefficients
   
@@ -222,9 +190,9 @@ TYPED_TEST(StatsTest, RandomGraphStatistics) {
   
   TSnap::TFixedMemoryNeighborhood<PGraph> TFixedMemoryNeighborhood(Graph);
   Graph->GetNIdV(NIdV);
-  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edInDirected, InNF);
-  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edOutDirected, OutNF);
-  TFixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edUnDirected, NF);
+  TFixedMemoryNeighborhood.ComputeSubsetNF(NIdV, edInDirected, InNF);
+  TFixedMemoryNeighborhood.ComputeSubsetNF(NIdV, edOutDirected, OutNF);
+  TFixedMemoryNeighborhood.ComputeSubsetNF(NIdV, edUnDirected, NF);
   
   // Check number of nodes
   EXPECT_EQ(Graph->GetNodes(), InNF[0]);

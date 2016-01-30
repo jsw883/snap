@@ -29,7 +29,85 @@ int TSnap::GetMxOutDeg(PNGraph& Graph) {
 }
 
 //#//////////////////////////////////////////////
-/// Exact neighborhood function using BFS
+/// Convert NF
+
+// Aggregate neighborhood depth counts to NF (in place)
+void TSnap::ConvertNeighborhoodNF(TUInt64V& Neighborhood) {
+  // Variables
+  int depth;
+  // Aggregate
+  for (depth = 1; depth < Neighborhood.Len(); depth++) {
+    Neighborhood[depth] += Neighborhood[depth - 1];
+  }
+}
+
+// Reverse aggregation from NF to neighborhood (in place)
+void TSnap::ConvertNFNeighborhood(TUInt64V& NF) {
+  // Variables
+  int depth;
+  // Reverse
+  for (depth = NF.Len() - 1; depth > 0; depth--) {
+    NF[depth] -= NF[depth - 1];
+  }
+}
+
+// Convert neighborhoods to exact NF (aggregate and cumulate)
+void TSnap::ConvertSubsetNeighborhoodHSubsetINFH(THash<TInt, TUInt64V>& NeighborhoodH) {
+  // Variables
+  THash<TInt, TUInt64V>::TIter HI;
+  // For each node in INFH (equivalently, NIdV)
+  for (HI = NeighborhoodH.BegI(); HI < NeighborhoodH.EndI(); HI++) {
+    TUInt64V& Neighborhood = HI.GetDat();
+    // Convert each neighborhood to NF (in place)
+    ConvertNeighborhoodNF(Neighborhood);
+  }
+}
+
+// Convert neighborhoods to exact NF (aggregate and cumulate)
+void TSnap::ConvertSubsetINFHSubsetNeighborhoodH(THash<TInt, TUInt64V>& INFH) {
+  // Variables
+  THash<TInt, TUInt64V>::TIter HI;
+  // For each node in INFH (equivalently, NIdV)
+  for (HI = INFH.BegI(); HI < INFH.EndI(); HI++) {
+    TUInt64V& INF = HI.GetDat();
+    // Convert each neighborhood to NF (in place)
+    ConvertNFNeighborhood(INF);
+  }
+}
+
+// Convert neighborhoods to exact NF (aggregate and cumulate)
+void TSnap::ConvertSubsetNeighborhoodHSubsetNF(const THash<TInt, TUInt64V>& NeighborhoodH, TUInt64V& NF) {
+  // Variables
+  THash<TInt, TUInt64V>::TIter HI;
+  // Clear NF
+  NF.Clr();
+  // For each node in NeighborhoodH (equivalently, NIdV)
+  for (HI = NeighborhoodH.BegI(); HI < NeighborhoodH.EndI(); HI++) {
+    const TUInt64V& Neighborhood = HI.GetDat();
+    // Ensure that all depths exist in the NFH
+    if (Neighborhood.Len() > NF.Len()) {
+      for (int depth = NF.Len(); depth < Neighborhood.Len(); depth++) {
+        NF.Add(0);
+      }
+    }
+    // Increment depth counts
+    for (int depth = 0; depth < Neighborhood.Len(); depth++) {
+      NF[depth] += (TUInt64) Neighborhood[depth];
+    }
+  }
+  // Aggregate
+  ConvertNeighborhoodNF(NF);
+}
+
+// Convert neighborhoods to exact NF (aggregate and cumulate)
+void TSnap::ConvertSubsetINFHSubsetNF(THash<TInt, TUInt64V>& INFH, TUInt64V& NF) {
+  ConvertSubsetINFHSubsetNeighborhoodH(INFH);
+  ConvertSubsetNeighborhoodHSubsetNF(INFH, NF);
+  ConvertSubsetNeighborhoodHSubsetINFH(INFH);
+}
+
+//#//////////////////////////////////////////////
+/// Interpolate NF
 
 double TSnap::InterpolateNF(const TUInt64V& NF, const double& p) {
   TIntV::TIter VI;
