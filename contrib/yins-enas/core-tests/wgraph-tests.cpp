@@ -11,7 +11,7 @@ struct TypePair {
   typedef TGraph<TEdgeW> TypeGraph;
 };
 
-typedef ::testing::Types<TypePair<TInt, TWNGraph>, TypePair<TFlt, TWNGraph>, TypePair<TInt, TWNEGraph>, TypePair<TFlt, TWNEGraph> > Graphs;
+typedef ::testing::Types<TypePair<TInt, TWNGraph> > Graphs; // , TypePair<TFlt, TWNGraph>, TypePair<TInt, TWNEGraph>, TypePair<TFlt, TWNEGraph>
 
 template <class TypePair>
 class GraphTest : public ::testing::Test {
@@ -104,6 +104,10 @@ TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
     // check node existence
     EXPECT_TRUE(Graph->IsNode(NI.GetId()));
     counter++;
+    // check neighboring nodes iterator and existence
+    for (int e = 0; e < NI.GetDeg(); e++) {
+      EXPECT_TRUE(NI.IsNbrNId(NI.GetNbrNId(e)));
+    }
     // degrees
     InDeg = NI.GetInDeg(); TotalInDeg += InDeg;   
     OutDeg = NI.GetOutDeg(); TotalOutDeg += OutDeg;
@@ -382,6 +386,10 @@ TYPED_TEST(TWNEGraphTest, SpecificGraphFunctionality) {
       NodeTotalW += NI.GetOutEW(e);
       EXPECT_TRUE(Graph->IsEdge(NI.GetOutEId(e)));
       counter++;
+    }
+    // check neighboring nodes iterator and existence
+    for (int e = 0; e < NI.GetDeg(); e++) {
+      EXPECT_TRUE(NI.IsNbrEId(NI.GetNbrEId(e)));
     }
   }
   EXPECT_EQ(Edges, counter);

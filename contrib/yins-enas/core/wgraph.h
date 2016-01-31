@@ -128,7 +128,7 @@ public:
       return W;
     }
     
-    // Needed for IsEdge method
+    // Needed for IsEdge method (and for traingle counting algorithms)
     bool IsInNId(const int& NId, int& NodeN) const;
     bool IsInNId(const int& NId) const { int NodeN; return IsInNId(NId, NodeN); }
     bool IsOutNId(const int& NId, int& NodeN) const;
@@ -810,10 +810,20 @@ public:
       return W;
     }
     
-    // Not sure if these are needed, only used in centr for EventImportance (?)
-    // bool IsInNId(const int& NId) const { return ... != -1; }
-    // bool IsOutNId(const int& NId) const { return ... != -1; }
-    // bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
+    // Binary search on GetEdge(EId)
+    bool IsInEId(const int& EId, int& EdgeN) const;
+    bool IsInEId(const int& EId) const { int EdgeN; return IsInEId(EId, EdgeN); }
+    // Binary search on GetEdge(EId)
+    bool IsOutEId(const int& EId, int& EdgeN) const;
+    bool IsOutEId(const int& EId) const { int EdgeN; return IsOutEId(EId, EdgeN); }
+    // Extented
+    bool IsNbrEId(const int& EId, int& EdgeN) const { if (IsOutEId(EId, EdgeN)) { return true; } else if (IsInEId(EId, EdgeN)) { EdgeN += GetOutDeg(); return true; } else { return false; } }
+    bool IsNbrNEd(const int& EId) const { return IsOutEId(EId) || IsInEId(EId); }
+    
+    // Needed for IsEdge method (and for traingle counting algorithms)
+    bool IsInNId(const int& NId) const;  // { int EId; return IsEdge(NId, Id, EId, true); }
+    bool IsOutNId(const int& NId) const;  //{ int EId; return IsEdge(Id, NId, EId, true); }
+    bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     
     void PackInEdgeV() { InEdgeV.Pack(); }
     void PackOutEdgeV() { OutEdgeV.Pack(); }
@@ -884,12 +894,19 @@ public:
     /// Returns weight of EdgeN-th edge, for the direction specified.
     TEdgeW GetNbrEW(const int& EdgeN, const TEdgeDir& dir) const { return NodeHI.GetDat().GetNbrEW(EdgeN, dir); }
         
-    // // Tests whether node with ID NId points to the current node.
-    // bool IsInNId(const int& NId) const { return NodeHI.GetDat().IsInNId(NId); }
-    // Tests whether the current node points to node with ID NId.
-    // bool IsOutNId(const int& NId) const { return NodeHI.GetDat().IsOutNId(NId); }
-    // Tests whether node with ID NId is a neighbor of the current node.
-    // bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
+    /// Tests whether the current node has in edge with ID EId.
+    bool IsInEId(const int& EId) const { return NodeHI.GetDat().IsInEId(EId); }
+    /// Tests whether the current node has out edge with ID EId.
+    bool IsOutEId(const int& EId) const { return NodeHI.GetDat().IsOutEId(EId); }
+    /// Tests whether the current node has edge with ID EId
+    bool IsNbrEId(const int& EId) const { return IsOutEId(EId) || IsInEId(EId); }
+    
+    /// Tests whether node with ID NId points to the current node.
+    bool IsInNId(const int& NId) const { return NodeHI.GetDat().IsInNId(NId); }
+    /// Tests whether the current node points to node with ID NId.
+    bool IsOutNId(const int& NId) const { return NodeHI.GetDat().IsOutNId(NId); }
+    /// Tests whether node with ID NId is a neighbor of the current node.
+    bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     
     friend class TWNEGraph<TEdgeW>;
   };
@@ -1059,7 +1076,61 @@ template <class TEdgeW> struct IsDirected<TWNEGraph<TEdgeW> > { enum { Val = 1 }
 
 // TNode methods implemented
 
-// TODO: Implement IsInNId, IsOutNId, IsInEId, IsOutEId
+// Effectively binary search on EId
+template <class TEdgeW>
+bool TWNEGraph<TEdgeW>::TNode::IsInEId(const int& EId, int& EdgeN) const {
+  int LValN = 0, RValN = GetInDeg() - 1;
+  while (RValN >= LValN) {
+    EdgeN = (LValN + RValN) / 2;
+    if (EId == InEdgeV[EdgeN].GetId()) { return true; }
+    if (EId < InEdgeV[EdgeN].GetId()) {
+      RValN = EdgeN - 1;
+    } else {
+      LValN = EdgeN + 1;
+    }
+  }
+  EdgeN = -1;
+  return false;
+}
+
+// Effectively binary search on EId 
+template <class TEdgeW>
+bool TWNEGraph<TEdgeW>::TNode::IsOutEId(const int& EId, int& EdgeN) const {
+  int LValN = 0, RValN = GetOutDeg() - 1;
+  while (RValN >= LValN) {
+    EdgeN = (LValN + RValN) / 2;
+    if (EId == OutEdgeV[EdgeN].GetId()) { return true; }
+    if (EId < OutEdgeV[EdgeN].GetId()) {
+      RValN = EdgeN - 1;
+    } else {
+      LValN = EdgeN + 1;
+    }
+  }
+  EdgeN = -1;
+  return false;
+}
+
+// Linear search on NId
+template <class TEdgeW>
+bool TWNEGraph<TEdgeW>::TNode::IsInNId(const int& NId) const {
+  for (int edge = 0; edge < GetInDeg(); edge++) {
+    if (NId == InEdgeV[edge].GetSrcNId()) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Effectively binary search on NId
+template <class TEdgeW>
+bool TWNEGraph<TEdgeW>::TNode::IsOutNId(const int& NId) const {
+  for (int edge = 0; edge < GetOutDeg(); edge++) {
+    if (NId == OutEdgeV[edge].GetDstNId()) {
+      return true;
+    }
+  }
+  return false;
+}
 
 // TNodeI methods implemented
 
@@ -1098,22 +1169,22 @@ int TWNEGraph<TEdgeW>::AddNode(int NId) {
 template <class TEdgeW>
 void TWNEGraph<TEdgeW>::DelNode(const int& NId) {
   const TNode& Node = GetNode(NId);
-  for (int edge = 0; edge < Node.GetOutDeg(); edge++) {
-    const int EId = Node.GetOutEId(edge);
+  for (int e = 0; e < Node.GetOutDeg(); e++) {
+    const int EId = Node.GetOutEId(e);
     const TEdge& Edge = GetEdge(EId);
     IAssert(Edge.GetSrcNId() == NId);
     TNode& N = GetNode(Edge.GetDstNId());
-    const int node = N.InEdgeV.SearchBin(Edge);
-    if (node != -1) { N.InEdgeV.Del(node); }
+    const int edge = N.InEdgeV.SearchBin(Edge);
+    if (edge != -1) { N.InEdgeV.Del(edge); }
     EdgeH.DelKey(EId);
   }
-  for (int edge = 0; edge < Node.GetInDeg(); edge++) {
-    const int EId = Node.GetInEId(edge);
+  for (int e = 0; e < Node.GetInDeg(); e++) {
+    const int EId = Node.GetInEId(e);
     const TEdge& Edge = GetEdge(EId);
     IAssert(Edge.GetDstNId() == NId);
     TNode& N = GetNode(Edge.GetSrcNId());
-    const int node = N.OutEdgeV.SearchBin(Edge);
-    if (node != -1) { N.OutEdgeV.Del(node); }
+    const int edge = N.OutEdgeV.SearchBin(Edge);
+    if (edge != -1) { N.OutEdgeV.Del(edge); }
     EdgeH.DelKey(EId);
   }
   NodeH.DelKey(NId);
@@ -1143,11 +1214,11 @@ void TWNEGraph<TEdgeW>::DelEdge(const int& EId) {
   const int DstNId = GetEdge(EId).GetDstNId();
   const TEdge& Edge = GetEdge(EId);
   { TNode& N = GetNode(SrcNId);
-  const int node = N.OutEdgeV.SearchBin(Edge);
-  if (node != -1) { N.OutEdgeV.Del(node); } }
+  const int edge = N.OutEdgeV.SearchBin(Edge);
+  if (edge != -1) { N.OutEdgeV.Del(edge); } }
   { TNode& N = GetNode(DstNId);
-  const int node = N.InEdgeV.SearchBin(Edge);
-  if (node != -1) { N.InEdgeV.Del(node); }
+  const int edge = N.InEdgeV.SearchBin(Edge);
+  if (edge != -1) { N.InEdgeV.Del(edge); }
   EdgeH.DelKey(EId); }
 }
 
@@ -1159,11 +1230,11 @@ void TWNEGraph<TEdgeW>::DelEdge(const int& SrcNId, const int& DstNId, const bool
   while (IsEdge(SrcNId, DstNId, EId, IsDir)) {
     const TEdge& Edge = GetEdge(EId);
     { TNode& N = GetNode(SrcNId);
-    const int node = N.OutEdgeV.SearchBin(Edge);
-    if (node != -1) { N.OutEdgeV.Del(node); } }
+    const int edge = N.OutEdgeV.SearchBin(Edge);
+    if (edge != -1) { N.OutEdgeV.Del(edge); } }
     { TNode& N = GetNode(DstNId);
-    const int node = N.InEdgeV.SearchBin(Edge);
-    if (node != -1) { N.InEdgeV.Del(node); } }
+    const int edge = N.InEdgeV.SearchBin(Edge);
+    if (edge != -1) { N.InEdgeV.Del(edge); } }
     EdgeH.DelKey(EId);
   }
 }

@@ -8,7 +8,7 @@
 //#//////////////////////////////////////////////
 /// Weighted directed graphs
 
-typedef ::testing::Types<TUNGraph, TNGraph, TWNGraph<TInt>, TWNEGraph<TInt> > Graphs;
+typedef ::testing::Types<TUNGraph, TNGraph, TNEGraph, TWNGraph<TInt>, TWNEGraph<TInt> > Graphs;
 
 template <class TEdgeW>
 class StatsTest : public ::testing::Test {
@@ -28,29 +28,39 @@ TYPED_TEST(StatsTest, SmallGraphStatistics) {
 
   PGraph Graph = TGraph::New();
   
-  double GlobClustCf, AvClustCf;
+  double GlobClustCf, AvClustCf, AvDirClustCoeff;
   int depth, counter, divisions = 100;
   double p;
   TIntV NIdV;
   TUInt64V InNF, OutNF, NF;
   
+  TIntFltH NIdClustCoeffH;
+  TIntFltH::TIter HI;
+  
   // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
   
   CreateSmallGraph(Graph);
+  Graph->GetNIdV(NIdV);
   
   // Clustering coefficients
   
   GlobClustCf = TSnap::GetGlobClustCf(Graph);
   AvClustCf = TSnap::GetAvClustCf(Graph);
   
+  AvDirClustCoeff = TSnap::GetAvLocalClustCoeff(Graph, NIdV, NIdClustCoeffH);
+  
   // Known answers
   EXPECT_EQ(0.4, GlobClustCf); // 4 closed triples, 10 connected triples 
   EXPECT_EQ(0.5, AvClustCf); // degree < 2 are not counted
+  if (Graph->HasFlag(gfDirected)) {
+    EXPECT_EQ(11.0/42.0, AvDirClustCoeff);
+  } else {
+    EXPECT_EQ(0.5, AvDirClustCoeff);
+  }
   
   // Fixed memory exact neighborhood function (exhaustive BFS)
   
   TSnap::TFixedMemoryNeighborhood<PGraph> TFixedMemoryNeighborhood(Graph);
-  Graph->GetNIdV(NIdV);
   TFixedMemoryNeighborhood.ComputeSubsetNF(NIdV, edInDirected, InNF);
   TFixedMemoryNeighborhood.ComputeSubsetNF(NIdV, edOutDirected, OutNF);
   TFixedMemoryNeighborhood.ComputeSubsetNF(NIdV, edUnDirected, NF);
