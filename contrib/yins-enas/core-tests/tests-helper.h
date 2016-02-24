@@ -58,6 +58,32 @@ void CreateRandomGraph(PGraph& Graph, const int& Nodes, const int& Edges) {
   
 }
 
+template <class PGraph>
+void CreateRandomMultiGraph(PGraph& Graph, const int& Nodes, const int& Edges) {
+  
+  // Ensure graph empty
+  Graph->Clr();
+  
+  // Variables
+  int counter, SrcNId, DstNId;
+  
+  // create nodes
+  for (counter = 0; counter < Nodes; counter++) {
+    Graph->AddNode(counter);
+  }
+  
+  // create edges (unique)
+  for (counter = 0; counter < Edges; ) {
+    SrcNId = (long) (Nodes * drand48());
+    DstNId = (long) (Nodes * drand48());
+    if (SrcNId != DstNId) {
+      // create edge
+      Graph->AddEdge(SrcNId, DstNId);
+      counter++;
+    }
+  }
+  
+}
 
 template <class TEdgeW, template <class> class TGraph >
 void CreateRandomWGraph(TPt<TGraph<TEdgeW> >& Graph, const int& Nodes, const int& Edges, const TEdgeW& MxW, TEdgeW& TotalW) {
@@ -80,7 +106,7 @@ void CreateRandomWGraph(TPt<TGraph<TEdgeW> >& Graph, const int& Nodes, const int
     SrcNId = (long) (Nodes * drand48());
     DstNId = (long) (Nodes * drand48());
     W = (TEdgeW) (MxW * drand48() + 1);
-    if (SrcNId != DstNId  &&  !Graph->IsEdge(SrcNId, DstNId)) {
+    if (SrcNId != DstNId && !Graph->IsEdge(SrcNId, DstNId)) {
       // create edge
       Graph->AddEdge(SrcNId, DstNId, W);
       counter++;
@@ -91,5 +117,36 @@ void CreateRandomWGraph(TPt<TGraph<TEdgeW> >& Graph, const int& Nodes, const int
 
 }
 
+template <class TEdgeW, template <class> class TGraph >
+void CreateRandomWMultiGraph(TPt<TGraph<TEdgeW> >& Graph, const int& Nodes, const int& Edges, const TEdgeW& MxW, TEdgeW& TotalW) {
+  
+  // Ensure graph empty
+  Graph->Clr();
+  TotalW = 0;
+  
+  // Variables
+  int counter, SrcNId, DstNId;
+  TEdgeW W;
+  
+  // create nodes
+  for (counter = 0; counter < Nodes; counter++) {
+    Graph->AddNode(counter);
+  }
+
+  // create edges (unique with random weights)
+  for (counter = 0; counter < Edges; ) {
+    SrcNId = (long) (Nodes * drand48());
+    DstNId = (long) (Nodes * drand48());
+    W = (TEdgeW) (MxW * drand48() + 1);
+    if (SrcNId != DstNId) {
+      // create edge
+      Graph->AddEdge(SrcNId, DstNId, W);
+      counter++;
+      // weights
+      TotalW += W;
+    }
+  }
+
+}
 
 #endif

@@ -203,6 +203,13 @@ public:
     /// Tests whether node with ID NId is a neighbor of the current node.
     bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     
+    /// Tests whether node with ID NId points to the current node.
+    bool IsInNId(const int& NId, int& NodeN) const { return NodeHI.GetDat().IsInNId(NId, NodeN); }
+    /// Tests whether the current node points to node with ID NId.
+    bool IsOutNId(const int& NId, int& NodeN) const { return NodeHI.GetDat().IsOutNId(NId, NodeN); }
+    /// Tests whether node with ID NId is a neighbor of the current node.
+    bool IsNbrNId(const int& NId, int& NodeN) const { return IsOutNId(NId, NodeN) || IsInNId(NId, NodeN); }
+    
     friend class TWNGraph<TEdgeW>;
   };
   /// Edge iterator. Only forward iteration (operator++) is supported.
@@ -395,7 +402,6 @@ public:
 
 // set flags
 namespace TSnap {
-template <class TEdgeW> struct IsMultiGraph<TWNGraph<TEdgeW> > { enum { Val = 1 }; };
 template <class TEdgeW> struct IsDirected<TWNGraph<TEdgeW> > { enum { Val = 1 }; };
 }
 

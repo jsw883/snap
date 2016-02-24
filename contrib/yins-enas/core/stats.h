@@ -15,6 +15,11 @@ template<class PGraph> double GetGlobClustCf(const PGraph& Graph, int SampleNode
 // Computes average clustering coefficient (need to check this for method)
 template<class PGraph> double GetAvClustCf(const PGraph& Graph, int SampleNodes = -1);
 
+// Computes local clustering coefficient for each node in NIdV (returns average)
+template<class PGraph> double GetAvLocalClustCoeff(const PGraph& Graph, const TIntV& NIdV, TIntFltH& NIdClustCoeffH);
+// Computes average local clustering coefficient (entire graph)
+template<class PGraph> double GetAvLocalClustCoeff(const PGraph& Graph);
+  
 // Compute directed binary local clustering coefficients as defined in Clustering in Complex Directed Networks [Fagiolo, 2007]
 template<class PGraph> double GetDirLocalClustCoeff(const PGraph& Graph, const int& NId, double& CycleCoeff, double& MidCoeff, double& InCoeff, double& OutCoeff);
 // Should work for undirected graphs by overcounting 
@@ -53,12 +58,24 @@ double GetAvLocalClustCoeff(const PGraph& Graph, const TIntV& NIdV, TIntFltH& NI
     NIdClustCoeffH.AddDat(NId, Coeff);
     AvCoeff += Coeff;
   }
-  return AvCoeff / NIdV.Len();
+  return AvCoeff / ((double) NIdV.Len());
+}
+
+// Computes average local clustering coefficient (entire graph)
+template<class PGraph>
+double GetAvLocalClustCoeff(const PGraph& Graph) {
+  // Variables
+  TIntV NIdV; Graph->GetNIdV(NIdV);
+  TIntFltH NIdClustCoeffH;
+  return GetAvLocalClustCoeff(Graph, NIdV, NIdClustCoeffH);
 }
 
 // Compute directed binary local clustering coefficients as defined in Clustering in Complex Directed Networks [Fagiolo, 2007]
 template<class PGraph>
 double GetDirLocalClustCoeff(const PGraph& Graph, const int& NId, double& CycleCoeff, double& MidCoeff, double& InCoeff, double& OutCoeff) {
+  // Check multigraph
+  IAssertR(!Graph->HasFlag(gfMultiGraph), "Clustering coefficients are not defined for multigraphs of any kind.");
+  
   typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);
   // Variables
   TIntSet OutS, InS;  // Hash backed
@@ -108,7 +125,7 @@ double GetDirLocalClustCoeff(const PGraph& Graph, const int& NId, double& CycleC
   }
   // IN
   for (int j = 0; j < InS.Len(); j++) {
-    NI = Graph->GetNI(OutS.GetKey(j));
+    NI = Graph->GetNI(InS.GetKey(j));
     // IN x IN (unique)
     for (int k = j + 1; k < InS.Len(); k++) {
       InNId = InS.GetKey(k);
@@ -268,6 +285,20 @@ public:
   }
   // Get exact NF for the subset of nodes using the direction specified
   void ComputeSubsetNF(const TIntV& NIdV, const TEdgeDir& Dir, TUInt64V& NF);
+  
+  // Get exact NF for the entire graph (int / out / undirected)
+  void ComputeInNF(TUInt64V& NF) {
+    TIntV NIdV; this->Graph->GetNIdV(NIdV);
+    ComputeSubsetNF(NIdV, edInDirected, NF);
+  }
+  void ComputeOutNF(TUInt64V& NF) {
+    TIntV NIdV; this->Graph->GetNIdV(NIdV);
+    ComputeSubsetNF(NIdV, edOutDirected, NF);
+  }
+  void ComputeNF(TUInt64V& NF) {
+    TIntV NIdV; this->Graph->GetNIdV(NIdV);
+    ComputeSubsetNF(NIdV, edUnDirected, NF);
+  }
   
   void Clr(const bool& DoDel = false);
 };
