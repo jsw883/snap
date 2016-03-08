@@ -63,9 +63,9 @@ int main(int argc, char* argv[]) {
       const int NId = NI.GetId(); fprintf(F, "%d", NId);
       const int nodes = NodesH.GetDat(NId); fprintf(F, "\t%d", nodes);
       const int edges = EdgesH.GetDat(NId); fprintf(F, "\t%d", edges);
-      const double density = DensityH.GetDat(NId); fprintf(F, "\t%f", density);
-      const double weights = TotalWH.GetDat(NId); fprintf(F, "\t%f", weights);
-      const double gini = GiniH.GetDat(NId); fprintf(F, "\t%f", gini);
+      const double density = DensityH.GetDat(NId); fprintf(F, "\t%e", density);
+      const double weights = TotalWH.GetDat(NId); fprintf(F, "\t%e", weights);
+      const double gini = GiniH.GetDat(NId); fprintf(F, "\t%e", gini);
       fprintf(F, "\n");
     }
     printf(" DONE\n");

@@ -29,12 +29,13 @@ int main(int argc, char* argv[]) {
   double AvDeg, density;
   int MxInDeg, MxOutDeg, MxDeg;
   TFltV percentiles, pvalues;
-  TIntFltKdV DistNbrsV;
-  double EffDiam, AppDiam, AvPath;
+  TIntFltKdV ANF;
+  double EffDiam, AppDiam, Radius;
   double AvClustCf, GlobClustCf;
   TStrFltH StatsV;
   
-  TIntV NIdV, NF;
+  TIntV NIdV;
+  TUInt64V NF;
   
   // STATISTICS (computations)
   
@@ -67,43 +68,38 @@ int main(int argc, char* argv[]) {
     
     Graph->GetNIdV(NIdV);
     
+    // Computes diameter (effective / approximate) and median path length exactly
     printf("\nComputing exact neighborhood function...");
     TSnap::TFixedMemoryNeighborhood<PNGraph> FixedMemoryNeighborhood(Graph);
-    FixedMemoryNeighborhood.ComputeSubsetExactNF(NIdV, edOutDirected, NF);
+    FixedMemoryNeighborhood.ComputeSubsetNF(NIdV, edOutDirected, NF);
     printf(" DONE: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-    
-      // printf("NF:\n");
-      // TIntV::TIter VI;
-      // int depth = 0;
-      // for (VI = NF.BegI(), depth = 0; VI < NF.EndI(); VI++, depth++) {
-      //   printf("%d: %d\n", depth, VI->Val);
-      // }
     
     EffDiam = TSnap::InterpolateNF(NF, 0.9);
     AppDiam = TSnap::InterpolateNF(NF, 1.0);
-    AvPath = TSnap::InterpolateNF(NF, 0.5);
+    Radius = TSnap::InterpolateNF(NF, 0.5);
     
   } else {
     
     // Computes approximate neighborhood function / shortest path cumulative density (hacky)
     printf("Computing approximate neighborhood function...");
-    TSnap::GetAnf(Graph, DistNbrsV, -1, false, 128);
+    TSnap::GetAnf(Graph, ANF, -1, false, 128);
     printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
     
-    // Computes diameter (effective / approximate) and average path length derived (hacky)
+    // Computes diameter (effective / approximate) and median path length approximately (hacky)
     printf("Computing average path length and effective / approximate diameters...");
     percentiles.Add(0.9); percentiles.Add(1.0); percentiles.Add(0.5);
     TSnap::GetAnfEffDiam(Graph, false, percentiles, pvalues, 10, -1);
+    printf(" DONE: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+    
     EffDiam = pvalues[0];
     AppDiam = pvalues[1];
-    AvPath = pvalues[2];
+    Radius = pvalues[2];
     
   }
   
   StatsV.AddDat("EffDiam", EffDiam);
   StatsV.AddDat("AppDiam", AppDiam);
-  StatsV.AddDat("AvPath", AvPath);
-  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  StatsV.AddDat("Radius", Radius);
   
   // CLUSTERING COEFFICIENTS
   
@@ -123,7 +119,7 @@ int main(int argc, char* argv[]) {
   printf("  density: %f\n", density);
   printf("  maximum degree (in / out / undirected): %d %d %d\n", MxInDeg, MxOutDeg, MxDeg);
   printf("  diameter (effective / approximate): %f %f\n", EffDiam, AppDiam);
-  printf("  average path length: %f\n", AvPath);
+  printf("  radius (median path length): %f\n", Radius);
   printf("  average clustering coefficient: %f\n", AvClustCf);
   printf("  global clustering coefficient: %f\n", GlobClustCf);
   
@@ -140,7 +136,7 @@ int main(int argc, char* argv[]) {
   } else {
   
     printf("\nSaving %s.hop.ANF...", BseFNm.CStr());
-    TSnap::SaveTxtTIntFltKdV(DistNbrsV, TStr::Fmt("%s.hop.ANF", OutFNm.CStr()), "Approximate neighbourhood function / shortest path cumulative density (hop)");
+    TSnap::SaveTxtTIntFltKdV(ANF, TStr::Fmt("%s.hop.ANF", OutFNm.CStr()), "Approximate neighbourhood function / shortest path cumulative density (hop)");
     printf(" DONE\n");
       
   }

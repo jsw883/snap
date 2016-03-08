@@ -90,11 +90,11 @@ void GetDegreeCentrVH(const PGraph& Graph, TIntFltVH& DegCentrVH) {
 
 // Standard power method for computing leading eigenvector and eigenvalue
 template <class PGraph>
-double GetDirEigenVectorCentr(const PGraph& Graph, TIntFltH& EigCentrH, const TEdgeDir& dir, const double& eps, const int& MaxIter) {
+double GetDirEigenVectorCentr(const PGraph& Graph, TIntFltH& EigCentrH, double& eig, const TEdgeDir& dir, const double& eps, const int& MaxIter) {
   typename PGraph::TObj::TNodeI NI;
   const int NNodes = Graph->GetNodes();
   int deg = 0;
-  double eig = 0.0, diff = 0.0;
+  double diff = 0.0;
   EigCentrH.Gen(NNodes);
   // initialize vector values
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
@@ -121,7 +121,7 @@ double GetDirEigenVectorCentr(const PGraph& Graph, TIntFltH& EigCentrH, const TE
       }
     }
     // normalise entire vector by sum of squares rather than each row normalised already (which is PageRank)
-    eig = 0;
+    eig = 0.0;
     for (int i = 0; i < TmpV.Len(); i++) {
       eig += pow(TmpV[i], 2.0);
     }
@@ -145,33 +145,37 @@ double GetDirEigenVectorCentr(const PGraph& Graph, TIntFltH& EigCentrH, const TE
   return(diff); // didn't converge return(-1) (?)
 }
 template <class PGraph>
-double GetInEigenVectorCentr(const PGraph& Graph, TIntFltH& InEigCentrH, const double& eps, const int& MaxIter) {
-  return GetDirEigenVectorCentr(Graph, InEigCentrH, edInDirected, eps, MaxIter);
+double GetInEigenVectorCentr(const PGraph& Graph, TIntFltH& InEigCentrH, double& eig, const double& eps, const int& MaxIter) {
+  return GetDirEigenVectorCentr(Graph, InEigCentrH, eig, edInDirected, eps, MaxIter);
 }
 template <class PGraph>
-double GetOutEigenVectorCentr(const PGraph& Graph, TIntFltH& OutEigCentrH, const double& eps, const int& MaxIter) {
-  return GetDirEigenVectorCentr(Graph, OutEigCentrH, edOutDirected, eps, MaxIter);
+double GetOutEigenVectorCentr(const PGraph& Graph, TIntFltH& OutEigCentrH, double& eig, const double& eps, const int& MaxIter) {
+  return GetDirEigenVectorCentr(Graph, OutEigCentrH, eig, edOutDirected, eps, MaxIter);
 }
 template <class PGraph>
-double GetEigenVectorCentr(const PGraph& Graph, TIntFltH& EigCentrH, const double& eps, const int& MaxIter) {
-  return GetDirEigenVectorCentr(Graph, EigCentrH, edUnDirected, eps, MaxIter);
+double GetEigenVectorCentr(const PGraph& Graph, TIntFltH& EigCentrH, double& eig, const double& eps, const int& MaxIter) {
+  return GetDirEigenVectorCentr(Graph, EigCentrH, eig, edUnDirected, eps, MaxIter);
 }
 
 template <class PGraph>
-TFltV GetEigenVectorCentrVH(const PGraph& Graph, TIntFltVH& EigCentrVH, const double& eps, const int& MaxIter) {
+TFltV GetEigenVectorCentrVH(const PGraph& Graph, TIntFltVH& EigCentrVH, TFltV& EigV, const double& eps, const int& MaxIter) {
   typename PGraph::TObj::TNodeI NI;
+  double eig;
   TIntFltH InEigCentrH, OutEigCentrH, EigCentrH;
-  TFltV DiffV, EigV;
+  TFltV DiffV, EigCentrV;
   DiffV.Clr();
-  DiffV.Add(GetInEigenVectorCentr(Graph, InEigCentrH, eps, MaxIter));
-  DiffV.Add(GetOutEigenVectorCentr(Graph, OutEigCentrH, eps, MaxIter));
-  DiffV.Add(GetEigenVectorCentr(Graph, EigCentrH, eps, MaxIter));
+  DiffV.Add(GetInEigenVectorCentr(Graph, InEigCentrH, eig, eps, MaxIter));
+  EigV.Add(eig);
+  DiffV.Add(GetOutEigenVectorCentr(Graph, OutEigCentrH, eig, eps, MaxIter));
+  EigV.Add(eig);
+  DiffV.Add(GetEigenVectorCentr(Graph, EigCentrH, eig, eps, MaxIter));
+  EigV.Add(eig);
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    EigV.Clr();
-    EigV.Add(InEigCentrH.GetDat(NI.GetId()));
-    EigV.Add(OutEigCentrH.GetDat(NI.GetId()));
-    EigV.Add(EigCentrH.GetDat(NI.GetId()));
-    EigCentrVH.AddDat(NI.GetId(), EigV);
+    EigCentrV.Clr();
+    EigCentrV.Add(InEigCentrH.GetDat(NI.GetId()));
+    EigCentrV.Add(OutEigCentrH.GetDat(NI.GetId()));
+    EigCentrV.Add(EigCentrH.GetDat(NI.GetId()));
+    EigCentrVH.AddDat(NI.GetId(), EigCentrV);
   }
   return(DiffV);
 }
@@ -200,7 +204,7 @@ double GetPageRankNew(const PGraph& Graph, TIntFltH& PRankH, const double& c, co
           TmpV[j] += c * PRankH.GetDat(InNId) / double(InNOutDeg);
         }
       }
-      // TmpV[j] =  C*TmpV[j]; // Berkhin (the correct way of doing it)
+      // TmpV[j] =  c*TmpV[j]; // Berkhin (the correct way of doing it)
     }
     double sum = 0, temp;
     diff = 0.0;
@@ -215,6 +219,101 @@ double GetPageRankNew(const PGraph& Graph, TIntFltH& PRankH, const double& c, co
   }
   return(diff);
 }
+
+
+
+// Standard power method for computing alpha centrality
+template <class PGraph>
+double GetDirAlphaCentr(const PGraph& Graph, const TIntFltH& ExoH, TIntFltH& AlphaCentrH, const double& alpha, const TEdgeDir& dir, const double& eps, const int& MaxIter) {
+  typename PGraph::TObj::TNodeI NI;
+  const int NNodes = Graph->GetNodes();
+  int deg = 0;
+  double diff = 0.0;
+  AlphaCentrH.Gen(NNodes);
+  // initialize vector values
+  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    AlphaCentrH.AddDat(NI.GetId(), 1.0 / NNodes); // uniform distribution initially
+    IAssert(NI.GetId() == AlphaCentrH.GetKey(AlphaCentrH.Len() - 1));
+  }
+  TFltV TmpV(NNodes);
+  for (int iter = 0; iter < MaxIter; iter++) {
+    // add neighbor values
+    int j;
+    for (NI = Graph->BegNI(), j = 0; NI < Graph->EndNI(); NI++, j++) {
+      switch(dir) {
+        case edInDirected: deg = NI.GetInDeg(); break;
+        case edOutDirected: deg = NI.GetOutDeg(); break;
+        case edUnDirected: deg = NI.GetDeg(); break;
+      }
+      TmpV[j] = 0;
+      for (int e = 0; e < deg; e++) { // this is now directed in / out / undirected centrality
+        switch(dir) {
+          case edInDirected: TmpV[j] += AlphaCentrH.GetDat(NI.GetInNId(e)); break;
+          case edOutDirected: TmpV[j] += AlphaCentrH.GetDat(NI.GetOutNId(e)); break;
+          case edUnDirected: TmpV[j] += AlphaCentrH.GetDat(NI.GetNbrNId(e)); break;
+        }
+      }
+      // alpha centrality scaling
+      TmpV[j] *= alpha;
+      TmpV[j] += ExoH.GetDat(NI.GetId());
+    }
+    // don't normalize vector as the exogenous contribution can't be normalized
+    // double ssq = 0;
+    // for (int i = 0; i < TmpV.Len(); i++) {
+    //   ssq += pow(TmpV[i], 2.0);
+    // }
+    // ssq = sqrt(ssq);
+    // for (int i = 0; i < TmpV.Len(); i++) {
+    //   TmpV[i] /= ssq;
+    // }
+    // compute difference
+    diff = 0.0;
+    j = 0;
+    for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++, j++) {
+      diff += fabs(AlphaCentrH.GetDat(NI.GetId()) - TmpV[j]);
+    }
+    // set new values
+    j = 0;
+    for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++, j++) {
+      AlphaCentrH.AddDat(NI.GetId(), TmpV[j]);
+    }
+    if (diff < eps) { break; }
+  }
+  return(diff); // didn't converge return(-1) (?)
+}
+template <class PGraph>
+double GetInAlphaCentr(const PGraph& Graph, const TIntFltH& ExoH, TIntFltH& InAlphaCentrH, const double& alpha, const double& eps, const int& MaxIter) {
+  return GetDirAlphaCentr(Graph, ExoH, InAlphaCentrH, alpha, edInDirected, eps, MaxIter);
+}
+template <class PGraph>
+double GetOutAlphaCentr(const PGraph& Graph, const TIntFltH& ExoH, TIntFltH& OutAlphaCentrH, const double& alpha, const double& eps, const int& MaxIter) {
+  return GetDirAlphaCentr(Graph, ExoH, OutAlphaCentrH, alpha, edOutDirected, eps, MaxIter);
+}
+template <class PGraph>
+double GetAlphaCentr(const PGraph& Graph, const TIntFltH& ExoH, TIntFltH& AlphaCentrH, const double& alpha, const double& eps, const int& MaxIter) {
+  return GetDirAlphaCentr(Graph, ExoH, AlphaCentrH, alpha, edUnDirected, eps, MaxIter);
+}
+
+template <class PGraph>
+TFltV GetAlphaCentrVH(const PGraph& Graph, const TIntFltH& ExoH, TIntFltVH& AlphaCentrVH, const double& alpha, const double& eps, const int& MaxIter) {
+  typename PGraph::TObj::TNodeI NI;
+  TIntFltH InAlphaCentrH, OutAlphaCentrH, AlphaCentrH;
+  TFltV DiffV, AlphaV;
+  DiffV.Clr();
+  DiffV.Add(GetInAlphaCentr(Graph, ExoH, InAlphaCentrH, alpha, eps, MaxIter));
+  DiffV.Add(GetOutAlphaCentr(Graph, ExoH, OutAlphaCentrH, alpha, eps, MaxIter));
+  DiffV.Add(GetAlphaCentr(Graph, ExoH, AlphaCentrH, alpha / 2.0, eps, MaxIter));
+  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    AlphaV.Clr();
+    AlphaV.Add(InAlphaCentrH.GetDat(NI.GetId()));
+    AlphaV.Add(OutAlphaCentrH.GetDat(NI.GetId()));
+    AlphaV.Add(AlphaCentrH.GetDat(NI.GetId()));
+    AlphaCentrVH.AddDat(NI.GetId(), AlphaV);
+  }
+  return(DiffV);
+}
+
+
 
 } // namespace TSnap
 

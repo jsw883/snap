@@ -12,9 +12,14 @@ int main(int argc, char* argv[]) {
   Try
   
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network (tab separated list of edges)");
+  const TStr ExoFNm = Env.GetIfArgPrefixStr("-e:", "", "exogenous source of centrality (tab separated node mapping)");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
   const int k = Env.GetIfArgPrefixInt("-k:", 1, "depth of degree traversal");
+  const double c = Env.GetIfArgPrefixFlt("-c:", 0.85, "personalization parameter for PageRank centrality");
+  const double a = Env.GetIfArgPrefixFlt("-a:", 5.0e-3, "endogenous parameter for alpha centrality");
+  const double eps = Env.GetIfArgPrefixFlt("--eps:", 1.0e-4, "precision for power method convergence");
+  const int iters = Env.GetIfArgPrefixInt("--iters:", 1.0e+3, "maximum number of iterations");
   const bool collate = Env.GetIfArgPrefixBool("--collate:", false, "collate properties into matrix: T / F");
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
@@ -28,12 +33,22 @@ int main(int argc, char* argv[]) {
   // Declare variables
   TIntIntVH FirstDegVH;
   TIntIntVH kInDegVH, kOutDegVH, kDegVH;
-  TIntFltVH DegCentrVH, EigCentrVH;
-  TFltV EigDiffV;
+  TIntFltH ExoH;
+  TIntFltVH DegCentrVH, EigCentrVH, AlphaCentrVH;
+  TFltV EigDiffV, EigV, AlphaDiffV;
   TIntFltH PgRH;
   double PgRDiff;
   TNGraph::TNodeI NI;
   TFltV::TIter VI;
+  
+  // Initialize exogenous source of centrality
+  if (ExoFNm.Empty()) { // might need to check if length == 1 instead
+    for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+      ExoH.AddDat(NI.GetId(), 1);
+    }
+  } else {
+    ExoH = TSnap::LoadTxtIntFltH(ExoFNm);
+  }
   
   // CENTRALITY (computations)
   
@@ -59,22 +74,31 @@ int main(int argc, char* argv[]) {
   
   // Centrality measures
   
-  printf("Computing degree centrality...");
+  printf("\nComputing degree centrality...");
   TSnap::GetDegreeCentrVH(Graph, DegCentrVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
-  printf("Computing eigenvector centrality...");
-  EigDiffV = TSnap::GetEigenVectorCentrVH(Graph, EigCentrVH, 1e-4, 1000);
+  printf("\nComputing eigenvector centrality...");
+  EigDiffV = TSnap::GetEigenVectorCentrVH(Graph, EigCentrVH, EigV, eps, iters);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  printf("  convergence differences (in / out / undirected)\n");
-  printf("    %f\n", double(EigDiffV[0]));
-  printf("    %f\n", double(EigDiffV[1]));
-  printf("    %f\n", double(EigDiffV[2]));
+  printf("  Convergence differences, inverse eigenvalues (in / out / undirected)\n");
+  printf("  %e, %e, %e%s\n", (double) EigDiffV[0], (double) EigV[0], 1.0 / EigV[0], EigDiffV[0] < eps ? "" : " DID NOT CONVERGE");
+  printf("  %e, %e, %e%s\n", (double) EigDiffV[1], (double) EigV[1], 1.0 / EigV[1], EigDiffV[1] < eps ? "" : " DID NOT CONVERGE");
+  printf("  %e, %e, %e%s\n", (double) EigDiffV[2], (double) EigV[2], 1.0 / EigV[2], EigDiffV[2] < eps ? "" : " DID NOT CONVERGE");
   
-  printf("Computing PageRank centrality...");
-  PgRDiff = TSnap::GetPageRankNew(Graph, PgRH, 0.85, 1e-4, 1000);
+  printf("\nComputing alpha centrality...");
+  AlphaDiffV = TSnap::GetAlphaCentrVH(Graph, ExoH, AlphaCentrVH, a, eps, iters);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  printf("  convergence difference: %f\n", double(PgRDiff));
+  printf("  Convergence differences (in / out / undirected)\n");
+  printf("  %e%s\n", (double) AlphaDiffV[0], AlphaDiffV[0] < eps ? "" : " DID NOT CONVERGE");
+  printf("  %e%s\n", (double) AlphaDiffV[1], AlphaDiffV[1] < eps ? "" : " DID NOT CONVERGE");
+  printf("  %e%s\n", (double) AlphaDiffV[2], AlphaDiffV[2] < eps ? "" : " DID NOT CONVERGE");
+  printf("NOTE: for alpha centrality to converge, alpha must be less than the inverse leading eigenvalue!\n");
+  
+  printf("\nComputing PageRank centrality...");
+  PgRDiff = TSnap::GetPageRankNew(Graph, PgRH, c, eps, iters);
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf("  Convergence difference: %e%s\n", double(PgRDiff), PgRDiff < eps ? "" : " DID NOT CONVERGE");
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
@@ -85,14 +109,16 @@ int main(int argc, char* argv[]) {
     FILE *F = fopen(CombinedFNm.CStr(), "wt");
     fprintf(F, "# Node centrality distributions on the directed / undirected graph (as applicable)\n");
     fprintf(F, "# Nodes: %d\tEdges: %d\n", Graph->GetNodes(), Graph->GetEdges());
-    fprintf(F, "# NodeId\tInDegCentr\tOutDegCentr\tDegCentr\tInEigCentr\tOutEigCentr\tEigCentr\tPgRCentr\n");
+    fprintf(F, "# NodeId\tInDegCentr\tOutDegCentr\tDegCentr\tInEigCentr\tOutEigCentr\tEigCentr\tInAlphaCentr\tOutAlphaCentr\tAlphaCentr\tPgRCentr\n");
     for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
       const int NId = NI.GetId(); fprintf(F, "%d", NId);
       const TFltV DegCentrV = DegCentrVH.GetDat(NId);
-      for (VI = DegCentrV.BegI(); VI < DegCentrV.EndI(); VI++) { fprintf(F, "\t%f", VI->Val); }
+      for (VI = DegCentrV.BegI(); VI < DegCentrV.EndI(); VI++) { fprintf(F, "\t%e", VI->Val); }
       const TFltV EigCentrV = EigCentrVH.GetDat(NId);
-      for (VI = EigCentrV.BegI(); VI < EigCentrV.EndI(); VI++) { fprintf(F, "\t%f", VI->Val); }
-      const double PgRCentr = PgRH.GetDat(NId); fprintf(F, "\t%f", PgRCentr);
+      for (VI = EigCentrV.BegI(); VI < EigCentrV.EndI(); VI++) { fprintf(F, "\t%e", VI->Val); }
+      const TFltV AlphaCentrV = AlphaCentrVH.GetDat(NId);
+      for (VI = AlphaCentrV.BegI(); VI < AlphaCentrV.EndI(); VI++) { fprintf(F, "\t%e", VI->Val); }
+      const double PgRCentr = PgRH.GetDat(NId); fprintf(F, "\t%e", PgRCentr);
       fprintf(F, "\n");
     }
     printf(" DONE\n");
@@ -105,6 +131,10 @@ int main(int argc, char* argv[]) {
     
     printf("Saving %s.eig...", BseFNm.CStr());
     TSnap::SaveTxt(EigCentrVH, TStr::Fmt("%s.eig", OutFNm.CStr()), "Eigenvector centrality (in / out / undirected)", "NodeId", "InEigCentr\tOutEigCentr\tEigCentr");
+    printf(" DONE\n");
+    
+    printf("Saving %s.alpha.centrality...", BseFNm.CStr());
+    TSnap::SaveTxt(AlphaCentrVH, TStr::Fmt("%s.alpha.centrality", OutFNm.CStr()), TStr::Fmt("Alpha centrality (in / out / undirected) with a = %f", a), "NodeId", "InAlphaCentr\tOutAlphaCentr\tAlphaCentr");
     printf(" DONE\n");
     
     printf("Saving %s.pgr...", BseFNm.CStr());

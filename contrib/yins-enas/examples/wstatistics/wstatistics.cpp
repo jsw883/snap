@@ -73,10 +73,10 @@ int main(int argc, char* argv[]) {
   
   printf("\nStatistics summary:\n");
   printf("  nodes: %d edges: %d\n", nodes, edges);
-  printf("  total weight: %f\n", TotalW);
-  printf("  average weight: %f\n", AvW);
-  printf("  average weighted degree: %f\n", AvWDeg);
-  printf("  maximum weighted degree (in / out / undirected): %f %f %f\n", MxWInDeg, MxWOutDeg, MxWDeg);
+  printf("  total weight: %e\n", TotalW);
+  printf("  average weight: %e\n", AvW);
+  printf("  average weighted degree: %e\n", AvWDeg);
+  printf("  maximum weighted degree (in / out / undirected): %e %e %e\n", MxWInDeg, MxWOutDeg, MxWDeg);
   // printf("  average clustering coefficient: %f\n", AvClustCf);
   // printf("  global clustering coefficient: %f\n", GlobClustCf);
   

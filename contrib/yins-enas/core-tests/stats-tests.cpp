@@ -6,9 +6,9 @@
 #include "stats.h"
 
 //#//////////////////////////////////////////////
-/// Weighted directed graphs
+/// Directed graphs and multigraphs
 
-typedef ::testing::Types<TUNGraph, TNGraph, TWNGraph<TInt>, TWNEGraph<TInt> > Graphs;
+typedef ::testing::Types<TUNGraph, TNGraph, TNEGraph, TWNGraph<TInt>, TWNEGraph<TInt> > Graphs;
 
 template <class TEdgeW>
 class StatsTest : public ::testing::Test {
@@ -18,7 +18,6 @@ public:
 
 TYPED_TEST_CASE(StatsTest, Graphs);
 
-// Test graph edge weight consistency
 TYPED_TEST(StatsTest, SmallGraphStatistics) {
 
   // DECLARATIONS AND INITIALIZATIONS
@@ -26,39 +25,22 @@ TYPED_TEST(StatsTest, SmallGraphStatistics) {
   typedef TypeParam TGraph;
   typedef TPt<TGraph> PGraph;
 
-  typename TGraph::TNodeI NI;
-  typename TGraph::TEdgeI EI;
-  TIntIntVH::TIter HI;
-  TIntV::TIter VI;
-
   PGraph Graph = TGraph::New();
   
-  double GlobClustCf, AvClustCf;
   int depth, counter, divisions = 100;
   double p;
-  TIntV NIdV;
-  TIntV InNF, OutNF, NF;
+  TUInt64V InNF, OutNF, NF;
   
   // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
   
   CreateSmallGraph(Graph);
   
-  // Clustering coefficients
-  
-  GlobClustCf = TSnap::GetGlobClustCf(Graph);
-  AvClustCf = TSnap::GetAvClustCf(Graph);
-  
-  // Known answers
-  EXPECT_EQ(0.4, GlobClustCf); // 4 closed triples, 10 connected triples 
-  EXPECT_EQ(0.5, AvClustCf); // degree < 2 are not counted
-  
   // Fixed memory exact neighborhood function (exhaustive BFS)
   
-  TSnap::TFixedMemoryExactNF<PGraph> FixedMemoryExactNF(Graph);
-  Graph->GetNIdV(NIdV);
-  FixedMemoryExactNF.ComputeSubsetExactNF(NIdV, edInDirected, InNF);
-  FixedMemoryExactNF.ComputeSubsetExactNF(NIdV, edOutDirected, OutNF);
-  FixedMemoryExactNF.ComputeSubsetExactNF(NIdV, edUnDirected, NF);
+  TSnap::TFixedMemoryNeighborhood<PGraph> TFixedMemoryNeighborhood(Graph);
+  TFixedMemoryNeighborhood.ComputeInNF(InNF);
+  TFixedMemoryNeighborhood.ComputeOutNF(OutNF);
+  TFixedMemoryNeighborhood.ComputeNF(NF);
   
   // Check number of nodes
   EXPECT_EQ(7, InNF[0]);
@@ -101,7 +83,47 @@ TYPED_TEST(StatsTest, SmallGraphStatistics) {
   
 }
 
-// Test graph edge weight consistency
+TYPED_TEST(StatsTest, TinyGraphStatistics) {
+
+  // DECLARATIONS AND INITIALIZATIONS
+
+  typedef TypeParam TGraph;
+  typedef TPt<TGraph> PGraph;
+
+  PGraph Graph = TGraph::New();
+  
+  TUInt64V InNF, OutNF, NF;
+  
+  // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
+  
+  Graph->AddNode(0);
+  
+  // Fixed memory exact neighborhood function (exhaustive BFS)
+  
+  TSnap::TFixedMemoryNeighborhood<PGraph> TFixedMemoryNeighborhood(Graph);
+  TFixedMemoryNeighborhood.ComputeInNF(InNF);
+  TFixedMemoryNeighborhood.ComputeOutNF(OutNF);
+  TFixedMemoryNeighborhood.ComputeNF(NF);
+  
+  // Check number of nodes
+  EXPECT_EQ(1, InNF[0]);
+  EXPECT_EQ(1, OutNF[0]);
+  EXPECT_EQ(1, NF[0]);
+  
+  // Check diameters
+  EXPECT_EQ(1, InNF.Len());
+  EXPECT_EQ(1, OutNF.Len());
+  EXPECT_EQ(1, NF.Len());
+  
+  // Interpolate
+  
+  // Limits
+  EXPECT_EQ(0, TSnap::InterpolateNF(NF, 0));
+  EXPECT_EQ(0, TSnap::InterpolateNF(NF, 0.5));
+  EXPECT_EQ(0, TSnap::InterpolateNF(NF, 1));
+  
+}
+
 TYPED_TEST(StatsTest, RandomGraphStatistics) {
 
   // DECLARATIONS AND INITIALIZATIONS
@@ -109,61 +131,27 @@ TYPED_TEST(StatsTest, RandomGraphStatistics) {
   typedef TypeParam TGraph;
   typedef TPt<TGraph> PGraph;
 
-  typename TGraph::TNodeI NI;
-  typename TGraph::TEdgeI EI;
-  TIntIntVH::TIter HI;
-  TIntV::TIter VI;
-
   PGraph Graph = TGraph::New();
   
   int Nodes = 1000;
   int Edges = 10000;
 
-  int counter, SrcNId, DstNId;
+  int counter;
 
-  double GlobClustCf, AvClustCf;
   int depth, divisions = 100;
   double p;
-  TIntV NIdV;
-  TIntV InNF, OutNF, NF;
+  TUInt64V InNF, OutNF, NF;
   
   // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
 
-  // create nodes
-  for (counter = 0; counter < Nodes; counter++) {
-    Graph->AddNode(counter);
-  }
-  EXPECT_TRUE(Graph->IsOk());
+  CreateRandomGraph(Graph, Nodes, Edges);
 
-  // create edges (unique with random weights)
-  for (counter = 0; counter < Edges; ) {
-    SrcNId = (long) (Nodes * drand48());
-    DstNId = (long) (Nodes * drand48());
-    if (SrcNId != DstNId  &&  !Graph->IsEdge(SrcNId, DstNId)) {
-      // create edge
-      Graph->AddEdge(SrcNId, DstNId);
-      counter++;
-    }
-  }
-
-  // Clustering coefficients
-  
-  GlobClustCf = TSnap::GetGlobClustCf(Graph);
-  AvClustCf = TSnap::GetAvClustCf(Graph);
-  
-  // Expected ranges
-  EXPECT_LE(0, GlobClustCf);
-  EXPECT_GE(1, GlobClustCf);
-  EXPECT_LE(0, AvClustCf);
-  EXPECT_GE(1, AvClustCf);
-  
   // Fixed memory exact neighborhood function (exhaustive BFS)
   
-  TSnap::TFixedMemoryExactNF<PGraph> FixedMemoryExactNF(Graph);
-  Graph->GetNIdV(NIdV);
-  FixedMemoryExactNF.ComputeSubsetExactNF(NIdV, edInDirected, InNF);
-  FixedMemoryExactNF.ComputeSubsetExactNF(NIdV, edOutDirected, OutNF);
-  FixedMemoryExactNF.ComputeSubsetExactNF(NIdV, edUnDirected, NF);
+  TSnap::TFixedMemoryNeighborhood<PGraph> TFixedMemoryNeighborhood(Graph);
+  TFixedMemoryNeighborhood.ComputeInNF(InNF);
+  TFixedMemoryNeighborhood.ComputeOutNF(OutNF);
+  TFixedMemoryNeighborhood.ComputeNF(NF);
   
   // Check number of nodes
   EXPECT_EQ(Graph->GetNodes(), InNF[0]);
@@ -200,5 +188,115 @@ TYPED_TEST(StatsTest, RandomGraphStatistics) {
     EXPECT_TRUE(TSnap::InterpolateNF(NF, p + 1e-10) - TSnap::InterpolateNF(NF, p) < 1e-5);
     EXPECT_TRUE(TSnap::InterpolateNF(NF, p) - TSnap::InterpolateNF(NF, p - 1e-10) < 1e-5);
   }
+  
+}
+
+//#//////////////////////////////////////////////
+/// Directed graphs (no multigraphs)
+
+typedef ::testing::Types<TUNGraph, TNGraph, TWNGraph<TInt> > NoMultiGraphs;
+
+template <class TEdgeW>
+class StatsClustTest : public ::testing::Test {
+public:
+  StatsClustTest() {}
+};
+
+TYPED_TEST_CASE(StatsClustTest, NoMultiGraphs);
+
+TYPED_TEST(StatsClustTest, SmallGraphStatistics) {
+
+  // DECLARATIONS AND INITIALIZATIONS
+
+  typedef TypeParam TGraph;
+  typedef TPt<TGraph> PGraph;
+
+  PGraph Graph = TGraph::New();
+  
+  double GlobClustCf, AvClustCf, AvDirClustCoeff;
+  
+  // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
+  
+  CreateSmallGraph(Graph);
+  
+  // Clustering coefficients
+  
+  GlobClustCf = TSnap::GetGlobClustCf(Graph);
+  AvClustCf = TSnap::GetAvClustCf(Graph);
+  
+  AvDirClustCoeff = TSnap::GetAvLocalClustCoeff(Graph);
+  
+  // Known answers
+  EXPECT_EQ(0.4, GlobClustCf); // 4 closed triples, 10 connected triples 
+  EXPECT_EQ(0.5, AvClustCf); // degree < 2 are not counted
+  if (Graph->HasFlag(gfDirected)) {
+    EXPECT_EQ(0.25, AvDirClustCoeff);
+  } else {
+    EXPECT_EQ(0.5, AvDirClustCoeff);
+  }
+  
+}
+
+TYPED_TEST(StatsClustTest, TinyGraphStatistics) {
+
+  // DECLARATIONS AND INITIALIZATIONS
+
+  typedef TypeParam TGraph;
+  typedef TPt<TGraph> PGraph;
+
+  PGraph Graph = TGraph::New();
+  
+  double GlobClustCf, AvClustCf, AvDirClustCoeff;
+  
+  // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
+  
+  Graph->AddNode(0);
+    
+  // Clustering coefficients
+  
+  GlobClustCf = TSnap::GetGlobClustCf(Graph);
+  AvClustCf = TSnap::GetAvClustCf(Graph);
+  
+  AvDirClustCoeff = TSnap::GetAvLocalClustCoeff(Graph);
+  
+  // Known answers
+  EXPECT_EQ(0, GlobClustCf); 
+  EXPECT_EQ(0, AvClustCf);
+  EXPECT_EQ(0, AvDirClustCoeff);
+  
+}
+
+TYPED_TEST(StatsClustTest, RandomGraphStatistics) {
+
+  // DECLARATIONS AND INITIALIZATIONS
+
+  typedef TypeParam TGraph;
+  typedef TPt<TGraph> PGraph;
+
+  PGraph Graph = TGraph::New();
+  
+  int Nodes = 1000;
+  int Edges = 10000;
+
+  double GlobClustCf, AvClustCf, AvDirClustCoeff;
+  
+  // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
+
+  CreateRandomGraph(Graph, Nodes, Edges);
+    
+  // Clustering coefficients
+  
+  GlobClustCf = TSnap::GetGlobClustCf(Graph);
+  AvClustCf = TSnap::GetAvClustCf(Graph);
+  
+  AvDirClustCoeff = TSnap::GetAvLocalClustCoeff(Graph);
+  
+  // Expected ranges
+  EXPECT_LE(0, GlobClustCf);
+  EXPECT_GE(1, GlobClustCf);
+  EXPECT_LE(0, AvClustCf);
+  EXPECT_GE(1, AvClustCf);
+  EXPECT_LE(0, AvDirClustCoeff);
+  EXPECT_GE(1, AvDirClustCoeff);
   
 }

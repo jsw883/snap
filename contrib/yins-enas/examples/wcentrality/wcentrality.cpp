@@ -11,11 +11,16 @@ int main(int argc, char* argv[]) {
   
   Try
   
-  const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network (tab separated list of edges with edge weights)");
+  const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network (tab separated list of edges)");
+  const TStr ExoFNm = Env.GetIfArgPrefixStr("-e:", "", "exogenous source of centrality (tab separated node mapping)");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
   const int k = Env.GetIfArgPrefixInt("-k:", 1, "depth of degree traversal");
-  const bool collapse = Env.GetIfArgPrefixBool("-collapse:", false, "collate properties into matrix: T / F");
+  const double c = Env.GetIfArgPrefixFlt("-c:", 0.85, "personalization parameter for PageRank centrality");
+  const double a = Env.GetIfArgPrefixFlt("-a:", 1.0e-8, "endogenous parameter for alpha centrality");
+  const double eps = Env.GetIfArgPrefixFlt("--eps:", 1.0e-4, "precision for power method convergence");
+  const int iters = Env.GetIfArgPrefixInt("--iters:", 1.0e+3, "maximum number of iterations");
+  const bool collate = Env.GetIfArgPrefixBool("--collate:", false, "collate properties into matrix: T / F");
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
@@ -28,12 +33,22 @@ int main(int argc, char* argv[]) {
   // Declare variables
   TIntFltVH FirstWDegVH;
   TIntFltVH kWInDegVH, kWOutDegVH, kWDegVH;
-  TIntFltVH WDegCentrVH, WEigCentrVH;
-  TFltV WEigDiffV;
+  TIntFltH ExoH;
+  TIntFltVH WDegCentrVH, WEigCentrVH, WAlphaCentrVH;
+  TFltV WEigDiffV, WEigV, WAlphaDiffV;
   TIntFltH WPgRH;
   double WPgRDiff;
   TFltWNGraph::TNodeI NI;
   TFltV::TIter VI;
+  
+  // Initialize exogenous source of centrality
+  if (ExoFNm.Empty()) { // might need to check if length == 1 instead
+    for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
+      ExoH.AddDat(NI.GetId(), 1);
+    }
+  } else {
+    ExoH = TSnap::LoadTxtIntFltH(ExoFNm);
+  }
   
   // CENTRALITY (computations)
   
@@ -45,7 +60,7 @@ int main(int argc, char* argv[]) {
   
   // 1:k degree distributions
   
-  printf("Computing egonet degrees for k = 1 to %d (in / out / undirected)\n", k);
+  printf("Computing weighted egonet degrees for k = 1 to %d (in / out / undirected)\n", k);
   TSnap::TFixedMemorykWDeg<TFlt, TWNGraph> FixedMemorykWDeg(WGraph, k);
   printf("  ...");
   FixedMemorykWDeg.GetkWInDegH(kWInDegVH);
@@ -63,36 +78,47 @@ int main(int argc, char* argv[]) {
   TSnap::GetWDegreeCentrVH(WGraph, WDegCentrVH, 0.5);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
-  printf("Computing weighted eigenvector centrality...");
-  WEigDiffV = TSnap::GetWEigenVectorCentrVH<TFlt>(WGraph, WEigCentrVH, 1e-4, 1000);
+  printf("\nComputing weighted eigenvector centrality...");
+  WEigDiffV = TSnap::GetWEigenVectorCentrVH<TFlt>(WGraph, WEigCentrVH, WEigV, eps, iters);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  printf("  convergence differences (in / out / undirected)\n");
-  printf("    %f\n", double(WEigDiffV[0]));
-  printf("    %f\n", double(WEigDiffV[1]));
-  printf("    %f\n", double(WEigDiffV[2]));
+  printf("  Convergence differences, inverse eigenvalues (in / out / undirected)\n");
+  printf("  %e, %e, %e%s\n", (double) WEigDiffV[0], (double) WEigV[0], 1.0 / WEigV[0], WEigDiffV[0] < eps ? "" : " DID NOT CONVERGE");
+  printf("  %e, %e, %e%s\n", (double) WEigDiffV[1], (double) WEigV[1], 1.0 / WEigV[1], WEigDiffV[1] < eps ? "" : " DID NOT CONVERGE");
+  printf("  %e, %e, %e%s\n", (double) WEigDiffV[2], (double) WEigV[2], 1.0 / WEigV[2], WEigDiffV[2] < eps ? "" : " DID NOT CONVERGE");
   
-  printf("Computing weighted PageRank centrality...");
-  WPgRDiff = TSnap::GetWPageRank<TFlt>(WGraph, WPgRH, 0.85, 1e-4, 1000);
+  printf("\nComputing weighted alpha centrality...");
+  WAlphaDiffV = TSnap::GetWAlphaCentrVH<TFlt>(WGraph, ExoH, WAlphaCentrVH, a, eps, iters);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  printf("  convergence difference: %f\n", double(WPgRDiff));
+  printf("  Convergence differences (in / out / undirected)\n");
+  printf("  %e%s\n", (double) WAlphaDiffV[0], WAlphaDiffV[0] < eps ? "" : " DID NOT CONVERGE");
+  printf("  %e%s\n", (double) WAlphaDiffV[1], WAlphaDiffV[1] < eps ? "" : " DID NOT CONVERGE");
+  printf("  %e%s\n", (double) WAlphaDiffV[2], WAlphaDiffV[2] < eps ? "" : " DID NOT CONVERGE");
+  printf("NOTE: for alpha centrality to converge, alpha must be less than the inverse leading eigenvalue!\n");
+  
+  printf("\nComputing weighted PageRank centrality...");
+  WPgRDiff = TSnap::GetWPageRank<TFlt>(WGraph, WPgRH, c, eps, iters);
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf("  Convergence difference: %e%s\n", double(WPgRDiff), WPgRDiff < eps ? "" : " DID NOT CONVERGE");
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
-  if (collapse) {
+  if (collate) {
     
     printf("\nSaving %s.wcentr.combined...", BseFNm.CStr());
     const TStr CombinedFNm = TStr::Fmt("%s.wcentr.combined", OutFNm.CStr());
     FILE *F = fopen(CombinedFNm.CStr(), "wt");
     fprintf(F, "# Node centrality distributions on the directed / undirected graph (as applicable)\n");
     fprintf(F, "# Nodes: %d\tEdges: %d\n", WGraph->GetNodes(), WGraph->GetEdges());
-    fprintf(F, "# NodeId\tWInDegCentr\tWOutDegCentr\tWDegCentr\tWInEigCentr\tWOutEigCentr\tWEigCentr\tWPgRCentr\n");
+    fprintf(F, "# NodeId\tWInDegCentr\tWOutDegCentr\tWDegCentr\tWInEigCentr\tWOutEigCentr\tWEigCentr\tWInAlphaCentr\tWOutAlphaCentr\tWAlphaCentr\tWPgRCentr\n");
     for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
       const int NId = NI.GetId(); fprintf(F, "%d", NId);
       const TFltV WDegCentrV = WDegCentrVH.GetDat(NId);
-      for (VI = WDegCentrV.BegI(); VI < WDegCentrV.EndI(); VI++) { fprintf(F, "\t%f", VI->Val); }
+      for (VI = WDegCentrV.BegI(); VI < WDegCentrV.EndI(); VI++) { fprintf(F, "\t%e", VI->Val); }
       const TFltV WEigCentrV = WEigCentrVH.GetDat(NId);
-      for (VI = WEigCentrV.BegI(); VI < WEigCentrV.EndI(); VI++) { fprintf(F, "\t%f", VI->Val); }
-      const double WPgRCentr = WPgRH.GetDat(NId); fprintf(F, "\t%f", WPgRCentr);
+      for (VI = WEigCentrV.BegI(); VI < WEigCentrV.EndI(); VI++) { fprintf(F, "\t%e", VI->Val); }
+      const TFltV WAlphaCentrV = WAlphaCentrVH.GetDat(NId);
+      for (VI = WAlphaCentrV.BegI(); VI < WAlphaCentrV.EndI(); VI++) { fprintf(F, "\t%e", VI->Val); }
+      const double WPgRCentr = WPgRH.GetDat(NId); fprintf(F, "\t%e", WPgRCentr);
       fprintf(F, "\n");
     }
     printf(" DONE\n");
@@ -105,6 +131,10 @@ int main(int argc, char* argv[]) {
     
     printf("Saving %s.weig...", BseFNm.CStr());
     TSnap::SaveTxt(WEigCentrVH, TStr::Fmt("%s.weig", OutFNm.CStr()), "Weighted eigenvector centrality (in / out / undirected)", "NodeId", "WInEigCentr\tWOutEigCentr\tWEigCentr");
+    printf(" DONE\n");
+    
+    printf("Saving %s.alpha.wcentrality...", BseFNm.CStr());
+    TSnap::SaveTxt(WAlphaCentrVH, TStr::Fmt("%s.alpha.wcentrality", OutFNm.CStr()), TStr::Fmt("Weighted alpha centrality (in / out / undirected) with a = %f", a), "NodeId", "WInAlphaCentr\tWOutAlphaCentr\tWAlphaCentr");
     printf(" DONE\n");
     
     printf("Saving %s.wpgr...", BseFNm.CStr());

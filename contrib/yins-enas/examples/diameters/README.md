@@ -1,12 +1,24 @@
 diameters (subset connectivity)
 -------------------------------
 
-Computes neighborhood diameters and node counts for a subset of nodes in the
-graph, and the average diameter of the neighborhoods for the subset overall.
+Computes neighborhood node counts, radius, and diameter for a subset of nodes
+specified, and optionally computes the same for a random subset of nodes for
+a comparison (where the random subset is disjoint from the subset specified).
 
-Effectively, this computes the extreme of the neighborhood function isolated
-to each node in the subset (although this could possibly be changed to take
-advantage of the edge iteration / bit string approximation method).
+Alternately, computes the same for every node, exhaustively, so that subsets
+can be selected from the output afterward.
+
+  * Measures computed
+    * Exact individual neighborhood function (exhaustive)
+    * Summary
+      * Node counts
+      * Radius (average path length)
+      * Diameter
+
+Effectively, this computes the individual neighborhood function for each node
+in the subset (although this could possibly be changed to use a faster edge
+iteration / bit string approximation method), and then computes the quantiles
+for the radius (average path length) and diameter.
 
 As this computation is exhaustive, the cost is O(|U|(|V| + |E|)) for U in V.
 
@@ -19,13 +31,15 @@ well. For makefiles, compile the code with `make all`.
 ```
 Usage: ./diameters -i:<input network> -o:<output prefix> [Options]
 Options:
-    -i          input network (tab separated list of edges)
-    -s          subset nodes (column of nodes)
-    -o          output prefix (filename extensions added)
-    -d          direction of traversal: in = 1, out = 2, undirected = 3
-                    (default: 3)
-    --compare   compare to a random subset of nodes: T / F (default: T)
-    --collate   collate properties into matrix: T / F (default: F)
+    -i              input network (tab separated list of edges)
+    -o              output prefix (filename extensions added)
+    -s              subset nodes (column of nodes)
+    -d              direction of traversal: in = 1, out = 2, undirected = 3
+                        (default: 3)
+    --exhaustive    compute for every node (overrides -s, --compare): T / F
+                        (default: F)
+    --compare       compare to a random subset of nodes: T / F (default: T)
+    --collate       collate properties into matrix: T / F (default: F)
 ```
 
 ### Example ###
@@ -40,5 +54,5 @@ mkdir $DATASET/diameters
 ./diameters -i:$DATASET/USairport2010.snap \
             -s:$DATASET/subset.TIntV \
             -o:$DATASET/diameters/USairport2010 \
-            -d:3 --compare --collate:T
+            -d:3 --compare:T --collate:T
 ```

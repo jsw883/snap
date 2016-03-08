@@ -32,17 +32,11 @@ TYPED_TEST(WDegTest, WeightedDegrees) {
   typedef typename TypeParam::TypeGraph TGraph;
   typedef TPt<TGraph> PGraph;
 
-  typename TGraph::TNodeI NI;
-  typename TGraph::TEdgeI EI;
-
   PGraph Graph = TGraph::New();
 
   int Nodes = 10000;
   int Edges = 1000000;
 
-  int counter, SrcNId, DstNId;
-
-  TEdgeW W, EdgeW;
   TEdgeW MxW = 100, TotalW = 0;
 
   TEdgeW WInDegTotalW, WOutDegTotalW, WDegTotalW;
@@ -55,23 +49,9 @@ TYPED_TEST(WDegTest, WeightedDegrees) {
   typename THash<TInt, TVec<TEdgeW> >::TIter WVHI;
 
   // CREATE NODES AND EDGES
-
-  // create nodes
-  for (counter = 0; counter < Nodes; counter++) {
-    Graph->AddNode(counter);
-  }
-  // create edges (unique)
-  for (counter = 0; counter < Edges; ) {
-    SrcNId = (long) (Nodes * drand48());
-    DstNId = (long) (Nodes * drand48());
-    W = (TEdgeW) (MxW * drand48() + 1);
-    if (SrcNId != DstNId  &&  !Graph->IsEdge(SrcNId, DstNId)) {
-      Graph->AddEdge(SrcNId, DstNId, W);
-      counter++;
-      TotalW += W;
-    }
-  }
-
+  
+  CreateRandomWGraph(Graph, Nodes, Edges, MxW, TotalW);
+  
   // WEIGHTED DEGREES
 
   // weighted in degrees
@@ -142,17 +122,11 @@ TYPED_TEST(TWNGraphWDegTest, SpecificGraphFunctionality) {
   typedef TypeParam TEdgeW;
   typedef TPt<TWNGraph<TEdgeW> > PGraph;
 
-  typename TWNGraph<TEdgeW>::TNodeI NI;
-  typename TWNGraph<TEdgeW>::TEdgeI EI;
-
   PGraph Graph = TWNGraph<TEdgeW>::New();
   
   int Nodes = 10000;
   int Edges = 1000000;
 
-  int counter, SrcNId, DstNId;
-
-  TEdgeW W, EdgeW;
   TEdgeW MxW = 100, TotalW = 0;
   
   TEdgeW WInDegTotalW, WOutDegTotalW, WDegTotalW;
@@ -162,27 +136,9 @@ TYPED_TEST(TWNGraphWDegTest, SpecificGraphFunctionality) {
   typename THash<TInt, TVec<TEdgeW> >::TIter WVHI;
 
   // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
-
-  // create nodes
-  for (counter = 0; counter < Nodes; counter++) {
-    Graph->AddNode(counter);
-  }
-  EXPECT_TRUE(Graph->IsOk());
-
-  // create edges (unique with random weights)
-  for (counter = 0; counter < Edges; ) {
-    SrcNId = (long) (Nodes * drand48());
-    DstNId = (long) (Nodes * drand48());
-    W = (TEdgeW) (MxW * drand48() + 1);
-    if (SrcNId != DstNId  &&  !Graph->IsEdge(SrcNId, DstNId)) {
-      // create edge
-      Graph->AddEdge(SrcNId, DstNId, W);
-      counter++;
-      // weights
-      TotalW += W;
-    }
-  }
-
+  
+  CreateRandomWGraph(Graph, Nodes, Edges, MxW, TotalW);
+  
   // ONE STEP k WEIGHTED DEGREES
 
   TSnap::TFixedMemorykWDeg<TEdgeW, TWNGraph> FixedMemorykWDeg(Graph, 1);
@@ -248,9 +204,6 @@ TYPED_TEST(TWNEGraphWDegTest, SpecificGraphFunctionality) {
   int Nodes = 10000;
   int Edges = 1000000;
 
-  int counter, SrcNId, DstNId;
-
-  TEdgeW W, EdgeW;
   TEdgeW MxW = 100, TotalW = 0;
   
   TEdgeW WInDegTotalW, WOutDegTotalW, WDegTotalW;
@@ -260,27 +213,9 @@ TYPED_TEST(TWNEGraphWDegTest, SpecificGraphFunctionality) {
   typename THash<TInt, TVec<TEdgeW> >::TIter WVHI;
 
   // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
-
-  // create nodes
-  for (counter = 0; counter < Nodes; counter++) {
-    Graph->AddNode(counter);
-  }
-  EXPECT_TRUE(Graph->IsOk());
-
-  // create edges (unique with random weights)
-  for (counter = 0; counter < Edges; ) {
-    SrcNId = (long) (Nodes * drand48());
-    DstNId = (long) (Nodes * drand48());
-    W = (TEdgeW) (MxW * drand48() + 1);
-    if (SrcNId != DstNId  &&  !Graph->IsEdge(SrcNId, DstNId)) {
-      // create edge
-      Graph->AddEdge(SrcNId, DstNId, W);
-      counter++;
-      // weights
-      TotalW += W;
-    }
-  }
-
+  
+  CreateRandomWGraph(Graph, Nodes, Edges, MxW, TotalW);
+  
   // ONE STEP k WEIGHTED DEGREES
 
   TSnap::TFixedMemorykWDeg<TEdgeW, TWNEGraph> FixedMemorykWDeg(Graph, 1);
