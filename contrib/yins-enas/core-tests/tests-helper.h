@@ -66,6 +66,7 @@ void CreateRandomMultiGraph(PGraph& Graph, const int& Nodes, const int& Edges) {
   
   // Variables
   int counter, SrcNId, DstNId;
+  TRnd Rnd = TInt::Rnd;
   
   // create nodes
   for (counter = 0; counter < Nodes; counter++) {
@@ -74,8 +75,8 @@ void CreateRandomMultiGraph(PGraph& Graph, const int& Nodes, const int& Edges) {
   
   // create edges (unique)
   for (counter = 0; counter < Edges; ) {
-    SrcNId = (long) (Nodes * drand48());
-    DstNId = (long) (Nodes * drand48());
+    SrcNId = Rnd.GetUniDevInt(Nodes);
+    DstNId = Rnd.GetUniDevInt(Nodes);
     if (SrcNId != DstNId) {
       // create edge
       Graph->AddEdge(SrcNId, DstNId);

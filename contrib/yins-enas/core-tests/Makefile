@@ -22,9 +22,10 @@ MAIN = run-core-tests
 
 TEST_SRCS = \
 	stats-tests.cpp \
-	wstats-tests.cpp \
 	wgraph-tests.cpp \
+	wstats-tests.cpp \
 	wdeg-tests.cpp \
+	wgen-tests.cpp \
 	wcmty-tests.cpp
 
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)

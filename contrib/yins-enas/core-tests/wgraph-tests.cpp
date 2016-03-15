@@ -11,20 +11,20 @@ struct TypePair {
   typedef TGraph<TEdgeW> TypeGraph;
 };
 
-typedef ::testing::Types<TypePair<TInt, TWNGraph> > Graphs; // , TypePair<TFlt, TWNGraph>, TypePair<TInt, TWNEGraph>, TypePair<TFlt, TWNEGraph>
+typedef ::testing::Types<TypePair<TInt, TWNGraph>, TypePair<TFlt, TWNGraph>, TypePair<TInt, TWNEGraph>, TypePair<TFlt, TWNEGraph> > Graphs;
 
 template <class TypePair>
-class GraphTest : public ::testing::Test {
+class WGraphTest : public ::testing::Test {
 public:
-  GraphTest() {}
+  WGraphTest() {}
 };
 
-TYPED_TEST_CASE(GraphTest, Graphs);
+TYPED_TEST_CASE(WGraphTest, Graphs);
 
 // Test default constructor
-TYPED_TEST(GraphTest, Constructor) {
+TYPED_TEST(WGraphTest, Constructor) {
   
-  // typedef typename TypeParam::TypeEdgeW TEdgeW;
+  typedef typename TypeParam::TypeEdgeW TEdgeW;
   typedef typename TypeParam::TypeGraph TGraph;
   typedef TPt<TGraph> PGraph;
   
@@ -40,7 +40,7 @@ TYPED_TEST(GraphTest, Constructor) {
 }
 
 // Test graph manipulation (create and delete nodes and edges)
-TYPED_TEST(GraphTest, GeneralGraphFunctionality) {
+TYPED_TEST(WGraphTest, GeneralGraphFunctionality) {
 
   // DECLARATIONS AND INITIALIZATIONS
 
