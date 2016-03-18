@@ -65,10 +65,10 @@ TYPED_TEST(TWNGenTest, SpecificGraphFunctionality) {
   typedef TypeParam TEdgeW;
   typedef TPt<TWNGraph<TEdgeW> > PGraph;
 
-  int Nodes = 10000;
-  int OutDeg = 100;
+  int Nodes = 1000;
+  int OutDeg = 10;
 
-  TEdgeW TotalW = 10000000, Threshold = 1, ErdosRenyiTotalW, PrefAttachTotalW;
+  TEdgeW TotalW = 1000000, Threshold = 1, ErdosRenyiTotalW, PrefAttachTotalW;
   
   double Scale = (double) 1; // TotalW / (Nodes * OutDeg);
   double Shape = (double) TotalW / (TotalW - Scale * Nodes * OutDeg);
@@ -126,11 +126,29 @@ TYPED_TEST(TWNGenTest, SpecificGraphFunctionality) {
   
   // check total weight within a 99% CI
   PrefAttachTotalW = Graph->GetTotalW();
-  printf("Barabasi Albert\n---------------\n");
+  printf("Barabasi\n--------\n");
   printf("Nodes = %d\n", Graph->GetNodes());
   printf("Edges = %d\n", Graph->GetEdges());
   printf("TotalW = %f\n", (double) PrefAttachTotalW);
 
+  // WEIGHT RESHUFFLING
+  
+  TSnap::WeightShuffling<TEdgeW>(Graph); // reshuffled Barabasi
+  
+  // graph properties, counts, and directed
+  EXPECT_FALSE(Graph->Empty());
+  EXPECT_TRUE(Graph->IsOk());
+  EXPECT_EQ(Nodes, Graph->GetNodes());
+  EXPECT_FLOAT_EQ(PrefAttachTotalW, Graph->GetTotalW());
+  
+  // TODO: implement test for weights being shuffled
+  
+  // check total weight within a 99% CI
+  printf("Weight shuffled Barabasi\n------------------------\n");
+  printf("Nodes = %d\n", Graph->GetNodes());
+  printf("Edges = %d\n", Graph->GetEdges());
+  printf("TotalW = %f\n", (double) Graph->GetTotalW());
+  
 }
 
 //#//////////////////////////////////////////////

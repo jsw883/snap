@@ -580,6 +580,7 @@ TEdgeW TWNGraph<TEdgeW>::GetEW(const int& SrcNId, const int& DstNId) {
 
 template <class TEdgeW>
 void TWNGraph<TEdgeW>::SetEW(const int& SrcNId, const int& DstNId, const TEdgeW& W) {
+  IAssertR(IsEdge(SrcNId, DstNId), TStr::Fmt("(%d, %d) not an edge.", SrcNId, DstNId).CStr());
   TNode& SrcNode = GetNode(SrcNId);
   TNode& DstNode = GetNode(DstNId);
   int EdgeN;
@@ -1304,7 +1305,7 @@ bool TWNEGraph<TEdgeW>::IsEdge(const int& SrcNId, const int& DstNId, int& EId, c
 
 template <class TEdgeW>
 void TWNEGraph<TEdgeW>::SetEW(const int& EId, const TEdgeW& W) {
-  IAssert(IsEdge(EId));
+  IAssertR(IsEdge(EId), TStr::Fmt("%d not an edge.", EId).CStr());
   const int SrcNId = GetEdge(EId).GetSrcNId();
   const int DstNId = GetEdge(EId).GetDstNId();
   const TEdge& Edge = GetEdge(EId);

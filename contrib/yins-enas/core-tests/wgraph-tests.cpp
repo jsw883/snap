@@ -403,12 +403,14 @@ TYPED_TEST(TWNEGraphTest, SpecificGraphFunctionality) {
       counter++;
     }
     // check neighboring nodes iterator and existence
-    for (int e = 0; e < NI.GetDeg(); e++) {
+    for (int e = 0; e < NI.GetDeg(); e++) {alys
       EXPECT_TRUE(NI.IsNbrEId(NI.GetNbrEId(e)));
     }
   }
   EXPECT_EQ(Edges, counter);
   EXPECT_FLOAT_EQ(TotalW, NodeTotalW);
+
+  // EDGE WEIGHT SETTERS
 
   // set edge weights
   for (EI = Graph->EndEI(); EI > Graph->BegEI(); ) {

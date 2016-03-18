@@ -160,21 +160,37 @@ TPt<TGraph<TEdgeW> > GenWPrefAttach(const int& Nodes, const int& PrefOutDeg, con
 //#//////////////////////////////////////////////
 /// Surrogate random graph algorithms
 
-/// Local weight reshuffling (degree, strength, and weight preserving)
-template <class TEdgeW, template <class> class TGraph >
-static TPt<TGraph<TEdgeW> > LocalWeightSuffling(const TPt<TGraph<TEdgeW> >& Graph, const TEdgeW& Threshold) {
-  typename TGraph<TEdgeW>::TEdgeI EI;
-  TPt<TGraph<TEdgeW> > GraphCopy = TGraph<TEdgeW>::New();
-  *GraphCopy = *Graph;
-  // Iterate through the edges, delete based on threshold
-  for (EI = GraphCopy->BegEI(); EI < GraphCopy->EndEI(); ) {
-    if (EI.GetW() < Threshold) {
-      GraphCopy->DelEdge(EI);
-    } else {
-      EI++;
-    }
+/// Weight reshuffling (degree and weight preserving)
+template <class TEdgeW>
+void WeightShuffling(TPt<TWNGraph<TEdgeW> >& Graph) {
+  typename TWNGraph<TEdgeW>::TEdgeI EI;
+  TVec<TEdgeW> EIW;
+  int i;
+  TRnd Rnd(0);
+  for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    EIW.Add(EI.GetW());
   }
-  return GraphCopy;
+  EIW.Shuffle(Rnd); // shuffle randomly
+  for (EI = Graph->BegEI(), i = 0; EI < Graph->EndEI(); EI++, i++) {
+    Graph->SetEW(EI.GetSrcNId(), EI.GetDstNId(), EIW[i]);
+  }
+}
+
+/// Weight reshuffling (degree and weight preserving)
+template <class TEdgeW>
+void WeightShuffling(TPt<TWNEGraph<TEdgeW> >& Graph) {
+  typename TWNEGraph<TEdgeW>::TEdgeI EI;
+  TVec<TEdgeW> EIW;
+  int i;
+  TRnd Rnd(0);
+  for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    EIW.Add(EI.GetW());
+  }
+  EIW.Shuffle(Rnd);
+  // Iterate through entire graph and shuffle randomly
+  for (EI = Graph->BegEI(), i = 0; EI < Graph->EndEI(); EI++, i++) {
+    Graph->SetEW(EI.GetId(), EIW[i]);
+  }
 }
 
 } // namespace TSnap
@@ -195,7 +211,7 @@ static TPt<TGraph<TEdgeW> > LocalWeightSuffling(const TPt<TGraph<TEdgeW> >& Grap
 /// Weight shuffling (topology preserving)
 /// --------------------------------------
 /// Local weight reshuffling (degree, strength, and weight preserving)
-/// Weight reshuffling (degree preserving)
+/// Weight reshuffling (degree and weight preserving)
 
 /// Edge shuffling
 /// --------------
