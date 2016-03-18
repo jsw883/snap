@@ -7,7 +7,7 @@
 // #include "wgraph.h"
 
 //#//////////////////////////////////////////////
-/// Weighted graph generators
+/// Weighted random graph generators
 
 namespace TSnap {
 
@@ -85,88 +85,51 @@ TPt<TGraph<TEdgeW> > GenExpErdosRenyi(const int& Nodes, const TEdgeW& TotalW, co
 template <class TEdgeW, template <class> class TGraph >
 TPt<TGraph<TEdgeW> > GenWPrefAttach(const int& Nodes, const int& PrefOutDeg, const TEdgeDir& prefDir, const double& Scale, const double& Shape, TRnd& Rnd) {
   typedef TPair<TEdgeW, TInt> TEdgeWIntPr;
-  
+  // graph
   TPt<TGraph<TEdgeW> > GraphPt = TPt<TGraph<TEdgeW> >::New();
   TGraph<TEdgeW>& Graph = *GraphPt;
   Graph.Reserve(Nodes, PrefOutDeg*Nodes);
-  
-  // double p = (double) PrefW / ((double) Nodes * (Nodes - 1) + PrefW);
-  
+  // variables
   TVec<TEdgeWIntPr> NodeDensity(PrefOutDeg*Nodes, 0);
   TEdgeW W, SetW, TotalW = 0;
   int i;
   double Rand, Temp;
-  
-  // first edge
+  // edge
   Graph.AddNode(0);
   Graph.AddNode(1);
   W = Rnd.GetParetoDev(Scale, Shape); // Rnd.GetGeoDev(p); // edge must exist so no - 1
   if (W > 0) {
     Graph.AddEdge(1, 0, W);
     TotalW += (prefDir == edUnDirected ? 2 : 1) * W;
-    // printf("Nodes = %d\n", Graph.GetNodes());
-    // printf("Edges = %d\n", Graph.GetEdges());
-    // printf("Graph.TotalW = %f\n", (double) Graph.GetTotalW());
-    // printf("TotalW = %f\n", (double) TotalW);
   }
   NodeDensity.AddSorted(TEdgeWIntPr(Graph.GetNI(0).GetWDeg(prefDir), 0), false);
   NodeDensity.AddSorted(TEdgeWIntPr(Graph.GetNI(1).GetWDeg(prefDir), 1), false);
-  // printf("NodeDensity =\n");
-  // for (typename TVec<TEdgeWIntPr>::TIter VI = NodeDensity.BegI(); VI < NodeDensity.EndI(); VI++) {
-  //   printf("  (%f, %f)\n", (double) VI->Val1, (double) VI->Val2);
-  // }
-  
+  // other edges
   TIntSet Set;
   TIntV Vec;
   for (int nodes = 2; nodes < Nodes; nodes++) {
     Set.Clr(false);
     Vec.Clr(false);
-    
-    // printf("---------\n");
-    // printf("nodes = %d\n", nodes);
-    
     // limited by preferred out degree and available nodes
-    // printf("Graph.TotalW = %f\n", (double) Graph.GetTotalW());
-    // printf("TotalW = %f\n", (double) TotalW);
-    // printf("NodeDensity =\n");
-    // for (typename TVec<TEdgeWIntPr>::TIter VI = NodeDensity.BegI(); VI < NodeDensity.EndI(); VI++) {
-    //   printf("  (%f, %f)\n", (double) VI->Val1, (double) VI->Val2);
-    // }
     SetW = 0;
     while (Set.Len() < PrefOutDeg && Set.Len() < nodes) {
       Rand = (TotalW - SetW) * Rnd.GetUniDev();
       Temp = 0;
-      // printf("TotalW - SetW = %f\n", (double) TotalW - SetW);
-      // printf("Rand = %f\n", Rand);
-      // printf("Temp = %f\n", Temp);
       for (i = 0; i < NodeDensity.Len(); i++) {
         if (Set.IsKey(i)) {
-          // printf("(%f, %d)\n", (double) NodeDensity[i].Val1, (int) NodeDensity[i].Val2);
           continue;
         }
         Temp += NodeDensity[i].Val1;
-        // printf("(%f, %d) Temp = %f\n", (double) NodeDensity[i].Val1, (int) NodeDensity[i].Val2, Temp);
         if (Temp > Rand) { break; }
       }
-      // i--;
-      // printf("> Set.Addkey(%d)\n", i);
       Vec.AddSorted(i);
       Set.AddKey(i);
       SetW += NodeDensity[i].Val1;
-      // printf("Vec =\n");
-      // for (typename TIntV::TIter VI = Vec.BegI(); VI < Vec.EndI(); VI++) {
-      //   printf("  %f\n", (double) VI->Val);
-      // }
-      // printf("Set =\n");
-      // for (typename TIntSet::TIter SI = Set.BegI(); SI < Set.EndI(); SI++) {
-      //   printf("  %f\n", (double) SI.GetKey());
-      // }
     }
     const int N = Graph.AddNode();
     for (i = 0; i < Set.Len(); i++) {
       // geometric random weights
       W = Rnd.GetParetoDev(Scale, Shape); // Rnd.GetGeoDev(p) - 1;
-      // printf("W = %f\n", (double) W);
       if (W > 0) {
         // add edge
         Graph.AddEdge(N, NodeDensity[Set.GetKey(i)].Val2, W);
@@ -175,15 +138,8 @@ TPt<TGraph<TEdgeW> > GenWPrefAttach(const int& Nodes, const int& PrefOutDeg, con
         if (prefDir != edOutDirected) {
           NodeDensity[Set.GetKey(i)].Val1 += W;
         }
-        // printf("Edge += (%d, %d, %f)\n", N, (int) NodeDensity[Set.GetKey(i)].Val2, (double) W);
       }
     }
-    // printf("NodeDensity =\n");
-    // for (i = 0; i < NodeDensity.Len(); i++) {
-    //   printf("  (%f, %d)", (double) NodeDensity[i].Val1, (int) NodeDensity[i].Val2);
-    //   if (Set.IsKey(i)) { printf(" < updated"); }
-    //   printf("\n");
-    // }
     // apply insertion sort to ensure order is maintained (order matters)
     for (int i = 0; i < Vec.Len(); i++) {
       int ValN1 = Vec[i];
@@ -199,6 +155,26 @@ TPt<TGraph<TEdgeW> > GenWPrefAttach(const int& Nodes, const int& PrefOutDeg, con
     NodeDensity.AddSorted(TEdgeWIntPr(Graph.GetNI(N).GetWDeg(prefDir), N), false);
   }
   return GraphPt;
+}
+
+//#//////////////////////////////////////////////
+/// Surrogate random graph algorithms
+
+/// Local weight reshuffling (degree, strength, and weight preserving)
+template <class TEdgeW, template <class> class TGraph >
+static TPt<TGraph<TEdgeW> > LocalWeightSuffling(const TPt<TGraph<TEdgeW> >& Graph, const TEdgeW& Threshold) {
+  typename TGraph<TEdgeW>::TEdgeI EI;
+  TPt<TGraph<TEdgeW> > GraphCopy = TGraph<TEdgeW>::New();
+  *GraphCopy = *Graph;
+  // Iterate through the edges, delete based on threshold
+  for (EI = GraphCopy->BegEI(); EI < GraphCopy->EndEI(); ) {
+    if (EI.GetW() < Threshold) {
+      GraphCopy->DelEdge(EI);
+    } else {
+      EI++;
+    }
+  }
+  return GraphCopy;
 }
 
 } // namespace TSnap
@@ -226,5 +202,32 @@ TPt<TGraph<TEdgeW> > GenWPrefAttach(const int& Nodes, const int& PrefOutDeg, con
 /// Binary edge rewiring (degree, weight preserving)
 /// Tetragonal weight redistributing (continuous, topology preserving)
 ///   URL: http://journals.aps.org/pre/pdf/10.1103/PhysRevE.84.026103
+
+//#//////////////////////////////////////////////
+/// Graph threshold
+
+namespace TSnap {
+
+/// Restricts graph to have edge weights greater than or equal to threshold
+template <class TEdgeW, template <class> class TGraph > static TPt<TGraph<TEdgeW> > ThresholdGraph(const TPt<TGraph<TEdgeW> >& Graph, const TEdgeW& Threshold);
+
+/// Restricts graph to have edge weights greater than or equal to threshold
+template <class TEdgeW, template <class> class TGraph >
+static TPt<TGraph<TEdgeW> > ThresholdGraph(const TPt<TGraph<TEdgeW> >& Graph, const TEdgeW& Threshold) {
+  typename TGraph<TEdgeW>::TEdgeI EI;
+  TPt<TGraph<TEdgeW> > GraphCopy = TGraph<TEdgeW>::New();
+  *GraphCopy = *Graph;
+  // Iterate through the edges, delete based on threshold
+  for (EI = GraphCopy->BegEI(); EI < GraphCopy->EndEI(); ) {
+    if (EI.GetW() < Threshold) {
+      GraphCopy->DelEdge(EI);
+    } else {
+      EI++;
+    }
+  }
+  return GraphCopy;
+}
+
+} // namespace TSnap
 
 #endif

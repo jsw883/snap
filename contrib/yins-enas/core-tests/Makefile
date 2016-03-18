@@ -21,7 +21,7 @@ LIBS += -lpthread -lgtest
 MAIN = run-core-tests
 
 TEST_SRCS = \
-	wgen-tests.cpp
+	wgraph-tests.cpp
 	# stats-tests.cpp \
 	# wgraph-tests.cpp \
 	# wstats-tests.cpp \
