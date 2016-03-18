@@ -97,7 +97,7 @@ double TRnd::GetExpDev(const double& Lambda, const double& Gamma) {
 }
 
 double TRnd::GetParetoDev(const double& Scale, const double& Shape) {
-  return Scale*pow(GetExpDev(), -1.0/Shape);
+  return Scale*pow(GetUniDev(), -1.0/Shape);
 }
 
 double TRnd::GetGammaDev(const int& Order){

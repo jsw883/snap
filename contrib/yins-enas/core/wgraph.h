@@ -376,6 +376,8 @@ public:
   void SetEW(const int& SrcNId, const int& DstNId, const TEdgeW& W = 1);
   /// Returns the total weight in the graph.
   TEdgeW GetTotalW();
+  /// Returns the minimum edge weight in the graph.
+  TEdgeW GetMnW();
   /// Returns the maximum edge weight in the graph.
   TEdgeW GetMxW();
   
@@ -598,9 +600,21 @@ TEdgeW TWNGraph<TEdgeW>::GetTotalW() {
 }
 
 template <class TEdgeW>
+TEdgeW TWNGraph<TEdgeW>::GetMnW() {
+  TEdgeI EI;
+  TEdgeW W, MnW;
+  for (EI = BegEI(), MnW = EI.GetW(); EI < EndEI(); EI++) {
+    W = EI.GetW();
+    if (W < MnW) { MnW = W; }
+  }
+  return MnW;
+}
+
+template <class TEdgeW>
 TEdgeW TWNGraph<TEdgeW>::GetMxW() {
+  TEdgeI EI;
   TEdgeW W, MxW = 0;
-  for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
+  for (EI = BegEI(); EI < EndEI(); EI++) {
     W = EI.GetW();
     if (W > MxW) { MxW = W; }
   }
@@ -1073,6 +1087,8 @@ public:
   TEdgeW GetTotalW();
   /// Returns the maximum edge weight in the graph.
   TEdgeW GetMxW();
+  /// Returns the minimum edge weight in the graph.
+  TEdgeW GetMnW();
   
   /// Returns an ID of a random node in the graph.
   int GetRndNId(TRnd& Rnd = TInt::Rnd) { return NodeH.GetKey(NodeH.GetRndKeyId(Rnd, 0.8)); }
@@ -1326,6 +1342,17 @@ TEdgeW TWNEGraph<TEdgeW>::GetTotalW() {
     TotalW += EI.GetW();
   }
   return TotalW;
+}
+
+template <class TEdgeW>
+TEdgeW TWNEGraph<TEdgeW>::GetMnW() {
+  TEdgeI EI;
+  TEdgeW W, MnW;
+  for (EI = BegEI(), MnW = EI.GetW(); EI < EndEI(); EI++) {
+    W = EI.GetW();
+    if (W < MnW) { MnW = W; }
+  }
+  return MnW;
 }
 
 template <class TEdgeW>

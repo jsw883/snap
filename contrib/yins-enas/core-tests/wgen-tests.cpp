@@ -68,10 +68,13 @@ TYPED_TEST(TWNGenTest, SpecificGraphFunctionality) {
   int Nodes = 1000;
   int OutDeg = 10;
 
-  TEdgeW TotalW = 1000000, Threshold = 1, ErdosRenyiTotalW, PrefAttachTotalW;
+  TEdgeW TotalW = 1000000, Threshold = 1, ErdosRenyiTotalW, GenParetoBarabasiTotalW;
   
   double Scale = (double) 1; // TotalW / (Nodes * OutDeg);
   double Shape = (double) TotalW / (TotalW - Scale * Nodes * OutDeg);
+
+  printf("Scale = %f\n", Scale);
+  printf("Shape = %f\n", Shape);
 
   TRnd Rnd(0);
   
@@ -108,24 +111,29 @@ TYPED_TEST(TWNGenTest, SpecificGraphFunctionality) {
   
   // check total weight within a 99% CI
   ErdosRenyiTotalW = Graph->GetTotalW();
-  // printf("Exp Erdos Renyi\n-----------\n");
-  // printf("Nodes = %d\n", Graph->GetNodes());
-  // printf("Edges = %d\n", Graph->GetEdges());
-  // printf("TotalW = %f\n", (double) ErdosRenyiTotalW);
+  printf("Exp Erdos Renyi\n-----------\n");
+  printf("Nodes = %d\n", Graph->GetNodes());
+  printf("Edges = %d\n", Graph->GetEdges());
+  printf("TotalW = %f\n", (double) ErdosRenyiTotalW);
   EXPECT_GE(TotalW, ErdosRenyiTotalW);
 
   // WEIGHTED PREFERENTIAL ATTACHMENT
 
   Graph.Clr();
-  Graph = TSnap::GenWPrefAttach<TEdgeW, TWNGraph>(Nodes, OutDeg, edUnDirected, Shape, Scale, Rnd);
+  Graph = TSnap::GenParetoBarabasi<TEdgeW, TWNGraph>(Nodes, Shape, Scale, OutDeg, edUnDirected, Rnd);
   
+  TSnap::FitParetoWeights<TEdgeW>(Graph, Scale, Shape);
+
+  printf("Scale = %f\n", Scale);
+  printf("Shape = %f\n", Shape);
+
   // graph properties, counts, and directed
   EXPECT_FALSE(Graph->Empty());
   EXPECT_TRUE(Graph->IsOk());
   EXPECT_EQ(Nodes, Graph->GetNodes());
   
   // check total weight within a 99% CI
-  PrefAttachTotalW = Graph->GetTotalW();
+  GenParetoBarabasiTotalW = Graph->GetTotalW();
   // printf("Barabasi\n--------\n");
   // printf("Nodes = %d\n", Graph->GetNodes());
   // printf("Edges = %d\n", Graph->GetEdges());
@@ -139,7 +147,7 @@ TYPED_TEST(TWNGenTest, SpecificGraphFunctionality) {
   EXPECT_FALSE(Graph->Empty());
   EXPECT_TRUE(Graph->IsOk());
   EXPECT_EQ(Nodes, Graph->GetNodes());
-  EXPECT_FLOAT_EQ(PrefAttachTotalW, Graph->GetTotalW());
+  EXPECT_FLOAT_EQ(GenParetoBarabasiTotalW, Graph->GetTotalW());
   
   // TODO: implement test for weights being shuffled
   // TODO: implement test for degree, weight distributions being preserved

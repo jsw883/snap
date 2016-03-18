@@ -3,6 +3,8 @@
 
 // Headers (?)
 
+#include <cmath>
+
 // #include "Snap.h"
 // #include "wgraph.h"
 
@@ -16,7 +18,7 @@ template <class TEdgeW, template <class> class TGraph > TPt<TGraph<TEdgeW> > Gen
 /// Weighted Erdos Renyi model (geometric distribution, discrete weights)
 template <class TEdgeW, template <class> class TGraph > TPt<TGraph<TEdgeW> > GenExpErdosRenyi(const int& Nodes, const TEdgeW& TotalW, const TEdgeW& Threshold = 0, TRnd& Rnd = TInt::Rnd);
 /// Weighted Barabasi-Albert model (hacky)
-template <class TEdgeW, template <class> class TGraph > TPt<TGraph<TEdgeW> > GenWPrefAttach(const int& Nodes, const int& PrefOutDeg, const TEdgeDir& prefDir, const double& Scale, const double& Shape, TRnd& Rnd = TInt::Rnd);
+template <class TEdgeW, template <class> class TGraph > TPt<TGraph<TEdgeW> > GenParetoBarabasi(const int& Nodes, const int& PrefOutDeg, const double& Scale, const double& Shape, const TEdgeDir& prefDir, TRnd& Rnd = TInt::Rnd);
 
 /// Weighted Erdos Renyi model (geometric distribution, discrete weights)
 /// 
@@ -83,13 +85,14 @@ TPt<TGraph<TEdgeW> > GenExpErdosRenyi(const int& Nodes, const TEdgeW& TotalW, co
 ///
 ///   URL: http://journals.aps.org/pre/pdf/10.1103/PhysRevE.86.026117
 template <class TEdgeW, template <class> class TGraph >
-TPt<TGraph<TEdgeW> > GenWPrefAttach(const int& Nodes, const int& PrefOutDeg, const TEdgeDir& prefDir, const double& Scale, const double& Shape, TRnd& Rnd) {
+TPt<TGraph<TEdgeW> > GenParetoBarabasi(const int& Nodes, const int& PrefOutDeg, const double& Scale, const double& Shape, const TEdgeDir& prefDir, TRnd& Rnd) {
   typedef TPair<TEdgeW, TInt> TEdgeWIntPr;
   // graph
   TPt<TGraph<TEdgeW> > GraphPt = TPt<TGraph<TEdgeW> >::New();
   TGraph<TEdgeW>& Graph = *GraphPt;
   Graph.Reserve(Nodes, PrefOutDeg*Nodes);
   // variables
+  printf("PrefOutDeg*Nodes = %d\n", PrefOutDeg*Nodes);
   TVec<TEdgeWIntPr> NodeDensity(PrefOutDeg*Nodes, 0);
   TEdgeW W, SetW, TotalW = 0;
   int i;
@@ -220,7 +223,7 @@ void WeightShuffling(TPt<TWNEGraph<TEdgeW> >& Graph) {
 ///   URL: http://journals.aps.org/pre/pdf/10.1103/PhysRevE.84.026103
 
 //#//////////////////////////////////////////////
-/// Graph threshold
+/// Helpers
 
 namespace TSnap {
 
@@ -242,6 +245,22 @@ static TPt<TGraph<TEdgeW> > ThresholdGraph(const TPt<TGraph<TEdgeW> >& Graph, co
     }
   }
   return GraphCopy;
+}
+
+template <class TEdgeW, template <class> class TGraph >
+void FitParetoWeights(const TPt<TGraph<TEdgeW> >& Graph, double& Scale, double& Shape) {
+  typename TGraph<TEdgeW>::TEdgeI EI;
+  TEdgeW W;
+  double Sum = 0;
+  // Iterate through the edges, compute statistics
+  for (EI = Graph->BegEI(), Scale = EI.GetW(); EI < Graph->EndEI(); EI++) {
+    W = EI.GetW();
+    if (W < Scale) { Scale = W; } // Scale = min(W)
+    // printf("W = %f\n", (double) W);
+    Sum += log(W);
+  }
+  Sum -= Graph->GetEdges() * log(Scale);
+  Shape = (double) Graph->GetEdges() / Sum;
 }
 
 } // namespace TSnap
