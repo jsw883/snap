@@ -326,7 +326,7 @@ PUNGraph GenPrefAttach(const int& Nodes, const int& NodeOutDeg, TRnd& Rnd) {
     for (int i = 0; i < NodeSet.Len(); i++) {
       Graph.AddEdge(N, NodeSet[i]);
       NIdV.Add(N);
-      NIdV.Add(NodeSet[i]);
+      NIdV.Add(NodeSet[i]); // Preferential attachment by duplication in NIdV 
     }
   }
   return GraphPt;

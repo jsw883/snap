@@ -371,5 +371,33 @@ static PGraph PercolateGraph(const PGraph& Graph, const double& p) {
 
 } // namespace TSnap
 
+// //#//////////////////////////////////////////////
+// /// Graph threshold
+
+// namespace TSnap {
+
+// template <class PGraph> static PGraph PercolateGraph(const PGraph& Graph, const double& p = 0.5);
+
+// template <class PGraph>
+// static PGraph PercolateGraph(const PGraph& Graph, const double& p) {
+//   // PGraph GraphCopy = Graph;
+//   typename PGraph::TObj::TEdgeI EI;
+//   // TCnComV WCnComV;
+//   TCnComV::TIter WCnComI;
+//   // Copy graph (must be initialized for copy)
+//   PGraph GraphCopy = PGraph::TObj::New();
+//   *GraphCopy = *Graph;
+//   // Iterate through the edges, randomly delete with percolation probability
+//   for (EI = GraphCopy->BegEI(); EI < GraphCopy->EndEI(); ) {
+//     if (drand48() < p) {
+//       GraphCopy->DelEdge(EI);
+//     } else {
+//       EI++;
+//     }
+//   }
+//   return GraphCopy;
+// }
+
+// } // namespace TSnap
 
 #endif
