@@ -89,10 +89,10 @@ TYPED_TEST(TWNGenTest, SpecificGraphFunctionality) {
   
   // check total weight within a 99% CI
   ErdosRenyiTotalW = Graph->GetTotalW();
-  printf("Geo Erdos Renyi\n-----------\n");
-  printf("Nodes = %d\n", Graph->GetNodes());
-  printf("Edges = %d\n", Graph->GetEdges());
-  printf("TotalW = %f\n", (double) ErdosRenyiTotalW);
+  // printf("Geo Erdos Renyi\n-----------\n");
+  // printf("Nodes = %d\n", Graph->GetNodes());
+  // printf("Edges = %d\n", Graph->GetEdges());
+  // printf("TotalW = %f\n", (double) ErdosRenyiTotalW);
   EXPECT_LE(TotalW * 0.95, ErdosRenyiTotalW);
   EXPECT_GE(TotalW * 1.05, ErdosRenyiTotalW);
 
@@ -108,10 +108,10 @@ TYPED_TEST(TWNGenTest, SpecificGraphFunctionality) {
   
   // check total weight within a 99% CI
   ErdosRenyiTotalW = Graph->GetTotalW();
-  printf("Exp Erdos Renyi\n-----------\n");
-  printf("Nodes = %d\n", Graph->GetNodes());
-  printf("Edges = %d\n", Graph->GetEdges());
-  printf("TotalW = %f\n", (double) ErdosRenyiTotalW);
+  // printf("Exp Erdos Renyi\n-----------\n");
+  // printf("Nodes = %d\n", Graph->GetNodes());
+  // printf("Edges = %d\n", Graph->GetEdges());
+  // printf("TotalW = %f\n", (double) ErdosRenyiTotalW);
   EXPECT_GE(TotalW, ErdosRenyiTotalW);
 
   // WEIGHTED PREFERENTIAL ATTACHMENT
@@ -126,10 +126,10 @@ TYPED_TEST(TWNGenTest, SpecificGraphFunctionality) {
   
   // check total weight within a 99% CI
   PrefAttachTotalW = Graph->GetTotalW();
-  printf("Barabasi\n--------\n");
-  printf("Nodes = %d\n", Graph->GetNodes());
-  printf("Edges = %d\n", Graph->GetEdges());
-  printf("TotalW = %f\n", (double) PrefAttachTotalW);
+  // printf("Barabasi\n--------\n");
+  // printf("Nodes = %d\n", Graph->GetNodes());
+  // printf("Edges = %d\n", Graph->GetEdges());
+  // printf("TotalW = %f\n", (double) PrefAttachTotalW);
 
   // WEIGHT RESHUFFLING
   
@@ -142,12 +142,13 @@ TYPED_TEST(TWNGenTest, SpecificGraphFunctionality) {
   EXPECT_FLOAT_EQ(PrefAttachTotalW, Graph->GetTotalW());
   
   // TODO: implement test for weights being shuffled
+  // TODO: implement test for degree, weight distributions being preserved
   
-  // check total weight within a 99% CI
-  printf("Weight shuffled Barabasi\n------------------------\n");
-  printf("Nodes = %d\n", Graph->GetNodes());
-  printf("Edges = %d\n", Graph->GetEdges());
-  printf("TotalW = %f\n", (double) Graph->GetTotalW());
+  // // check total weight within a 99% CI
+  // printf("Weight shuffled Barabasi\n------------------------\n");
+  // printf("Nodes = %d\n", Graph->GetNodes());
+  // printf("Edges = %d\n", Graph->GetEdges());
+  // printf("TotalW = %f\n", (double) Graph->GetTotalW());
   
 }
 
