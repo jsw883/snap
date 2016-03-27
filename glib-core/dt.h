@@ -38,7 +38,9 @@ public:
   double GetNrmDev(
    const double& Mean, const double& SDev, const double& Mn, const double& Mx);
   double GetExpDev();
-  double GetExpDev(const double& Lambda); // mean=1/lambda
+  double GetExpDev(const double& Lambda); // mean = 1/lambda
+  double GetExpDev(const double& Lambda, const double& Gamma); // mean = gamma + 1/lambda
+  double GetParetoDev(const double& Scale, const double& Shape);
   double GetGammaDev(const int& Order);
   double GetPoissonDev(const double& Mean);
   double GetBinomialDev(const double& Prb, const int& Trials);

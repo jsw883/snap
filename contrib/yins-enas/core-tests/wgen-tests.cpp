@@ -5,51 +5,51 @@
 //#//////////////////////////////////////////////
 /// Weighted directed graphs and multigraphs
 
-template <class TEdgeW, template<class> class TGraph>
-struct TypePair {
-  typedef TEdgeW TypeEdgeW;
-  typedef TGraph<TEdgeW> TypeGraph;
-};
+// template <class TEdgeW, template<class> class TGraph>
+// struct TypePair {
+//   typedef TEdgeW TypeEdgeW;
+//   typedef TGraph<TEdgeW> TypeGraph;
+// };
 
-typedef ::testing::Types<TypePair<TInt, TWNGraph> > Graphs; // , TypePair<TFlt, TWNGraph>, TypePair<TInt, TWNEGraph>, TypePair<TFlt, TWNEGraph>
+// typedef ::testing::Types<TypePair<TInt, TWNGraph> > Graphs; // , TypePair<TFlt, TWNGraph>, TypePair<TInt, TWNEGraph>, TypePair<TFlt, TWNEGraph>
 
-template <class TypePair>
-class WGenTest : public ::testing::Test {
-public:
-  WGenTest() {}
-};
+// template <class TypePair>
+// class WGenTest : public ::testing::Test {
+// public:
+//   WGenTest() {}
+// };
 
-TYPED_TEST_CASE(WGenTest, Graphs);
+// TYPED_TEST_CASE(WGenTest, Graphs);
 
-// Test default constructor
-TYPED_TEST(WGenTest, Constructor) {
+// // Test default constructor
+// TYPED_TEST(WGenTest, Constructor) {
   
-  typedef typename TypeParam::TypeEdgeW TEdgeW;
-  typedef typename TypeParam::TypeGraph TGraph;
-  typedef TPt<TGraph> PGraph;
+//   typedef typename TypeParam::TypeEdgeW TEdgeW;
+//   typedef typename TypeParam::TypeGraph TGraph;
+//   typedef TPt<TGraph> PGraph;
   
-  typename TGraph::TNodeI NI;
-  typename TGraph::TEdgeI EI;
+//   typename TGraph::TNodeI NI;
+//   typename TGraph::TEdgeI EI;
 
-  int Nodes = 1000;
-  int Edges = 10000;
+//   int Nodes = 1000;
+//   int Edges = 10000;
 
-  int counter, NId, SrcNId, DstNId;
+//   int counter, NId, SrcNId, DstNId;
 
-  TEdgeW W, EdgeW;
-  TEdgeW MxW = 100, TotalW = 0, NodeTotalW = 0;
+//   TEdgeW W, EdgeW;
+//   TEdgeW MxW = 100, TotalW = 0, NodeTotalW = 0;
 
-  int InDeg, OutDeg, Deg;
-  int TotalInDeg = 0, TotalOutDeg = 0, TotalDeg = 0;  
-  TEdgeW WInDeg, WOutDeg, WDeg;
-  TEdgeW TotalWInDeg = 0, TotalWOutDeg = 0, TotalWDeg = 0;  
+//   int InDeg, OutDeg, Deg;
+//   int TotalInDeg = 0, TotalOutDeg = 0, TotalDeg = 0;  
+//   TEdgeW WInDeg, WOutDeg, WDeg;
+//   TEdgeW TotalWInDeg = 0, TotalWOutDeg = 0, TotalWDeg = 0;  
 
-}
+// }
 
 //#//////////////////////////////////////////////
 /// Weighted directed graphs
 
-typedef ::testing::Types<TInt, TFlt> Weights;
+typedef ::testing::Types<TFlt> Weights;
 
 template <class TEdgeW>
 class TWNGenTest : public ::testing::Test {
@@ -57,68 +57,144 @@ public:
   TWNGenTest() {}
 };
 
-TYPED_TEST_CASE(TWNGraphTest, Weights);
+TYPED_TEST_CASE(TWNGenTest, Weights);
 
 // Test graph edge weight consistency
 TYPED_TEST(TWNGenTest, SpecificGraphFunctionality) {
 
-  typedef typename TypeParam::TypeEdgeW TEdgeW;
-  typedef typename TypeParam::TypeGraph TGraph;
-  typedef TPt<TGraph> PGraph;
-
-  typename TGraph::TNodeI NI;
-  typename TGraph::TEdgeI EI;
+  typedef TypeParam TEdgeW;
+  typedef TPt<TWNGraph<TEdgeW> > PGraph;
 
   int Nodes = 1000;
-  int Edges = 10000;
+  int OutDeg = 10;
 
-  int counter, NId, SrcNId, DstNId;
+  TEdgeW TotalW = 1000000, Threshold = 1, ErdosRenyiTotalW, GenParetoBarabasiTotalW;
+  
+  double Scale = (double) 1; // TotalW / (Nodes * OutDeg);
+  double Shape = (double) TotalW / (TotalW - Scale * Nodes * OutDeg);
 
-  TEdgeW W, EdgeW;
-  TEdgeW MxW = 100, TotalW = 0, NodeTotalW = 0;
+  printf("Scale = %f\n", Scale);
+  printf("Shape = %f\n", Shape);
 
-  int InDeg, OutDeg, Deg;
-  int TotalInDeg = 0, TotalOutDeg = 0, TotalDeg = 0;  
-  TEdgeW WInDeg, WOutDeg, WDeg;
-  TEdgeW TotalWInDeg = 0, TotalWOutDeg = 0, TotalWDeg = 0;  
+  TRnd Rnd(0);
+  
+  PGraph Graph;
 
+  // GEOMETRIC WEIGHTED ERDOS RENYI
+  
+  Graph.Clr();
+  Graph = TSnap::GenGeoErdosRenyi<TEdgeW, TWNGraph>(Nodes, TotalW, Rnd);
+  
+  // graph properties, counts, and directed
+  EXPECT_FALSE(Graph->Empty());
+  EXPECT_TRUE(Graph->IsOk());
+  EXPECT_EQ(Nodes, Graph->GetNodes());
+  
+  // check total weight within a 99% CI
+  ErdosRenyiTotalW = Graph->GetTotalW();
+  // printf("Geo Erdos Renyi\n-----------\n");
+  // printf("Nodes = %d\n", Graph->GetNodes());
+  // printf("Edges = %d\n", Graph->GetEdges());
+  // printf("TotalW = %f\n", (double) ErdosRenyiTotalW);
+  EXPECT_LE(TotalW * 0.95, ErdosRenyiTotalW);
+  EXPECT_GE(TotalW * 1.05, ErdosRenyiTotalW);
+
+  // EXPONENTIAL WEIGHTED ERDOS RENYI
+
+  Graph.Clr();
+  Graph = TSnap::GenExpErdosRenyi<TEdgeW, TWNGraph>(Nodes, TotalW, (double) TotalW / (Nodes * (Nodes - 1)), Rnd);
+  
+  // graph properties, counts, and directed
+  EXPECT_FALSE(Graph->Empty());
+  EXPECT_TRUE(Graph->IsOk());
+  EXPECT_EQ(Nodes, Graph->GetNodes());
+  
+  // check total weight within a 99% CI
+  ErdosRenyiTotalW = Graph->GetTotalW();
+  printf("Exp Erdos Renyi\n-----------\n");
+  printf("Nodes = %d\n", Graph->GetNodes());
+  printf("Edges = %d\n", Graph->GetEdges());
+  printf("TotalW = %f\n", (double) ErdosRenyiTotalW);
+  EXPECT_GE(TotalW, ErdosRenyiTotalW);
+
+  // WEIGHTED PREFERENTIAL ATTACHMENT
+
+  Graph.Clr();
+  Graph = TSnap::GenParetoBarabasi<TEdgeW, TWNGraph>(Nodes, Shape, Scale, OutDeg, edUnDirected, Rnd);
+  
+  TSnap::FitParetoWeights<TEdgeW>(Graph, Scale, Shape);
+
+  printf("Scale = %f\n", Scale);
+  printf("Shape = %f\n", Shape);
+
+  // graph properties, counts, and directed
+  EXPECT_FALSE(Graph->Empty());
+  EXPECT_TRUE(Graph->IsOk());
+  EXPECT_EQ(Nodes, Graph->GetNodes());
+  
+  // check total weight within a 99% CI
+  GenParetoBarabasiTotalW = Graph->GetTotalW();
+  // printf("Barabasi\n--------\n");
+  // printf("Nodes = %d\n", Graph->GetNodes());
+  // printf("Edges = %d\n", Graph->GetEdges());
+  // printf("TotalW = %f\n", (double) PrefAttachTotalW);
+
+  // WEIGHT RESHUFFLING
+  
+  TSnap::WeightShuffling<TEdgeW>(Graph); // reshuffled Barabasi
+  
+  // graph properties, counts, and directed
+  EXPECT_FALSE(Graph->Empty());
+  EXPECT_TRUE(Graph->IsOk());
+  EXPECT_EQ(Nodes, Graph->GetNodes());
+  EXPECT_FLOAT_EQ(GenParetoBarabasiTotalW, Graph->GetTotalW());
+  
+  // TODO: implement test for weights being shuffled
+  // TODO: implement test for degree, weight distributions being preserved
+  
+  // // check total weight within a 99% CI
+  // printf("Weight shuffled Barabasi\n------------------------\n");
+  // printf("Nodes = %d\n", Graph->GetNodes());
+  // printf("Edges = %d\n", Graph->GetEdges());
+  // printf("TotalW = %f\n", (double) Graph->GetTotalW());
+  
 }
 
 //#//////////////////////////////////////////////
 /// Weighted directed multigraphs
 
-typedef ::testing::Types<TInt, TFlt> Weights;
+// typedef ::testing::Types<TInt, TFlt> Weights;
 
-template <class TEdgeW>
-class TWNEGenTest : public ::testing::Test {
-public:
-  TWNEGenTest() {}
-};
+// template <class TEdgeW>
+// class TWNEGenTest : public ::testing::Test {
+// public:
+//   TWNEGenTest() {}
+// };
 
-TYPED_TEST_CASE(TWNEGraphTest, Weights);
+// TYPED_TEST_CASE(TWNEGraphTest, Weights);
 
-// Test graph edge weight consistency
-TYPED_TEST(TWNEGenTest, SpecificGraphFunctionality) {
+// // Test graph edge weight consistency
+// TYPED_TEST(TWNEGenTest, SpecificGraphFunctionality) {
 
-  // DECLARATIONS AND INITIALIZATIONS
+//   // DECLARATIONS AND INITIALIZATIONS
 
-  typedef TypeParam TEdgeW;
-  typedef TPt<TWNEGraph<TEdgeW> > PGraph;
+//   typedef TypeParam TEdgeW;
+//   typedef TPt<TWNEGraph<TEdgeW> > PGraph;
 
-  typename TWNEGraph<TEdgeW>::TNodeI NI;
-  typename TWNEGraph<TEdgeW>::TEdgeI EI;
+//   typename TWNEGraph<TEdgeW>::TNodeI NI;
+//   typename TWNEGraph<TEdgeW>::TEdgeI EI;
 
-  int Nodes = 1000;
-  int Edges = 10000;
+//   int Nodes = 1000;
+//   int Edges = 10000;
 
-  int counter, NId, SrcNId, DstNId;
+//   int counter, NId, SrcNId, DstNId;
 
-  TEdgeW W, EdgeW;
-  TEdgeW MxW = 100, TotalW = 0, NodeTotalW = 0;
+//   TEdgeW W, EdgeW;
+//   TEdgeW MxW = 100, TotalW = 0, NodeTotalW = 0;
 
-  int InDeg, OutDeg, Deg;
-  int TotalInDeg = 0, TotalOutDeg = 0, TotalDeg = 0;  
-  TEdgeW WInDeg, WOutDeg, WDeg;
-  TEdgeW TotalWInDeg = 0, TotalWOutDeg = 0, TotalWDeg = 0;  
+//   int InDeg, OutDeg, Deg;
+//   int TotalInDeg = 0, TotalOutDeg = 0, TotalDeg = 0;  
+//   TEdgeW WInDeg, WOutDeg, WDeg;
+//   TEdgeW TotalWInDeg = 0, TotalWOutDeg = 0, TotalWDeg = 0;  
 
-}
+// }

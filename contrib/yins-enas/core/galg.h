@@ -351,11 +351,7 @@ template <class PGraph> static PGraph PercolateGraph(const PGraph& Graph, const 
 
 template <class PGraph>
 static PGraph PercolateGraph(const PGraph& Graph, const double& p) {
-  // PGraph GraphCopy = Graph;
   typename PGraph::TObj::TEdgeI EI;
-  // TCnComV WCnComV;
-  TCnComV::TIter WCnComI;
-  // Copy graph (must be initialized for copy)
   PGraph GraphCopy = PGraph::TObj::New();
   *GraphCopy = *Graph;
   // Iterate through the edges, randomly delete with percolation probability
@@ -370,6 +366,5 @@ static PGraph PercolateGraph(const PGraph& Graph, const double& p) {
 }
 
 } // namespace TSnap
-
 
 #endif

@@ -6,3 +6,4 @@
 #include "enums.h"
 
 #include "wgraph.h"
+#include "wgen.h"

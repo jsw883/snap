@@ -224,7 +224,7 @@ TYPED_TEST(TWNGraphTest, SpecificGraphFunctionality) {
   int counter, SrcNId, DstNId;
 
   TEdgeW W, EdgeW;
-  TEdgeW MxW = 100, TotalW = 0, EdgeTotalW = 0, NodeTotalW = 0;
+  TEdgeW MxW = 100, TotalW = 0, EdgeTotalW = 0, NodeTotalW = 0, SetTotalW = 0;
 
   // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
 
@@ -299,6 +299,21 @@ TYPED_TEST(TWNGraphTest, SpecificGraphFunctionality) {
   EXPECT_EQ(Edges, counter);
   EXPECT_FLOAT_EQ(TotalW, Graph->GetTotalW());
   
+  // set edge weights
+  for (EI = Graph->EndEI(); EI > Graph->BegEI(); ) {
+    EI--;
+    Graph->SetEW(EI.GetSrcNId(), EI.GetDstNId(), 1);
+  }
+  EXPECT_FLOAT_EQ(Edges, Graph->GetTotalW());
+
+  // edges (per node)
+  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    for (int e = 0; e < NI.GetOutDeg(); e++) {
+      SetTotalW += NI.GetOutEW(e);
+    }
+  }
+  EXPECT_FLOAT_EQ(Edges, SetTotalW);
+  
 }
 
 //#//////////////////////////////////////////////
@@ -333,7 +348,7 @@ TYPED_TEST(TWNEGraphTest, SpecificGraphFunctionality) {
   int counter, EId, SrcNId, DstNId;
 
   TEdgeW W, EdgeW;
-  TEdgeW MxW = 100, TotalW = 0, EdgeTotalW = 0, NodeTotalW = 0;
+  TEdgeW MxW = 100, TotalW = 0, EdgeTotalW = 0, NodeTotalW = 0, SetTotalW = 0;
 
   // CREATE NODES AND EDGES AND CHECK WEIGHTS CREATED
 
@@ -388,13 +403,30 @@ TYPED_TEST(TWNEGraphTest, SpecificGraphFunctionality) {
       counter++;
     }
     // check neighboring nodes iterator and existence
-    for (int e = 0; e < NI.GetDeg(); e++) {
+    for (int e = 0; e < NI.GetDeg(); e++) {alys
       EXPECT_TRUE(NI.IsNbrEId(NI.GetNbrEId(e)));
     }
   }
   EXPECT_EQ(Edges, counter);
   EXPECT_FLOAT_EQ(TotalW, NodeTotalW);
 
+  // EDGE WEIGHT SETTERS
+
+  // set edge weights
+  for (EI = Graph->EndEI(); EI > Graph->BegEI(); ) {
+    EI--;
+    Graph->SetEW(EI.GetId(), 1);
+  }
+  EXPECT_FLOAT_EQ(Edges, Graph->GetTotalW());
+
+  // edges (per node)
+  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    for (int e = 0; e < NI.GetOutDeg(); e++) {
+      SetTotalW += NI.GetOutEW(e);
+    }
+  }
+  EXPECT_FLOAT_EQ(Edges, SetTotalW);
+  
 }
 
   // // create edges
