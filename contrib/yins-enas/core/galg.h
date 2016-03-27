@@ -345,9 +345,12 @@ void TFixedMemoryBFS<PGraph>::Clr(const bool& DoDel) {
 //#//////////////////////////////////////////////
 /// Graph percolation theory
 
+void GetWccStats(const TIntPrV& WccSzCnt, int& numWcc, int& mnWccSz, double& medWccSz, double& meanWccSz, int& mxWccSz);
+
 namespace TSnap {
 
 template <class PGraph> static PGraph PercolateGraph(const PGraph& Graph, const double& p = 0.5);
+template <class PGraph> double FindPercolationThreshold(const PGraph& Graph, const double& step = 0.01, const double& lowerBound = 0.0, const double& upperBound = 1.0);
 
 template <class PGraph>
 static PGraph PercolateGraph(const PGraph& Graph, const double& p) {
@@ -367,6 +370,44 @@ static PGraph PercolateGraph(const PGraph& Graph, const double& p) {
     }
   }
   return GraphCopy;
+}
+
+template <class PGraph>
+double FindPercolationThreshold(const PGraph& Graph, const double& step, const double& lowerBound, const double& upperBound) {
+  typename PGraph::TObj::TEdgeI EI;
+  // Reserver memory now for efficiency
+  PGraph GraphCopy = PGraph::TObj::New(Graph->GetNodes(), Graph->GetEdges());
+  TIntPrV WccSzCnt;
+  int numNodes = Graph->GetNodes();
+  int numWcc, mnWccSz, mxWccSz, secondMxWccSz;
+  double medWccSz, meanWccSz;
+  double p;
+  for (p = lowerBound; p <= upperBound; p += step) {
+    GraphCopy.Clr();
+    WccSzCnt.Clr();
+    GraphCopy = PercolateGraph(Graph, p);
+    
+    GetWccSzCnt(GraphCopy, WccSzCnt);
+    GetWccStats(WccSzCnt, numWcc, mnWccSz, medWccSz, meanWccSz, mxWccSz);
+    secondMxWccSz = WccSzCnt.LastLast().Val1;
+    
+    printf("--------------\n");
+    printf("probability = %f\n", p);
+    printf("numNodes = %d\n", numNodes);
+    printf("numWcc = %d\n", numWcc);
+    printf("mnWccSz = %d\n", mnWccSz);
+    printf("medWccSz = %f\n", medWccSz);
+    printf("meanWccSz = %f\n", meanWccSz);
+    printf("mxWccSz = %d\n", mxWccSz);
+    printf("secondMxWccSz = %d\n", secondMxWccSz);
+    printf("\n");
+    printf("log(numNodes) - log(mxWccSz) = %f\n", log(numNodes) - log(mxWccSz));
+    printf("log(mxWccSz) - log(meanWccSz) = %f\n", log(mxWccSz) - log(meanWccSz));
+    printf("\n");
+    printf("log(numNodes) - log(mxWccSz) = %f\n", log(numNodes) - log(mxWccSz));
+    printf("log(mxWccSz) - log(secondMxWccSz) = %f\n", log(mxWccSz) - log(secondMxWccSz));
+  }
+  return p;
 }
 
 } // namespace TSnap

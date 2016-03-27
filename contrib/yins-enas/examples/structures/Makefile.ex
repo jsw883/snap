@@ -6,10 +6,8 @@ MAIN = structures
 DEPH = \
     $(EXCORE)/galg.h \
     $(EXCORE)/stats.h \
-    $(EXCORE)/io.h \
-    $(EXCORE)/utils.h
+    $(EXCORE)/io.h
 DEPCPP = \
     $(EXCORE)/galg.cpp \
     $(EXCORE)/stats.cpp \
-    $(EXCORE)/io.cpp \
-    $(EXCORE)/utils.cpp
+    $(EXCORE)/io.cpp
