@@ -92,6 +92,14 @@ double TRnd::GetExpDev(const double& Lambda) {
   return GetExpDev()/Lambda;
 }
 
+double TRnd::GetExpDev(const double& Lambda, const double& Gamma) {
+  return Gamma + GetExpDev()/Lambda;
+}
+
+double TRnd::GetParetoDev(const double& Scale, const double& Shape) {
+  return Scale*pow(GetUniDev(), -1.0/Shape);
+}
+
 double TRnd::GetGammaDev(const int& Order){
   int j;
   double am,e,s,v1,v2,x,y;
