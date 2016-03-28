@@ -621,6 +621,8 @@ public:
     TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { EdgeHI=EdgeI.EdgeHI; }  return *this; }
     /// Increment iterator.
     TEdgeI& operator++ (int) { EdgeHI++; return *this; }
+    /// Decrement iterator.
+    TEdgeI& operator-- (int) { EdgeHI--; return *this; }
     /// Methods for ordering.
     bool operator == (const TEdgeI& EdgeI) const { return EdgeHI == EdgeI.EdgeHI; }
     bool operator != (const TEdgeI& EdgeI) const { return EdgeHI != EdgeI.EdgeHI; }
@@ -697,7 +699,7 @@ public:
   /// Deletes all edges between node IDs SrcNId and DstNId from the graph. ##TNEGraph::DelEdge
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
   /// Deletes an edge from the edge iterator EI, checking internal consistency for EI
-  void DelEdge(TEdgeI& EdgeI);
+  void DelEdge(TEdgeI& EdgeI) { DelEdge(EdgeI.GetId()); EdgeI++; };
   /// Tests whether an edge with edge ID EId exists in the graph.
   bool IsEdge(const int& EId) const { return EdgeH.IsKey(EId); }
   /// Tests whether an edge between node IDs SrcNId and DstNId exists in` the graph.

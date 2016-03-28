@@ -493,6 +493,14 @@ void TNEGraph::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) 
   EdgeH.DelKey(EId);
 }
 
+void TNEGraph::DelEdge(TEdgeI& EdgeI) {
+  const int SrcNId = EdgeI.GetSrcNId(), DstNId = EdgeI.GetDstNId();
+  DelEdge(SrcNId, DstNId);
+  if (EdgeI.CurEdge >= EdgeI.CurNode.GetOutDeg()) {
+    EdgeI++;
+  }
+}
+
 bool TNEGraph::IsEdge(const int& SrcNId, const int& DstNId, int& EId, const bool& IsDir) const {
   const TNode& SrcNode = GetNode(SrcNId);
   for (int edge = 0; edge < SrcNode.GetOutDeg(); edge++) {
