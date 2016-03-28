@@ -1,5 +1,5 @@
-generators (weighted random graph generators)
-------------------------------------
+nullmodels (weighted random graph generators)
+---------------------------------------------
 
 Generates random weighted graphs using generative algorithms with a predefined
 null model or randomization algorithms which randomize an existing graph using
@@ -38,7 +38,6 @@ WARNING: the threshold for the exponentially weighted random graph model should
 be set VERY carefully, as if it is too small the graph will be fully connected,
 which would be prohibitively expensive (CPU and RAM).
 
-
 Makefiles are provided for compilation under Windows with Cygwin and gcc,
 and under Mac OS X, Linux, and other Unix operating systems with gcc as
 well. For makefiles, compile the code with `make all`.
@@ -46,7 +45,7 @@ well. For makefiles, compile the code with `make all`.
 ### Usage ###
 
 ```
-Usage: ./statistics -o:<output prefix> [Options]
+Usage: ./generators -o:<output prefix> [Options]
 Options:
     -i          input network (tab separated list of edges with edge weights)
     -o          output prefix (filename extensions added)

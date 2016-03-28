@@ -7,3 +7,4 @@
 
 #include "wgraph.h"
 #include "wgen.h"
+#include "galg.h"

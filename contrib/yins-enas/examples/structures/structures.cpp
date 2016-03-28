@@ -56,7 +56,6 @@ int main(int argc, char* argv[]) {
   
   // Compute percolation threshold
   if (p == -1) {
-    printf("Computing percolation threshold\n");
     p = TSnap::FindPercolationThreshold<PNGraph>(Graph, tol, lowerBound, upperBound, rep);
   }
   
@@ -64,7 +63,7 @@ int main(int argc, char* argv[]) {
   for (iter = 0; iter < iters; iter++) {
     
     // Percolate graph according to percolation probability
-    GraphCopy = TSnap::PercolateGraph<PNGraph>(Graph, p);
+    GraphCopy = TSnap::EdgePercolateGraph<PNGraph>(Graph, p);
     // Get weakly connected components (cluster)
     TSnap::GetWccs(GraphCopy, WCnComV);
     // Counts and giant sizes

@@ -2,7 +2,7 @@
 #	configuration variables for the example
 #
 
-MAIN = generators
+MAIN = nullmodels
 DEPH = \
     $(EXCORE)/wgraph.h \
     $(EXCORE)/wgen.h \

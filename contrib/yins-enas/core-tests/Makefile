@@ -21,13 +21,12 @@ LIBS += -lpthread -lgtest
 MAIN = run-core-tests
 
 TEST_SRCS = \
-	wgen-tests.cpp
-	# stats-tests.cpp \
-	# wgraph-tests.cpp \
-	# wstats-tests.cpp \
-	# wdeg-tests.cpp \
-	# wgen-tests.cpp \
-	# wcmty-tests.cpp
+	stats-tests.cpp \
+	wgraph-tests.cpp \
+	wstats-tests.cpp \
+	wdeg-tests.cpp \
+	wgen-tests.cpp \
+	wcmty-tests.cpp
 
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 

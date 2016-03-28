@@ -1057,7 +1057,7 @@ public:
   /// Deletes all edges from node IDs SrcNId to DstNId from the graph.
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
   /// Deletes edge of ID EdgeI.GetId() from the graph.
-  void DelEdge(TEdge& EdgeI) { DelEdge(EdgeI.GetId()); }
+  void DelEdge(TEdgeI& EdgeI) { DelEdge(EdgeI.GetId()); EdgeI++; }
   /// Tests whether an edge with edge ID EId exists in the graph.
   bool IsEdge(const int& EId) const { return EdgeH.IsKey(EId); }
   
