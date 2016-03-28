@@ -350,7 +350,7 @@ void GetWccStats(const TIntPrV& WccSzCnt, int& numWcc, int& mnWccSz, double& med
 namespace TSnap {
 
 template <class PGraph> static PGraph PercolateGraph(const PGraph& Graph, const double& p = 0.5);
-template <class PGraph> double FindPercolationThreshold(const PGraph& Graph, const double& step = 0.01, const double& lowerBound = 0.0, const double& upperBound = 1.0);
+template <class PGraph> double FindPercolationThreshold(const PGraph& Graph, const double& tol = 1e-3, const double& lowerBound = 0.0, const double& upperBound = 1.0, const int& rep = 10);
 
 template <class PGraph>
 static PGraph PercolateGraph(const PGraph& Graph, const double& p) {
@@ -373,40 +373,65 @@ static PGraph PercolateGraph(const PGraph& Graph, const double& p) {
 }
 
 template <class PGraph>
-double FindPercolationThreshold(const PGraph& Graph, const double& step, const double& lowerBound, const double& upperBound) {
-  typename PGraph::TObj::TEdgeI EI;
+double FindPercolationThreshold(const PGraph& Graph, const double& tol, const double& lowerBound, const double& upperBound, const int& rep = 10) {
   // Reserver memory now for efficiency
   PGraph GraphCopy = PGraph::TObj::New(Graph->GetNodes(), Graph->GetEdges());
   TIntPrV WccSzCnt;
   int numNodes = Graph->GetNodes();
-  int numWcc, mnWccSz, mxWccSz, secondMxWccSz;
+  int numWcc, mnWccSz, mxWccSz,  nextWccSz;
   double medWccSz, meanWccSz;
-  double p;
-  for (p = lowerBound; p <= upperBound; p += step) {
-    GraphCopy.Clr();
-    WccSzCnt.Clr();
-    GraphCopy = PercolateGraph(Graph, p);
+  double pl = lowerBound, pr = upperBound, p;
+  
+  int i, temp;
+  while (2 * (pr - pl) > tol) {
+    p = (pr + pl) / 2;
+    temp = 0;
+    for (i = 0; i < rep; i++) {  // TODO: adaptive smoothing
+      GraphCopy.Clr();
+      WccSzCnt.Clr();
+      GraphCopy = PercolateGraph(Graph, p);
+      
+      GetWccSzCnt(GraphCopy, WccSzCnt);
+      GetWccStats(WccSzCnt, numWcc, mnWccSz, medWccSz, meanWccSz, mxWccSz);
+      nextWccSz = WccSzCnt.LastLast().Val1;
+      
+      // TODO: add options for check
+      if (log(numNodes) - log(mxWccSz) < log(mxWccSz) - log(meanWccSz)) {
+        temp += 1;
+      }
+    }
     
-    GetWccSzCnt(GraphCopy, WccSzCnt);
-    GetWccStats(WccSzCnt, numWcc, mnWccSz, medWccSz, meanWccSz, mxWccSz);
-    secondMxWccSz = WccSzCnt.LastLast().Val1;
-    
-    printf("--------------\n");
-    printf("probability = %f\n", p);
-    printf("numNodes = %d\n", numNodes);
-    printf("numWcc = %d\n", numWcc);
-    printf("mnWccSz = %d\n", mnWccSz);
-    printf("medWccSz = %f\n", medWccSz);
-    printf("meanWccSz = %f\n", meanWccSz);
-    printf("mxWccSz = %d\n", mxWccSz);
-    printf("secondMxWccSz = %d\n", secondMxWccSz);
-    printf("\n");
-    printf("log(numNodes) - log(mxWccSz) = %f\n", log(numNodes) - log(mxWccSz));
-    printf("log(mxWccSz) - log(meanWccSz) = %f\n", log(mxWccSz) - log(meanWccSz));
-    printf("\n");
-    printf("log(numNodes) - log(mxWccSz) = %f\n", log(numNodes) - log(mxWccSz));
-    printf("log(mxWccSz) - log(secondMxWccSz) = %f\n", log(mxWccSz) - log(secondMxWccSz));
+    if (temp > rep / 2) {
+      printf("(pl: %f) --> | --- (pr: %f)\n", pl, pr);
+      pl = p;
+    } else {
+      printf("(pl: %f) --- | <-- (pr: %f)\n", pl, pr);
+      pr = p;
+    }
   }
+  
+  GraphCopy.Clr();
+  WccSzCnt.Clr();
+  GraphCopy = PercolateGraph(Graph, p);
+  
+  GetWccSzCnt(GraphCopy, WccSzCnt);
+  GetWccStats(WccSzCnt, numWcc, mnWccSz, medWccSz, meanWccSz, mxWccSz);
+  nextWccSz = WccSzCnt.LastLast().Val1;
+      
+  printf("--------------\n");
+  printf("probability = %f\n", p);
+  printf("numNodes = %d\n", numNodes);
+  printf("numWcc = %d\n", numWcc);
+  printf("mnWccSz = %d\n", mnWccSz);
+  printf("medWccSz = %f\n", medWccSz);
+  printf("meanWccSz = %f\n", meanWccSz);
+  printf("mxWccSz = %d\n", mxWccSz);
+  printf("secondMxWccSz = %d\n", nextWccSz);
+  printf("log(numNodes) - log(mxWccSz) = %f\n", log(numNodes) - log(mxWccSz));
+  printf("log(mxWccSz) - log(meanWccSz) = %f\n", log(mxWccSz) - log(meanWccSz));
+  printf("log(numNodes) - log(mxWccSz) = %f\n", log(numNodes) - log(mxWccSz));
+  printf("log(mxWccSz) - log(nextWccSz) = %f\n", log(mxWccSz) - log(nextWccSz));
+  
   return p;
 }
 
