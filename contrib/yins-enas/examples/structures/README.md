@@ -52,6 +52,6 @@ DATASET=../../datasets/USairport2010
 rm -rf $DATASET/structures
 mkdir $DATASET/structures
 ./structures -i:$DATASET/USairport2010.snap \
-             -o:$DATASET/statistics/USairport2010 \
+             -o:$DATASET/structures/USairport2010 \
              --iters:100
 ```
