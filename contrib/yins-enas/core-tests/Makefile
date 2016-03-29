@@ -22,6 +22,7 @@ MAIN = run-core-tests
 
 TEST_SRCS = \
 	stats-tests.cpp \
+	stats-tests.cpp \
 	wgraph-tests.cpp \
 	wstats-tests.cpp \
 	wdeg-tests.cpp \
