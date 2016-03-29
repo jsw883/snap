@@ -1,5 +1,5 @@
 generators (graph generators)
-------------------------------------
+-----------------------------
 
 Generates graphs for testing.
 

@@ -568,7 +568,7 @@ public:
 private:
   TCustomNeighborhoodVisitor Visitor;
 public:
-  TCustomFixedMemoryNeighborhood(const PGraph& Graph, const TIntV& NIdV) : TFixedMemoryBFS<PGraph>(Graph), Visitor(TCustomNeighborhoodVisitor(NIdV)) { }
+  TCustomFixedMemoryNeighborhood(const PGraph& Graph, const TIntV& DstNIdV) : TFixedMemoryBFS<PGraph>(Graph), Visitor(TCustomNeighborhoodVisitor(DstNIdV)) { }
 
   // Compute neighborhood depth counts using the direction specified
   void ComputeCustomNeighborhood(const int& NId, const TEdgeDir& Dir, TUInt64V& Neigborhood, TIntV& ShortestPathV);
@@ -576,35 +576,35 @@ public:
   void ComputeCustomINF(const int& NId, const TEdgeDir& Dir, TUInt64V& INF, TIntV& ShortestPathV);
 
   // Get neighborhood for the subset of nodes using the direction specified
-  void ComputeCustomSubsetNeighborhoodH(const TIntV& NIdV, const TEdgeDir& Dir, THash<TInt, TUInt64V>& NeighborhoodH, TIntIntVH& ShortestPathVH);
+  void ComputeCustomSubsetNeighborhoodH(const TIntV& NIdV, const TEdgeDir& Dir, THash<TInt, TUInt64V>& NeighborhoodH, TIntIntVH& DstNIdVShortestPathVH);
   // Get INF for the subset of nodes using the direction specified
-  void ComputeCustomSubsetINFH(const TIntV& NIdV, const TEdgeDir& Dir, THash<TInt, TUInt64V>& INFH, TIntIntVH& ShortestPathVH);
+  void ComputeCustomSubsetINFH(const TIntV& NIdV, const TEdgeDir& Dir, THash<TInt, TUInt64V>& INFH, TIntIntVH& DstNIdVShortestPathVH);
   
   // Get exact NF for the subset of nodes (int / out / undirected)
-  void ComputeCustomInSubsetNF(const TIntV& NIdV, TUInt64V& NF, TIntIntVH& ShortestPathVH) {
-    ComputeCustomSubsetNF(NIdV, edInDirected, NF, ShortestPathVH);
+  void ComputeCustomInSubsetNF(const TIntV& NIdV, TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH) {
+    ComputeCustomSubsetNF(NIdV, edInDirected, NF, DstNIdVShortestPathVH);
   }
-  void ComputeCustomOutSubsetNF(const TIntV& NIdV, TUInt64V& NF, TIntIntVH& ShortestPathVH) {
-    ComputeCustomSubsetNF(NIdV, edOutDirected, NF, ShortestPathVH);
+  void ComputeCustomOutSubsetNF(const TIntV& NIdV, TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH) {
+    ComputeCustomSubsetNF(NIdV, edOutDirected, NF, DstNIdVShortestPathVH);
   }
-  void ComputeCustomSubsetNF(const TIntV& NIdV, TUInt64V& NF, TIntIntVH& ShortestPathVH) {
-    ComputeCustomSubsetNF(NIdV, edUnDirected, NF, ShortestPathVH);
+  void ComputeCustomSubsetNF(const TIntV& NIdV, TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH) {
+    ComputeCustomSubsetNF(NIdV, edUnDirected, NF, DstNIdVShortestPathVH);
   }
   // Get exact NF for the subset of nodes using the direction specified
-  void ComputeCustomSubsetNF(const TIntV& NIdV, const TEdgeDir& Dir, TUInt64V& NF, TIntIntVH& ShortestPathVH);
+  void ComputeCustomSubsetNF(const TIntV& NIdV, const TEdgeDir& Dir, TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH);
   
   // Get exact NF for the entire graph (int / out / undirected)
-  void ComputeCustomInNF(TUInt64V& NF, TIntIntVH& ShortestPathVH) {
+  void ComputeCustomInNF(TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH) {
     TIntV NIdV; this->Graph->GetNIdV(NIdV);
-    ComputeCustomSubsetNF(NIdV, edInDirected, NF, ShortestPathVH);
+    ComputeCustomSubsetNF(NIdV, edInDirected, NF, DstNIdVShortestPathVH);
   }
-  void ComputeCustomOutNF(TUInt64V& NF, TIntIntVH& ShortestPathVH) {
+  void ComputeCustomOutNF(TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH) {
     TIntV NIdV; this->Graph->GetNIdV(NIdV);
-    ComputeCustomSubsetNF(NIdV, edOutDirected, NF, ShortestPathVH);
+    ComputeCustomSubsetNF(NIdV, edOutDirected, NF, DstNIdVShortestPathVH);
   }
-  void ComputeCustomNF(TUInt64V& NF, TIntIntVH& ShortestPathVH) {
+  void ComputeCustomNF(TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH) {
     TIntV NIdV; this->Graph->GetNIdV(NIdV);
-    ComputeCustomSubsetNF(NIdV, edUnDirected, NF, ShortestPathVH);
+    ComputeCustomSubsetNF(NIdV, edUnDirected, NF, DstNIdVShortestPathVH);
   }
   
 
@@ -624,13 +624,13 @@ void TCustomFixedMemoryNeighborhood<PGraph>::ComputeCustomNeighborhood(const int
 // Compute INF using the direction specified
 template <class PGraph>
 void TCustomFixedMemoryNeighborhood<PGraph>::ComputeCustomINF(const int& NId, const TEdgeDir& Dir, TUInt64V& INF, TIntV& ShortestPathV) {
-  ComputeCustomNeighborhood(NId, Dir, INF);
+  ComputeCustomNeighborhood(NId, Dir, INF, ShortestPathV);
   ConvertNeighborhoodNF(INF);
 }
 
 // Compute subset neighborhood depth counts using the direction specified
 template <class PGraph>
-void TCustomFixedMemoryNeighborhood<PGraph>::ComputeCustomSubsetNeighborhoodH(const TIntV& NIdV, const TEdgeDir& Dir, THash<TInt, TUInt64V>& NeighborhoodH, TIntIntVH& ShortestPathVH) {
+void TCustomFixedMemoryNeighborhood<PGraph>::ComputeCustomSubsetNeighborhoodH(const TIntV& NIdV, const TEdgeDir& Dir, THash<TInt, TUInt64V>& NeighborhoodH, TIntIntVH& DstNIdVShortestPathVH) {
   // Variables
   TIntV::TIter VI;
   TUInt64V Neighborhood;
@@ -645,13 +645,13 @@ void TCustomFixedMemoryNeighborhood<PGraph>::ComputeCustomSubsetNeighborhoodH(co
     ComputeCustomNeighborhood(NId, Dir, Neighborhood, ShortestPathV);
     // Add INFH
     NeighborhoodH.AddDat(NId, Neighborhood);
-    ShortestPathVH.AddDat(NId, ShortestPathV);
+    DstNIdVShortestPathVH.AddDat(NId, ShortestPathV);
   }
 }
 
 // Compute subset INFH using the direction specified
 template <class PGraph>
-void TCustomFixedMemoryNeighborhood<PGraph>::ComputeCustomSubsetINFH(const TIntV& NIdV, const TEdgeDir& Dir, THash<TInt, TUInt64V>& INFH, TIntIntVH& ShortestPathVH) {
+void TCustomFixedMemoryNeighborhood<PGraph>::ComputeCustomSubsetINFH(const TIntV& NIdV, const TEdgeDir& Dir, THash<TInt, TUInt64V>& INFH, TIntIntVH& DstNIdVShortestPathVH) {
   // Variables
   TIntV::TIter VI;
   TUInt64V INF;
@@ -666,18 +666,18 @@ void TCustomFixedMemoryNeighborhood<PGraph>::ComputeCustomSubsetINFH(const TIntV
     ComputeCustomINF(NId, Dir, INF, ShortestPathV);
     // Add INFH
     INFH.AddDat(NId, INF);
-    ShortestPathVH.AddDat(NId, ShortestPathV);
+    DstNIdVShortestPathVH.AddDat(NId, ShortestPathV);
   }
 }
 
 // Compute subset NF using the direction specified
 template <class PGraph>
-void TCustomFixedMemoryNeighborhood<PGraph>::ComputeCustomSubsetNF(const TIntV& NIdV, const TEdgeDir& Dir, TUInt64V& NF, TIntIntVH& ShortestPathVH) {
+void TCustomFixedMemoryNeighborhood<PGraph>::ComputeCustomSubsetNF(const TIntV& NIdV, const TEdgeDir& Dir, TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH) {
   // Variables
   THash<TInt, TUInt64V>::TIter HI;
   THash<TInt, TUInt64V> NeighborhoodH;
   // Compute neighborhoods
-  ComputeCustomSubsetNeighborhoodH(NIdV, Dir, NeighborhoodH, ShortestPathVH);
+  ComputeCustomSubsetNeighborhoodH(NIdV, Dir, NeighborhoodH, DstNIdVShortestPathVH);
   ConvertSubsetNeighborhoodHSubsetNF(NeighborhoodH, NF);
 }
 
