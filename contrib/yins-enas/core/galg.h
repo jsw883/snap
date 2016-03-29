@@ -389,7 +389,7 @@ static PGraph EdgePercolateGraph(const PGraph& Graph, const double& p) {
 }
 
 template <class PGraph>
-double FindPercolationThreshold(const PGraph& Graph, const double& tol, const double& lowerBound, const double& upperBound, const int& rep = 10) {
+double FindPercolationThreshold(const PGraph& Graph, const double& tol, const double& lowerBound, const double& upperBound, const int& rep) {
   // Reserver memory now for efficiency
   PGraph GraphCopy = PGraph::TObj::New(Graph->GetNodes(), Graph->GetEdges());
   TIntPrV WccSzCnt;

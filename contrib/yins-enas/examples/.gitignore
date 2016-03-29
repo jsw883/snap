@@ -9,16 +9,18 @@
 */diameters.exe
 */egonets
 */egonets.exe
+*/nullmodels
+*/nullmodels.exe
 */statistics
 */statistics.exe
 */structures
 */structures.exe
+*/vespignani
+*/vespignani.exe
 */wcentrality
 */wcentrality.exe
 */wstatistics
 */wstatistics.exe
-*/vespignani
-*/vespignani.exe
 
 # Custom bash scripts for running on datasets
 */run.DIAN

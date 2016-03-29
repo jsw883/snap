@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
     AvDiameterToSizeRatio = 0;
     for (WCnComI = WCnComV.BegI(); WCnComI < WCnComV.EndI(); WCnComI++) {
       // Compute the nodes, radius, and diameter
-      FixedMemoryNeighborhood.ComputeSubsetNF(WCnComI->NIdV, edOutDirected, NF);
+      FixedMemoryNeighborhood.ComputeSubsetNF(WCnComI->NIdV, d, NF);
       nodes = WCnComI->Len();
       radius = TSnap::InterpolateNF(NF, 0.5);
       diameter = TSnap::InterpolateNF(NF, 1.0);

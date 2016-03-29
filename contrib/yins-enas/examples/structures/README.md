@@ -51,7 +51,7 @@ which is included in this repository.
 DATASET=../../datasets/USairport2010
 rm -rf $DATASET/structures
 mkdir $DATASET/structures
-./structures -i:$DATASET.snap \
-             -o:$DATASET-structures \
-             -p:0.5 -d:2 --iters:10
+./structures -i:$DATASET/USairport2010.snap \
+             -o:$DATASET/statistics/USairport2010 \
+             --iters:100
 ```
