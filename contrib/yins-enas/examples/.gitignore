@@ -5,8 +5,6 @@
 */community.exe
 */connectivity
 */connectivity.exe
-*/diameters
-*/diameters.exe
 */egonets
 */egonets.exe
 */nullmodels
@@ -15,6 +13,8 @@
 */statistics.exe
 */structures
 */structures.exe
+*/subsets
+*/subsets.exe
 */vespignani
 */vespignani.exe
 */wcentrality

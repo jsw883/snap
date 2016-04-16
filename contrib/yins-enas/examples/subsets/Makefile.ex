@@ -2,7 +2,7 @@
 #	configuration variables for the example
 #
 
-MAIN = diameters
+MAIN = subsets
 DEPH = \
     $(EXCORE)/galg.h \
     $(EXCORE)/galgfixedmemory.h \

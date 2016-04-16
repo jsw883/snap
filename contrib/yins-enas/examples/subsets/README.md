@@ -1,5 +1,5 @@
-diameters (subset connectivity)
--------------------------------
+subsets (subset connectivity)
+-----------------------------
 
 Computes neighborhood node counts, radius, and diameter for a subset of nodes
 specified, and optionally computes the same for a random subset of nodes for
@@ -30,7 +30,7 @@ well. For makefiles, compile the code with `make all`.
 ### Usage ###
 
 ```
-Usage: ./diameters -i:<input network> -o:<output prefix> [Options]
+Usage: ./subsets -i:<input network> -o:<output prefix> [Options]
 Options:
     -i              input network (tab separated list of edges)
     -o              output prefix (filename extensions added)
@@ -50,11 +50,11 @@ which is included in this repository.
 
 ```bash
 DATASET=../../datasets/USairport2010
-rm -rf $DATASET/diameters
-mkdir $DATASET/diameters
-./diameters -i:$DATASET/USairport2010.snap \
+rm -rf $DATASET/subsets
+mkdir $DATASET/subsets
+./subsets -i:$DATASET/USairport2010.snap \
             -s:$DATASET/SrcNIdV.TIntV \
             -d:$DATASET/DstNIdV.TIntV \
-            -o:$DATASET/diameters/USairport2010 \
+            -o:$DATASET/subsets/USairport2010 \
             --dir:3 --collate:T
 ```
