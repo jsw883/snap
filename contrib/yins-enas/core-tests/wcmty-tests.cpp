@@ -58,6 +58,9 @@ TYPED_TEST(TWNGraphWCmtyTest, LouvainMethod) {
   
   // Test community hierarchy
   
+  printf("quality: %f\n", quality);
+  EXPECT_EQ(quality, quality);
+  
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     NId = NI.GetId();
     EXPECT_EQ(NId, NIdCmtyVH.GetDat(NId)[0]);

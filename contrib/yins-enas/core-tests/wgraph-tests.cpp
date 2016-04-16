@@ -403,7 +403,7 @@ TYPED_TEST(TWNEGraphTest, SpecificGraphFunctionality) {
       counter++;
     }
     // check neighboring nodes iterator and existence
-    for (int e = 0; e < NI.GetDeg(); e++) {alys
+    for (int e = 0; e < NI.GetDeg(); e++) {
       EXPECT_TRUE(NI.IsNbrEId(NI.GetNbrEId(e)));
     }
   }

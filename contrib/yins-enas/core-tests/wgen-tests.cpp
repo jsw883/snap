@@ -85,37 +85,37 @@ TYPED_TEST(TWNGenTest, RandomGraphGenerators) {
 
 }
 
-// Test graph randomizers
-TYPED_TEST(TWNGenTest, RandomGraphAlgorithms) {
+// // Test graph randomizers
+// TYPED_TEST(TWNGenTest, RandomGraphAlgorithms) {
 
-  typedef TypeParam TEdgeW;
-  typedef TPt<TWNGraph<TEdgeW> > PGraph;
+//   typedef TypeParam TEdgeW;
+//   typedef TPt<TWNGraph<TEdgeW> > PGraph;
 
-  int Nodes = 1000;
-  int OutDeg = 10;
+//   int Nodes = 1000;
+//   int OutDeg = 10;
 
-  TEdgeW TotalW = 1000000;
+//   TEdgeW TotalW = 1000000;
 
-  TRnd Rnd(0);
+//   TRnd Rnd(0);
   
-  PGraph Graph;
+//   PGraph Graph;
 
-  // GEOMETRIC WEIGHTED ERDOS RENYI
+//   // GEOMETRIC WEIGHTED ERDOS RENYI
   
-  Graph.Clr();
-  Graph = TSnap::GenGeoErdosRenyi<TEdgeW, TWNGraph>(Nodes, TotalW, Rnd);
+//   Graph.Clr();
+//   Graph = TSnap::GenGeoErdosRenyi<TEdgeW, TWNGraph>(Nodes, TotalW, Rnd);
   
-  // WEIGHT RESHUFFLING
+//   // WEIGHT RESHUFFLING
   
-  TSnap::WeightShuffling<TEdgeW>(Graph);
+//   TSnap::WeightShuffling<TEdgeW>(Graph);
   
-  // graph properties, counts, and directed
-  EXPECT_FALSE(Graph->Empty());
-  EXPECT_TRUE(Graph->IsOk());
-  EXPECT_EQ(Nodes, Graph->GetNodes());
-  EXPECT_FLOAT_EQ(GenParetoBarabasiTotalW, Graph->GetTotalW());
+//   // graph properties, counts, and directed
+//   EXPECT_FALSE(Graph->Empty());
+//   EXPECT_TRUE(Graph->IsOk());
+//   EXPECT_EQ(Nodes, Graph->GetNodes());
+//   EXPECT_FLOAT_EQ(GenParetoBarabasiTotalW, Graph->GetTotalW());
   
-  // TODO: implement test for weights being shuffled
-  // TODO: implement test for degree, weight distributions being preserved
+//   // TODO: implement test for weights being shuffled
+//   // TODO: implement test for degree, weight distributions being preserved
   
-}
+// }

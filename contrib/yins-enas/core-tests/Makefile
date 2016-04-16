@@ -22,7 +22,7 @@ MAIN = run-core-tests
 
 TEST_SRCS = \
 	stats-tests.cpp \
-	stats-tests.cpp \
+	percolate-tests.cpp \
 	wgraph-tests.cpp \
 	wstats-tests.cpp \
 	wdeg-tests.cpp \
@@ -34,8 +34,11 @@ TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 DEPH = \
     $(CCORE)/wgraph.h \
 	$(CCORE)/galg.h \
+	$(CCORE)/galgfixedmemory.h \
+	$(CCORE)/galgcustom.h \
 	$(CCORE)/stats.h \
-    $(CCORE)/wgio.h \
+	$(CCORE)/percolate.h \
+	$(CCORE)/wgio.h \
     $(CCORE)/wdeg.h \
     $(CCORE)/wgen.h \
     $(CCORE)/wcmty.h \
@@ -43,7 +46,10 @@ DEPH = \
 DEPCPP = \
     $(CCORE)/wgraph.cpp \
 	$(CCORE)/galg.cpp \
+	$(CCORE)/galgfixedmemory.cpp \
+	$(CCORE)/galgcustom.cpp \
 	$(CCORE)/stats.cpp \
+	$(CCORE)/percolate.cpp\
     $(CCORE)/wgio.cpp \
     $(CCORE)/wdeg.cpp \
     $(CCORE)/wgen.cpp \

@@ -13,8 +13,8 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
   // SUBSET NEIGHBORHOOD FUNCTION
   
   printf("\nComputing %s subset diameter, node counts, and exact shortest paths...", SrcNm.CStr());
-  TSnap::TCustomFixedMemoryNeighborhood<PNGraph> CustomFixedMemoryNeighborhood(Graph, DstNIdV);
-  CustomFixedMemoryNeighborhood.ComputeCustomSubsetINFH(SrcNIdV, d, INFH, DstNIdShortestPathVH);
+  TSnap::TFixedMemoryExhaustiveNeighborhood<PNGraph> FixedMemoryExhaustiveNeighborhood(Graph, DstNIdV);
+  FixedMemoryExhaustiveNeighborhood.ComputeSubsetINFH(SrcNIdV, d, INFH, DstNIdShortestPathVH);
   TSnap::ConvertSubsetINFHSubsetNF(INFH, NF);
   printf(" DONE: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   

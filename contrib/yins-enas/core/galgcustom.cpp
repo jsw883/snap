@@ -1,4 +1,4 @@
 // Headers (?)
 
 #include "stdafx.h"
-#include "galg.h"
+#include "galgcustom.h"

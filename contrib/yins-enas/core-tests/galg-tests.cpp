@@ -19,7 +19,7 @@ public:
 
 TYPED_TEST_CASE(GraphAlgorithmsTest, NoMultiGraphs);
 
-TYPED_TEST(GraphAlgorithmsTest, SmallGraphStatistics) {
+TYPED_TEST(GraphAlgorithmsTest, SmallGraphAlgorithms) {
 
   // DECLARATIONS AND INITIALIZATIONS
 
@@ -47,10 +47,10 @@ TYPED_TEST(GraphAlgorithmsTest, SmallGraphStatistics) {
   
   Graph->GetNIdV(NIdV);
   
-  TSnap::TCustomFixedMemoryNeighborhood<PGraph> TCustomFixedMemoryNeighborhood(Graph, NIdV);
-  TCustomFixedMemoryNeighborhood.ComputeCustomInNF(InNF, InShortestPathVH);
-  TCustomFixedMemoryNeighborhood.ComputeCustomOutNF(OutNF, OutShortestPathVH);
-  TCustomFixedMemoryNeighborhood.ComputeCustomNF(NF, ShortestPathVH);
+  TSnap::TFixedMemoryExhaustiveNeighborhood<PGraph> TFixedMemoryExhaustiveNeighborhood(Graph, NIdV);
+  TFixedMemoryExhaustiveNeighborhood.ComputeInNF(InNF, InShortestPathVH);
+  TFixedMemoryExhaustiveNeighborhood.ComputeOutNF(OutNF, OutShortestPathVH);
+  TFixedMemoryExhaustiveNeighborhood.ComputeNF(NF, ShortestPathVH);
   
   printf("InShortestPathVH\n----------------\n");
   for (int i = 0; i < InShortestPathVH.Len(); i++) {
@@ -153,7 +153,7 @@ TYPED_TEST(GraphAlgorithmsTest, SmallGraphStatistics) {
   
 }
 
-TYPED_TEST(GraphAlgorithmsTest, TinyGraphStatistics) {
+TYPED_TEST(GraphAlgorithmsTest, TinyGraphAlgorithms) {
 
   // DECLARATIONS AND INITIALIZATIONS
 
@@ -194,7 +194,7 @@ TYPED_TEST(GraphAlgorithmsTest, TinyGraphStatistics) {
   
 }
 
-TYPED_TEST(GraphAlgorithmsTest, RandomGraphStatistics) {
+TYPED_TEST(GraphAlgorithmsTest, RandomGraphAlgorithms) {
 
   // DECLARATIONS AND INITIALIZATIONS
 

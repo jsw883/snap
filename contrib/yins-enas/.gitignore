@@ -39,16 +39,16 @@
 .svn
 .git
 
-# Deprecated
-*deprecated*
-*DEPRECATED*
-
-# Converts unweighted into weighted networks
-wconversions
-
 # Custom bash scripts for testing
 testing.config
 *DIAN*
 *testing
 .conf/
 *.conf
+
+# Generated graphs for testing
+generated/
+
+# Deprecated
+*deprecated*
+*DEPRECATED*
