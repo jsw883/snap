@@ -5,7 +5,7 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
   // Declare variables
   TUInt64V NF;
   THash<TInt, TUInt64V> INFH;
-  TIntIntVH DstNIdShortestPathVH;
+  TIntIntVH ShortestPathVH;
   TIntIntH NodesH, DiameterH;
   TIntFltH RadiusH; // Radius is "median path length"
   TIntV::TIter VI;
@@ -14,7 +14,7 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
   
   printf("\nComputing %s subset diameter, node counts, and exact shortest paths...", SrcNm.CStr());
   TSnap::TFixedMemoryExhaustiveNeighborhood<PNGraph> FixedMemoryExhaustiveNeighborhood(Graph, DstNIdV);
-  FixedMemoryExhaustiveNeighborhood.ComputeSubsetINFH(SrcNIdV, d, INFH, DstNIdShortestPathVH);
+  FixedMemoryExhaustiveNeighborhood.ComputeSubsetINFH(SrcNIdV, d, INFH, ShortestPathVH);
   TSnap::ConvertSubsetINFHSubsetNF(INFH, NF);
   printf(" DONE: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
@@ -33,9 +33,25 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
   TSnap::SaveTxt(NF, TStr::Fmt("%s.%s.hop.NF", OutFNm.CStr(), SrcNm.CStr()), "Exact subset neighbourhood function / shortest path cumulative density (hop)");
   printf(" DONE\n");
   
+  TIntIntVH::TIter HI;
+  
   printf("\nSaving %s.%s.%s.ShortestPathVH...", BseFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
-  TSnap::SaveTxt(DstNIdShortestPathVH, TStr::Fmt("%s.%s.%s.ShortestPathVH", OutFNm.CStr(), SrcNm.CStr(),  DstNm.CStr()), "Exact shortest paths to another subset of the graph (possibly exhaustive)");
+  const TStr ShortestPathVHFNm = TStr::Fmt("%s.%s.%s.ShortestPathVH", OutFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
+  FILE *F = fopen(ShortestPathVHFNm.CStr(), "wt");  
+  fprintf(F, "# Exact shortest paths to another subset of the graph (possibly exhaustive)\n");
+  fprintf(F, "# SrcNIdV.Len(): %d\tDstNIdV.Len(): %d\t\n", SrcNIdV.Len(), DstNIdV.Len());
+  fprintf(F, "# SrcNId\tDstNId\tShortestPathLength\n");
+  for (HI = ShortestPathVH.BegI(); HI < ShortestPathVH.EndI(); HI++) {
+    const TIntV& ShortestPathV = HI.GetDat();
+    for (int i = 0; i < DstNIdV.Len(); i++) {
+      fprintf(F, "%d\t%d\t%d\n", (int) HI.GetKey(), (int) DstNIdV[i], (int) ShortestPathV[i]);
+    }
+  }
   printf(" DONE\n");
+
+  // printf("\nSaving %s.%s.%s.ShortestPathVH...", BseFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
+  // TSnap::SaveTxt(ShortestPathVH, TStr::Fmt("%s.%s.%s.ShortestPathVH", OutFNm.CStr(), SrcNm.CStr(),  DstNm.CStr()), "Exact shortest paths to another subset of the graph (possibly exhaustive)");
+  // printf(" DONE\n");
   
   if (collate) {
     
