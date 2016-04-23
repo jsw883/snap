@@ -66,7 +66,7 @@ void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir) { // ON
   typename PGraph::TObj::TNodeI NI, UI, VI;
   // BFS
   // printf("NId: %d\n", NId);
-  Color.AddDat(NId, 1);
+  Color.AddDat(NId, 0);
   Queue.Push(TQueueTr(NId, depth, WD)); // NO IN-WEIGHT, SOURCE
   
   // Visitor.DiscoverNode(U, depth, W);
@@ -90,9 +90,9 @@ void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir) { // ON
       V = UI.GetNbrNId(edge, dir);
       // Visitor.ExamineEdge(U, depth, edge, V);
       
-      if (!Color.IsKey(V)) { // TWEAK:  || Color.GetDat(V) < depth + 1
+      if (Color.GetDat(V) < depth + 1) {
         // Color.AddDat(V, 1);
-        Color.AddDat(depth + 1);
+        Color.AddDat(V, depth + 1);
         
         // WEIGHTED DISTANCE
         if (WD == 0) {
@@ -107,13 +107,11 @@ void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir) { // ON
         if (NIdVWDH.IsKey(V)) {
           // NIdVWDH.GetDat(V) = depth + 1;
           NIdVWDH.GetDat(V) += VWD;
+        } else if (depth + 1 < k && VWD > tol) { // CONTINUE
+          Queue.Push(TQueueTr(V, depth + 1, VWD));
         }
         
         // Visitor.TreeEdge(U, depth, edge, V);
-        
-        if (depth + 1 < k && VWD > tol) { // CONTINUE
-          Queue.Push(TQueueTr(V, depth + 1, VWD));
-        }
         
       }
       // else if (Color.GetDat(V) == 1) {
