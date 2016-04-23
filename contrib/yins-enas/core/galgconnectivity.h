@@ -1,8 +1,8 @@
 //#//////////////////////////////////////////////
 /// Graph traversal algorithms
 
-#ifndef core_galgcustom
-#define core_galgcustom
+#ifndef core_galgconnectivity
+#define core_galgconnectivity
 
 // Headers (?)
 
@@ -100,7 +100,6 @@ public:
     ComputeSubsetNF(NIdV, edUnDirected, NF, DstNIdVShortestPathVH);
   }
   
-
   void Clr(const bool& DoDel = false);
 };
 
