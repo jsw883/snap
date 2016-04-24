@@ -21,12 +21,13 @@ template <class PGraph> class TFixedMemoryWD;
 template <class PGraph>
 class TFixedMemoryWD {
 public:
-  typedef TTriple<TInt, TInt, TFlt> TQueueTr;
+  typedef TQuad<TInt, TInt, TInt, TFlt> TQueueQuad;
 private:
   PGraph Graph;
-  TSnapQueue<TQueueTr > Queue;
+  TSnapQueue<TQueueQuad> Queue;
   TIntH Color;
   // Visitor
+  THash<TInt, TIntSet> PSetH;
   TIntFltH NIdVWDH;
   int k;
   double tol;
@@ -61,36 +62,47 @@ template <class PGraph> // class template still needs to be declared
 void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir) { // ONLY DEFINED FOR A SINGLE NID FOR NOW
   Clr(false);
   // Visitor.Start();
-  int depth = 0, edge = 0, Deg = 0, U = 0, V = 0;
+  int temp = 0, path = 0, depth = 0, edge = 0, Deg = 0, U = 0, V = 0;
   double WD = 0, VWD;
   typename PGraph::TObj::TNodeI NI, UI, VI;
+  TIntSet IS;
   // BFS
   // printf("NId: %d\n", NId);
-  Color.AddDat(NId, 0);
-  Queue.Push(TQueueTr(NId, depth, WD)); // NO IN-WEIGHT, SOURCE
+  Color.AddDat(NId, 0);  // DEPTH
+  IS.AddKey(NId);
+  PSetH.AddDat(path, IS);
+  temp++;
+  Queue.Push(TQueueQuad(NId, depth, path, WD)); // NO IN-WEIGHT, SOURCE
   
   // Visitor.DiscoverNode(U, depth, W);
   // Weighted distances
   // if (NIdVWDH.IsKey(NId)) {
   //   NIdVWDH.GetDat(NId) = depth;
   // }
-        
+  
   while (!Queue.Empty()) {
-    const TQueueTr& Top = Queue.Top();
-    U = Top.Val1; depth = Top.Val2; WD = Top.Val3; UI = Graph->GetNI(U);
+    // printf("popping:\n");
+    
+    const TQueueQuad& Top = Queue.Top();
+    U = Top.Val1; depth = Top.Val2; path = Top.Val3; WD = Top.Val4;
+    // printf("path: %d\n", path);
+    
     // printf("U: %d\n", U);
     // printf("depth: %d\n", depth);
+    // printf("path: %d\n", path);
     // printf("WD: %f\n", WD);
+    
+    UI = Graph->GetNI(U);
     
     Deg = UI.GetDeg(dir);
     
     edge = 0;
-    Queue.Pop();
+    Queue.Pop(); // deletes memory
     while (edge != Deg) {
       V = UI.GetNbrNId(edge, dir);
       // Visitor.ExamineEdge(U, depth, edge, V);
       
-      if (Color.GetDat(V) < depth + 1) {
+      if (!PSetH.GetDat(path).IsKey(V)) { // TWEAK:  !Color.IsKey(V) || Color.GetDat(V) < depth + 1
         // Color.AddDat(V, 1);
         Color.AddDat(V, depth + 1);
         
@@ -100,18 +112,21 @@ void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir) { // ON
         } else {
           VWD = WD * UI.GetNbrEW(edge, dir) / UI.GetWDeg(dir);
         }
-        // TODO: STORE CUMULATIVE WD IN NIdVWDH
-        
-        // Visitor.DiscoverNode(V, depth + 1, W);
-        // Weighted distances
-        if (NIdVWDH.IsKey(V)) {
-          // NIdVWDH.GetDat(V) = depth + 1;
+        // STORE
+        if (NIdVWDH.IsKey(V) && VWD > tol) {
           NIdVWDH.GetDat(V) += VWD;
-        } else if (depth + 1 < k && VWD > tol) { // CONTINUE
-          Queue.Push(TQueueTr(V, depth + 1, VWD));
         }
         
         // Visitor.TreeEdge(U, depth, edge, V);
+        
+        if (depth + 1 < k && VWD > tol) { // CONTINUE
+          temp++;
+          // printf("temp: %d\n", temp);
+          const TIntSet PSCopy = PSetH.GetDat(path); // CAN'T REFERENCE, MUST COPY
+          TIntSet& PS = PSetH.AddDat(temp, PSCopy);
+          PS.AddKey(V);
+          Queue.Push(TQueueQuad(V, depth + 1, temp, VWD));
+        }
         
       }
       // else if (Color.GetDat(V) == 1) {
@@ -125,6 +140,12 @@ void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir) { // ON
     }
     // Color.AddDat(U, 2);
     // Visitor.FinishNode(U, depth); // finish
+    
+    // printf("deleting key: %d\n", path);
+    // printf("len: %d\n", PSetH.GetDat(path).Len());
+    PSetH.DelKey(path);
+    // printf("deleted: %d\n", path);
+    
   }
   // Visitor.Finish();
 }
@@ -165,8 +186,9 @@ void TFixedMemoryWD<PGraph>::Clr(const bool& DoDel) {
   for (HI = NIdVWDH.BegI(); HI < NIdVWDH.EndI(); HI++) {
     HI.GetDat() = 0; // Reset path length within memory
   }
+  PSetH.Clr(DoDel); // May need to force true to reduce memory
 }
 
 } // namespace TSnap
 
-#endif
+#endif  
