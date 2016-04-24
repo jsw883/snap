@@ -35,7 +35,7 @@ DEPH = \
     $(CCORE)/wgraph.h \
 	$(CCORE)/galg.h \
 	$(CCORE)/galgfixedmemory.h \
-	$(CCORE)/galgcustom.h \
+	$(CCORE)/galgconnectivity.h \
 	$(CCORE)/stats.h \
 	$(CCORE)/percolate.h \
 	$(CCORE)/wgio.h \
@@ -47,7 +47,7 @@ DEPCPP = \
     $(CCORE)/wgraph.cpp \
 	$(CCORE)/galg.cpp \
 	$(CCORE)/galgfixedmemory.cpp \
-	$(CCORE)/galgcustom.cpp \
+	$(CCORE)/galgconnectivity.cpp \
 	$(CCORE)/stats.cpp \
 	$(CCORE)/percolate.cpp\
     $(CCORE)/wgio.cpp \

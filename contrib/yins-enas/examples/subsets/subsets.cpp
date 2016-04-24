@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
   setbuf(stdout, NULL); // disables the buffer so that print statements are not buffered and display immediately (?)
   
   Env = TEnv(argc, argv, TNotify::StdNotify);
-  Env.PrepArgs(TStr::Fmt("Graph connectivity. build: %s, %s. Time: %s", __TIME__, __DATE__, TExeTm::GetCurTm()));
+  Env.PrepArgs(TStr::Fmt("Graph subset NF. build: %s, %s. Time: %s", __TIME__, __DATE__, TExeTm::GetCurTm()));
   
   TExeTm ExeTm;
   
