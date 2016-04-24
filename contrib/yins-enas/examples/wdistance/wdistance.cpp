@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
   const TStr DstNIdVFNm = Env.GetIfArgPrefixStr("-d:", "", "destination subset of nodes (new line separated)");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const int k = Env.GetIfArgPrefixInt("-k:", 10, "depth limit for BFS");
-  const double tol = Env.GetIfArgPrefixFlt("--tol:", 1e-3, "weighted distance tolerance limit for BFS");
+  const double tol = Env.GetIfArgPrefixFlt("--tol:", 1e-3, "weighted distance limit for BFS");
   const TEdgeDir d = (TEdgeDir) Env.GetIfArgPrefixInt("--dir:", 3, "direction of traversal: in = 1, out = 2, undected = 3");
   const bool exhaustive = Env.GetIfArgPrefixBool("--exhaustive:", false, "compute for every node (overrides -s, -d): T / F");
   
