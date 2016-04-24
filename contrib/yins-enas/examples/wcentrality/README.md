@@ -48,7 +48,8 @@ Options:
     -o          output prefix (filename extensions added)
     -k          depth of degree traversal (default: 1)
     -c          personalization parameter for PageRank (default: 0.85)
-    -a          endogenous parameter for alpha centrality (default: 1.0e-8)
+    -r          ratio of endogenous parameter to dominant eigenvalue
+                    (alpha centrality) (default: 0.5)
     --eps       precision for power method convergence (default: 1.0e-4)
     --iters     maximum number of iterations (default 1.0e+3)
     --collate   collate properties into matrix: T / F (default: F)
@@ -66,7 +67,7 @@ mkdir $DATASET/wcentrality
 ./wcentrality -i:$DATASET/USairport2010.snap \
               -e:$DATASET/exogenous.status.TIntFltH \
               -o:$DATASET/wcentrality/USairport2010 \
-              -k:3 -c:0.85 -a:1.0e-8 \
+              -k:3 -c:0.85 -r:0.5 \
               --eps:1.0e-5 --iters:1e+4 \
               --collate:T
 ```

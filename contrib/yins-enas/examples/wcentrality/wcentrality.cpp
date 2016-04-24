@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
   const TStr BseFNm = OutFNm.RightOfLast('/');
   const int k = Env.GetIfArgPrefixInt("-k:", 1, "depth of degree traversal");
   const double c = Env.GetIfArgPrefixFlt("-c:", 0.85, "personalization parameter for PageRank centrality");
-  const double a = Env.GetIfArgPrefixFlt("-a:", 1.0e-8, "endogenous parameter for alpha centrality");
+  const double r = Env.GetIfArgPrefixFlt("-r:", 0.5, "ratio of endogenous parameter to dominant eigenvalue for alpha centrality");
   const double eps = Env.GetIfArgPrefixFlt("--eps:", 1.0e-4, "precision for power method convergence");
   const int iters = Env.GetIfArgPrefixInt("--iters:", 1.0e+3, "maximum number of iterations");
   const bool collate = Env.GetIfArgPrefixBool("--collate:", false, "collate properties into matrix: T / F");
@@ -86,8 +86,10 @@ int main(int argc, char* argv[]) {
   printf("  %e, %e, %e%s\n", (double) WEigDiffV[1], (double) WEigV[1], 1.0 / WEigV[1], WEigDiffV[1] < eps ? "" : " DID NOT CONVERGE");
   printf("  %e, %e, %e%s\n", (double) WEigDiffV[2], (double) WEigV[2], 1.0 / WEigV[2], WEigDiffV[2] < eps ? "" : " DID NOT CONVERGE");
   
-  printf("\nComputing weighted alpha centrality...");
-  WAlphaDiffV = TSnap::GetWAlphaCentrVH<TFlt>(WGraph, ExoH, WAlphaCentrVH, a, eps, iters);
+  double alpha = r / WEigV[0];
+  
+  printf("\nComputing alpha centrality (alpha: %e)...", alpha);
+  WAlphaDiffV = TSnap::GetWAlphaCentrVH<TFlt>(WGraph, ExoH, WAlphaCentrVH, alpha, eps, iters);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  Convergence differences (in / out / undirected)\n");
   printf("  %e%s\n", (double) WAlphaDiffV[0], WAlphaDiffV[0] < eps ? "" : " DID NOT CONVERGE");
@@ -134,7 +136,7 @@ int main(int argc, char* argv[]) {
     printf(" DONE\n");
     
     printf("Saving %s.alpha.wcentrality...", BseFNm.CStr());
-    TSnap::SaveTxt(WAlphaCentrVH, TStr::Fmt("%s.alpha.wcentrality", OutFNm.CStr()), TStr::Fmt("Weighted alpha centrality (in / out / undirected) with a = %f", a), "NodeId", "WInAlphaCentr\tWOutAlphaCentr\tWAlphaCentr");
+    TSnap::SaveTxt(WAlphaCentrVH, TStr::Fmt("%s.alpha.wcentrality", OutFNm.CStr()), TStr::Fmt("Weighted alpha centrality (in / out / undirected) with r = %f, a = %e", r, alpha), "NodeId", "WInAlphaCentr\tWOutAlphaCentr\tWAlphaCentr");
     printf(" DONE\n");
     
     printf("Saving %s.wpgr...", BseFNm.CStr());
