@@ -4,6 +4,7 @@
 // Headers (?)
 
 #include "galg.h"
+#include "galgfixedmemory.h"
 
 namespace TSnap {
 
