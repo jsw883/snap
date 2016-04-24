@@ -17,11 +17,7 @@ int main(int argc, char* argv[]) {
   const TStr BseFNm = OutFNm.RightOfLast('/');
   const int k = Env.GetIfArgPrefixInt("-k:", 1, "depth of degree traversal");
   const double c = Env.GetIfArgPrefixFlt("-c:", 0.85, "personalization parameter for PageRank centrality");
-<<<<<<< Updated upstream
-  const double a = Env.GetIfArgPrefixFlt("-a:", 5.0e-3, "endogenous parameter for alpha centrality");
-=======
   const double r = Env.GetIfArgPrefixFlt("-r:", 1, "ratio of endogenous parameter to dominant eigenvalue for alpha centrality");
->>>>>>> Stashed changes
   const double eps = Env.GetIfArgPrefixFlt("--eps:", 1.0e-4, "precision for power method convergence");
   const int iters = Env.GetIfArgPrefixInt("--iters:", 1.0e+3, "maximum number of iterations");
   const bool collate = Env.GetIfArgPrefixBool("--collate:", false, "collate properties into matrix: T / F");
@@ -90,15 +86,10 @@ int main(int argc, char* argv[]) {
   printf("  %e, %e, %e%s\n", (double) EigDiffV[1], (double) EigV[1], 1.0 / EigV[1], EigDiffV[1] < eps ? "" : " DID NOT CONVERGE");
   printf("  %e, %e, %e%s\n", (double) EigDiffV[2], (double) EigV[2], 1.0 / EigV[2], EigDiffV[2] < eps ? "" : " DID NOT CONVERGE");
   
-<<<<<<< Updated upstream
-  printf("\nComputing alpha centrality...");
-  AlphaDiffV = TSnap::GetAlphaCentrVH(Graph, ExoH, AlphaCentrVH, a, eps, iters);
-=======
   double alpha = r / EigV[0];
   
   printf("\nComputing alpha centrality (alpha: %e)...", alpha);
   AlphaDiffV = TSnap::GetAlphaCentrVH(Graph, ExoH, AlphaCentrVH, alpha, eps, iters);
->>>>>>> Stashed changes
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  Convergence differences (in / out / undirected)\n");
   printf("  %e%s\n", (double) AlphaDiffV[0], AlphaDiffV[0] < eps ? "" : " DID NOT CONVERGE");
@@ -145,11 +136,7 @@ int main(int argc, char* argv[]) {
     printf(" DONE\n");
     
     printf("Saving %s.alpha.centrality...", BseFNm.CStr());
-<<<<<<< Updated upstream
-    TSnap::SaveTxt(AlphaCentrVH, TStr::Fmt("%s.alpha.centrality", OutFNm.CStr()), TStr::Fmt("Alpha centrality (in / out / undirected) with a = %f", a), "NodeId", "InAlphaCentr\tOutAlphaCentr\tAlphaCentr");
-=======
     TSnap::SaveTxt(AlphaCentrVH, TStr::Fmt("%s.alpha.centrality", OutFNm.CStr()), TStr::Fmt("Alpha centrality (in / out / undirected) with r = %f, a = %e", r, alpha), "NodeId", "InAlphaCentr\tOutAlphaCentr\tAlphaCentr");
->>>>>>> Stashed changes
     printf(" DONE\n");
     
     printf("Saving %s.pgr...", BseFNm.CStr());
