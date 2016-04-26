@@ -223,10 +223,10 @@ void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
   int NId;
 
   int64 hcount;
-  int64 bcount;
+  // int64 bcount;
 
   hcount = 0;
-  bcount = 0;
+  // bcount = 0;
 
   NNodes = Graph->GetNodes();
   Graph->GetNIdV(NIdV);
