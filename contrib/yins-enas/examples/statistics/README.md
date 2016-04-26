@@ -2,15 +2,15 @@ statistics (small world properties)
 ------------------------------------
 
 Computes network statistics / small world properties: nodes, edges, average
-degree, density, maximum degree, diameter, average path length, average and
-global clustering coefficients / transitivity.
+degree, density, maximum degree, diameter (effective / approximate), radius
+(median path length), and clustering coefficients (average / global).
 
 Statistics:
 
   - nodes |V|, edges |E|, average degree 2*|E|/|V|, density |E|/|V|^2
   - maximum degree (in / out / undirected)
   - diameter (effective / approximate)
-  - average path length
+  - radius (median path length)
   - clustering coefficient (average / global)
 
 Curves:

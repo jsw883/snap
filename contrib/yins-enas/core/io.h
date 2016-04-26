@@ -138,4 +138,65 @@ void SaveTxtTIntFltKdV(const TIntFltKdV& IntFltKdV, const TStr& FNm, const TStr&
 
 } // namespace TSnap
 
+namespace TSnap {
+
+void ValVSummary(const TFltV& ValV, const TStr& Desc = "V Summary\n---------");
+
+template<class TVal>
+void printDataVSummary(const TVec<TVal>& GenV, const TStr& Desc = "DataV Summary\n-------------") {
+  typename TVec<TVal>::TIter VI;
+  TFltV ValV;
+  for (VI = GenV.BegI(); VI < GenV.EndI(); VI++) {
+    ValV.Add((double) VI->Val);
+  }
+  ValVSummary(ValV);
+}
+
+template<class TKey, class TVal>
+void printDataHSummary(const THash<TKey, TVal>& H, const TStr& Desc = "DataH Summary\n-------------") {
+  typename THash<TKey, TVal>::TIter HI;
+  TFltV ValV;
+  for (HI = H.BegI(); HI < H.EndI(); HI++) {
+    ValV.Add((double) HI.GetDat());
+  }
+  ValVSummary(ValV);
+}
+
+template<class TKey, class TVal>
+void printCategoryVHSummary(const THash<TKey, TVec<TVal> >& HV, const TStr& Desc = "CategoryVH Summary\n------------------") {
+  typename THash<TKey, TVec<TVal> >::TIter HI;
+  TVec<TFltV> ValVV(HV[0].Len());
+  for (HI = HV.BegI(); HI < HV.EndI(); HI++) {
+    const TVec<TVal>& V = HI.GetDat();
+    for (int i = 0; i < V.Len(); i++) {
+      ValVV[i].Add((double) V[i]);
+    }
+  }
+  for (int i = 0; i < ValVV.Len(); i++) {
+    printf("\n(%d)", i);
+    ValVSummary(ValVV[i], Desc);
+  }
+}
+
+template<class TVal>
+void printDataV(const TVec<TVal>& GenV, const bool& NumberRows=false, const TStr& Desc = "DataV\n-----") {
+  typename TVec<TVal>::TIter VI;
+  printf("\n%s\n", Desc.CStr());
+  int i = 0;
+  for (VI = GenV.BegI(); VI < GenV.EndI(); VI++) {
+    if (NumberRows) {
+      printf("%i: ", i);
+      i++;
+    }
+    printf("%s\n", VI->GetStr().CStr());
+  }
+}
+
+// DataVSummary 
+// CategoryVHSummary - where each entry in V is a different category for each key in H (i.e. in / out / undirected)
+// DataVHSummary - where V corresponds to an actual distribution for each key in H
+//   --> DataVSummary
+
+} // namespace TSnap
+
 #endif

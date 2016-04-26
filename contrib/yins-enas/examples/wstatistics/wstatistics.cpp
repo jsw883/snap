@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
   double TotalW, AvW;
   double AvWDeg;
   double MxWInDeg, MxWOutDeg, MxWDeg;
-  // double AvClustCf, GlobClustCf;
+  // double AvClustCf, GlClustCf;
   TStrFltH WStatsV;
   
   // WEIGHTED STATISTICS (computations)
@@ -64,21 +64,24 @@ int main(int argc, char* argv[]) {
   
   // printf("Computing average / global clustering coefficients...");
   // AvClustCf = TSnap::GetAvClustCf(WGraph);
-  // GlobClustCf = TSnap::GetGlobClustCf(WGraph);
+  // GloClustCf = TSnap::GetGlClustCf(WGraph);
   // StatsV.AddDat("AvClustCf", AvClustCf);
-  // StatsV.AddDat("GlobClustCf", GlobClustCf);
+  // StatsV.AddDat("GlClustCf", GlClustCf);
   // printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
-  printf("\nStatistics summary:\n");
-  printf("  nodes: %d edges: %d\n", nodes, edges);
-  printf("  total weight: %e\n", TotalW);
-  printf("  average weight: %e\n", AvW);
-  printf("  average weighted degree: %e\n", AvWDeg);
-  printf("  maximum weighted degree (in / out / undirected): %e %e %e\n", MxWInDeg, MxWOutDeg, MxWDeg);
-  // printf("  average clustering coefficient: %f\n", AvClustCf);
-  // printf("  global clustering coefficient: %f\n", GlobClustCf);
+  printf("\nStatistics summary\n------------------\n");
+  printf("Nodes: %d\n", nodes);
+  printf("Edges: %d\n", edges);
+  printf("TotalW: %e\n", TotalW);
+  printf("AvW: %e\n", AvW);
+  printf("AvWDeg: %e\n", AvWDeg);
+  printf("MxWInDeg: %e\n", MxWInDeg);
+  printf("MxWOutDeg: %e\n", MxWOutDeg);
+  printf("MxWDeg: %e\n", MxWDeg);
+  // printf("AvClustCf: %f\n", AvClustCf);
+  // printf("GlClustCf: %f\n", GlClustCf);
   
   printf("\nSaving %s.wsummary...", BseFNm.CStr());
   TSnap::SaveTxt(WStatsV, TStr::Fmt("%s.wsummary", OutFNm.CStr()), "Weighted graph statistics summary", "Stat", "Value");

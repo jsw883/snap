@@ -31,8 +31,9 @@ int main(int argc, char* argv[]) {
   TFltV percentiles, pvalues;
   TIntFltKdV ANF;
   double EffDiam, AppDiam, Radius;
-  double AvClustCf, GlobClustCf;
+  double AvClustCf, GlClustCf;
   TStrFltH StatsV;
+  TIntIntH DegH;
   
   TIntV NIdV;
   TUInt64V NF;
@@ -51,7 +52,7 @@ int main(int argc, char* argv[]) {
   StatsV.AddDat("edges", edges);
   StatsV.AddDat("AvDeg", AvDeg);
   StatsV.AddDat("density", density);
-  
+
   // Computes maximum degree (in / out / directed)
   printf("Computing maximum degrees...");
   MxInDeg = TSnap::GetMxInDeg(Graph);
@@ -106,22 +107,26 @@ int main(int argc, char* argv[]) {
   // Computes average and global clustering coefficients (need to check this for method)
   printf("Computing average / global clustering coefficients...");
   AvClustCf = TSnap::GetAvClustCf(Graph);
-  GlobClustCf = TSnap::GetGlobClustCf(Graph);
+  GlClustCf = TSnap::GetGlobClustCf(Graph);
   StatsV.AddDat("AvClustCf", AvClustCf);
-  StatsV.AddDat("GlobClustCf", GlobClustCf);
+  StatsV.AddDat("GlClustCf", GlClustCf);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
-  printf("\nStatistics summary:\n");
-  printf("  nodes: %d edges: %d\n", nodes, edges);
-  printf("  average degree: %f\n", AvDeg);
-  printf("  density: %f\n", density);
-  printf("  maximum degree (in / out / undirected): %d %d %d\n", MxInDeg, MxOutDeg, MxDeg);
-  printf("  diameter (effective / approximate): %f %f\n", EffDiam, AppDiam);
-  printf("  radius (median path length): %f\n", Radius);
-  printf("  average clustering coefficient: %f\n", AvClustCf);
-  printf("  global clustering coefficient: %f\n", GlobClustCf);
+  printf("\nStatistics summary\n------------------\n");
+  printf("Nodes: %d\n", nodes);
+  printf("Edges: %d\n", edges);
+  printf("AvDeg: %f\n", AvDeg);
+  printf("Density: %f\n", density);
+  printf("MxInDeg: %d\n", MxInDeg);
+  printf("MxOutDeg: %d\n", MxOutDeg);
+  printf("MxDeg: %d\n", MxDeg);
+  printf("EffDiam: %f\n", EffDiam);
+  printf("AppDiam: %f\n", AppDiam);
+  printf("Radius: %f\n", Radius);
+  printf("AvClustCf: %f\n", AvClustCf);
+  printf("GlClustCf: %f\n", GlClustCf);
   
   printf("\nSaving %s.summary...", BseFNm.CStr());
   TSnap::SaveTxt(StatsV, TStr::Fmt("%s.summary", OutFNm.CStr()), "Graph statistics summary", "Stat", "Value");
@@ -133,12 +138,15 @@ int main(int argc, char* argv[]) {
     TSnap::SaveTxt(NF, TStr::Fmt("%s.hop.NF", OutFNm.CStr()), "Exact neighbourhood function / shortest path cumulative density (hop)");
     printf(" DONE\n");
     
+    TSnap::printDataV(NF, true, "NF\n--");
+    
   } else {
   
     printf("\nSaving %s.hop.ANF...", BseFNm.CStr());
     TSnap::SaveTxtTIntFltKdV(ANF, TStr::Fmt("%s.hop.ANF", OutFNm.CStr()), "Approximate neighbourhood function / shortest path cumulative density (hop)");
     printf(" DONE\n");
-      
+    
+    TSnap::printDataV(NF, true, "ANF\n---");  
   }
   
   Catch

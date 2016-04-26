@@ -169,3 +169,16 @@ void TSnap::SaveTxtTIntFltKdV(const TIntFltKdV& IntFltKdV, const TStr& FNm, cons
   }
   fclose(F);
 }
+
+void TSnap::ValVSummary(const TFltV& ValV, const TStr& Desc) {
+  TMom Summary(ValV);
+  printf("\n%s\n", Desc.CStr());
+  printf("Vals: %d\n", Summary.GetVals());
+  printf("Min: %g\n", Summary.GetMn());
+  printf("Max: %g\n", Summary.GetMx());
+  printf("Q1: %g\n", Summary.GetQuart1());
+  printf("Med: %g\n", Summary.GetMedian());
+  printf("Q3: %g\n", Summary.GetQuart3());
+  printf("Mean: %g\n", Summary.GetMean());
+  printf("SDev: %g\n", Summary.GetSDev());
+}
