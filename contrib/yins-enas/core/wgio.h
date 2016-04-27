@@ -3,8 +3,10 @@
 
 // Headers (?)
 
-// #include "Snap.h"
-// #include "wgraph.h"
+#include "io.h"
+
+//#//////////////////////////////////////////////
+/// Weighted graph save and load
 
 namespace TSnap {
 
@@ -99,5 +101,51 @@ void SaveFltWEdgeList(const TPt<TGraph<TFlt> >& Graph, const TStr& OutFNm, const
 }
 
 } // namespace TSnap
+
+//#//////////////////////////////////////////////
+/// Weighted graph summary
+
+namespace TSnap {
+
+template<class PGraph>
+void printIntWGraphSummary(const PGraph& Graph, const bool& Weights, const TStr& Desc = "WGraph Summary\n--------------") {
+  typename PGraph::TObj::TEdgeI EI;
+  TFltV ValV;
+  int Nodes = Graph->GetNodes();
+  int Edges = Graph->GetEdges();
+  double TotalW = Graph->GetTotalW();
+  double AvW = TotalW/double(Edges);
+  double AvWDeg = 2*TotalW/double(Nodes);
+  printGraphSummary(Graph, Desc);
+  printf("TotalW: %e\n", TotalW);
+  printf("AvW: %e\n", AvW);
+  printf("AvWDeg: %e\n", AvWDeg);
+  for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    ValV.Add(EI.GetW());
+  }
+  printValVSummary(ValV, "Weights\n");
+}
+
+template<class PGraph>
+void printFltWGraphSummary(const PGraph& Graph, const bool& Weights, const TStr& Desc = "WGraph Summary\n--------------") {
+  typename PGraph::TObj::TEdgeI EI;
+  TFltV ValV;
+  int Nodes = Graph->GetNodes();
+  int Edges = Graph->GetEdges();
+  double TotalW = Graph->GetTotalW();
+  double AvW = TotalW/double(Edges);
+  double AvWDeg = 2*TotalW/double(Nodes);
+  printGraphSummary(Graph, Desc);
+  printf("TotalW: %e\n", TotalW);
+  printf("AvW: %e\n", AvW);
+  printf("AvWDeg: %e\n", AvWDeg);
+  for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    ValV.Add(EI.GetW());
+  }
+  printValVSummary(ValV, "Weights\n");
+}
+
+} // namespace TSnap
+
 
 #endif

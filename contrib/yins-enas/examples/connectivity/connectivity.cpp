@@ -26,47 +26,76 @@ int main(int argc, char* argv[]) {
   
   // Declare variables
   PNGraph WSubGraph, SSubGraph, BSubGraph, FSubGraph, TeSubGraph;
-  TCnComV WCnComV, SCnComV, BCnComV, FCnComV, TeCnComV;
+  TCnComV WCnComV, SCnComV, BCnComV, FCnComV, TCnComV;
   TCnCom BCnCom, FCnCom;
   TCnComV::TIter CnComI;
   
   // CONNECTIVITY (computations)
   
   // Giant weakly and strongly connected components (GWCC / GSCC)
+  
   WSubGraph = TSnap::GetMxWcc(Graph);
   SSubGraph = TSnap::GetMxScc(WSubGraph);
+  
   // Weakly connected components and strongly connected cores (WCCS / SCCS)
+  
   TSnap::GetWccs(Graph, WCnComV);
   TSnap::GetWccSccCores(Graph, WCnComV, SCnComV);
+  
+  TSnap::printCnComVSummary(WCnComV, "WCnComV\n-------");
+  TSnap::printCnComVSummary(SCnComV, "SCnComV\n-------");
+  
   // Components connecting in to the SCCS and out from the SCCS (IN / OUT / TE)
+  
   TSnap::GetIns(Graph, WCnComV, BCnComV);
   TSnap::GetOuts(Graph, WCnComV, FCnComV);
-  TSnap::GetTes(Graph, WCnComV, TeCnComV);
+  TSnap::GetTes(Graph, WCnComV, TCnComV);
+  
+  TSnap::printCnComVSummary(BCnComV, "BCnComV\n-------");
+  TSnap::printCnComVSummary(FCnComV, "FCnComV\n-------");
+  TSnap::printCnComVSummary(TCnComV, "TCnComV\n-------");
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
   if (gccOnly) {
     
-    printf("\nSaving %s.GWCC and %s.GWCC...", BseFNm.CStr(), BseFNm.CStr());
+    // GWCC and GSCC
+    
+    printf("\nSaving %s.GWCC and %s.GSCC...", BseFNm.CStr(), BseFNm.CStr());
     TSnap::SaveTxt(WCnComV[0].NIdV, TStr::Fmt("%s.GWCC", OutFNm.CStr()), "Giant weakly connected component (GWCC)", "NodeId");
     TSnap::SaveTxt(SCnComV[0].NIdV, TStr::Fmt("%s.GSCC", OutFNm.CStr()), "Giant strongly connected core (GSCC)", "NodeId");
     // TSnap::SaveTxt(WSubGraph, TStr::Fmt("%s.GWCC", OutFNm.CStr()), "Giant weakly connected component (GWCC)");
     // TSnap::SaveTxt(SSubGraph, TStr::Fmt("%s.GSCC", OutFNm.CStr()), "Giant strongly connected component (GSCC)");
     printf(" DONE\n");
-    printf("  (GWCC) nodes: %d edges: %d\n", WSubGraph->GetNodes(), WSubGraph->GetEdges());
-    printf("  (GSCC) nodes: %d edges: %d\n", SSubGraph->GetNodes(), SSubGraph->GetEdges());
+    
+    printf("\nGWCC\n----\n");
+    printf("Nodes: %d\n", WSubGraph->GetNodes());
+    printf("Edges: %d\n", WSubGraph->GetEdges());
+    
+    printf("\nGSCC\n----\n");
+    printf("Nodes: %d\n", SSubGraph->GetNodes());
+    printf("Edges: %d\n", SSubGraph->GetEdges());
+    
+    // GIN and GOUT
     
     printf("\nSaving %s.GIN and %s.GOUT...", BseFNm.CStr(), BseFNm.CStr());
     TSnap::SaveTxt(BCnComV[0].NIdV, TStr::Fmt("%s.GIN", OutFNm.CStr()), "Components connecting in to the GSCC (GIN)", "NodeId");
     TSnap::SaveTxt(FCnComV[0].NIdV, TStr::Fmt("%s.GOUT", OutFNm.CStr()), "Components connected out from the GSCC (GOUT)", "NodeId");
     printf(" DONE\n");
-    printf("  (GIN) nodes: %d\n",BCnComV[0].NIdV.Len());
-    printf("  (GOUT) nodes: %d\n",FCnComV[0].NIdV.Len());
+    
+    printf("\nGIN\n---\n");
+    printf("Nodes: %d\n", BCnComV[0].NIdV.Len());
+    printf("\nGOUT\n----\n");
+    printf("Nodes: %d\n", FCnComV[0].NIdV.Len());
+    
+    // GTE
     
     printf("\nSaving %s.GTE...", BseFNm.CStr());
-    TSnap::SaveTxt(TeCnComV[0].NIdV, TStr::Fmt("%s.GTE", OutFNm.CStr()), "Tendrils from the IN and to the OUT (GTE)", "NodeId");
+    TSnap::SaveTxt(TCnComV[0].NIdV, TStr::Fmt("%s.GTE", OutFNm.CStr()), "Tendrils from the IN and to the OUT (GTE)", "NodeId");
     printf(" DONE\n");
-    printf("  (GTE) nodes: %d\n",TeCnComV[0].NIdV.Len());
+    
+    printf("\nGTE\n---\n");
+    printf("Nodes: %d\n", TCnComV[0].NIdV.Len());
     
   } else {
     
@@ -74,35 +103,15 @@ int main(int argc, char* argv[]) {
     TSnap::SaveTxt(WCnComV, TStr::Fmt("%s.WCCS", OutFNm.CStr()), "Weakly connected components (WCCS)");
     TSnap::SaveTxt(SCnComV, TStr::Fmt("%s.SCCS", OutFNm.CStr()), "Strongly connected cores (SCCS)");
     printf(" DONE\n");
-    printf("(WCCS)\n  comps: %d\n  nodes:\n", WCnComV.Len());
-    for (CnComI = WCnComV.BegI(); CnComI < WCnComV.EndI(); CnComI++) {
-      printf("    %d\n", CnComI->NIdV.Len());
-    }
-    printf("(SCCS)\n  cores: %d\n  nodes:\n", SCnComV.Len());
-    for (CnComI = SCnComV.BegI(); CnComI < SCnComV.EndI(); CnComI++) {
-      printf("    %d\n", CnComI->NIdV.Len());
-    }
     
     printf("\nSaving %s.INS and %s.OUTS...", BseFNm.CStr(), BseFNm.CStr());
     TSnap::SaveTxt(BCnComV, TStr::Fmt("%s.INS", OutFNm.CStr()), "Components connecting in to the SCCS  (INS)");
     TSnap::SaveTxt(FCnComV, TStr::Fmt("%s.OUTS", OutFNm.CStr()), "Components connected out from the SCCS (OUTS)");
     printf(" DONE\n");
-    printf("(INS)\n  number: %d\n  nodes:\n",BCnComV.Len());
-    for (CnComI = BCnComV.BegI(); CnComI < BCnComV.EndI(); CnComI++) {
-      printf("    %d\n", CnComI->NIdV.Len());
-    }
-    printf("(OUTS)\n  number: %d\n  nodes:\n",FCnComV.Len());
-    for (CnComI = FCnComV.BegI(); CnComI < FCnComV.EndI(); CnComI++) {
-      printf("    %d\n", CnComI->NIdV.Len());
-    }
     
     printf("\nSaving %s.TES...", BseFNm.CStr());
-    TSnap::SaveTxt(TeCnComV, TStr::Fmt("%s.TES", OutFNm.CStr()), "Tendrils from the INS and to the OUTS (TES)");
+    TSnap::SaveTxt(TCnComV, TStr::Fmt("%s.TES", OutFNm.CStr()), "Tendrils from the INS and to the OUTS (TES)");
     printf(" DONE\n");
-    printf("(TES)\n  number: %d\n  nodes:\n",BCnComV.Len());
-    for (CnComI = TeCnComV.BegI(); CnComI < TeCnComV.EndI(); CnComI++) {
-      printf("    %d\n", CnComI->NIdV.Len());
-    }
     
   }
   

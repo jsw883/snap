@@ -30,6 +30,10 @@ Other centrality measures:
 
   - PageRank centrality (directed)
 
+For alpha centrality, the ratio of endogenous parameter to dominant eigenvalue
+must be between 0 (corresponding to no endogenous factor) and 1 (corresponding
+to endogenous saturation), and must be strictly less than 1 for the centrality to converge appropriately.
+
 Note that these centrality measures are not weighted, as weighted graphs need
 to be properly implemented in SNAP. For weighted centrality versions of these
 measures, see wcentrality, which uses a new implementation of weighted graphs
@@ -50,7 +54,8 @@ Options:
     -o          output prefix (filename extensions added)
     -k          depth of degree traversal (default: 1)
     -c          personalization parameter for PageRank (default: 0.85)
-    -a          endogenous parameter for alpha centrality (default: 5.0e-3)
+    -r          ratio of endogenous parameter to dominant eigenvalue
+                    (alpha centrality) (default: 0.5)
     --eps       precision for power method convergence (default: 1.0e-4)
     --iters     maximum number of iterations (default 1.0e+3)
     --collate   collate properties into matrix: T / F (default: F)
@@ -68,7 +73,7 @@ mkdir $DATASET/centrality
 ./centrality -i:$DATASET/USairport2010.snap \
              -e:$DATASET/exogenous.status.TIntFltH \
              -o:$DATASET/centrality/USairport2010 \
-             -k:3 -c:0.85 -a:5.0e-3 \
+             -k:3 -c:0.85 -r:0.5 \
              --eps:1.0e-5 --iters:1e+4 \
              --collate:T
 ```

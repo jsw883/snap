@@ -29,12 +29,17 @@ well. For makefiles, compile the code with `make all`.
 ```
 Usage: ./structures -i:<input network> -o:<output prefix> [Options]
 Options:
-    -i          input network (tab separated list of edges)
-    -o          output prefix (filename extensions added)
-    -p          percolation probability
-    -d          direction of traversal: in = 1, out = 2, undirected = 3
-                    (default: 3)
-    --iters     number of iterations to average results (default: 10)
+    -i              input network (tab separated list of edges)
+    -o              output prefix (filename extensions added)
+    -d              direction of traversal: in = 1, out = 2, undirected = 3
+                        (default: 3)
+    -p              percolation probability (default: -1)
+    --lowerbound    lower bound for percolation threshold (default: 0.0)
+    --upperbound    upper bound for percolation threshold (default: 1.0)
+    --tolerance     tolerance for percolation threshold (default: 1e-4)
+    --smoothing     repetitions for binary search for percolation threshold 
+                        (default: 100)
+    --iters         number of iterations to average results (default: 10)
 ```
 
 ### Example ###
@@ -48,5 +53,5 @@ rm -rf $DATASET/structures
 mkdir $DATASET/structures
 ./structures -i:$DATASET/USairport2010.snap \
              -o:$DATASET/structures/USairport2010 \
-             -p:0.5 -d:2 --iters:10
+             --iters:100
 ```

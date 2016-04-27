@@ -1,5 +1,5 @@
-#ifndef yins_wstats
-#define yins_wstats
+#ifndef core_wstats
+#define core_wstats
 
 // Headers (?)
 

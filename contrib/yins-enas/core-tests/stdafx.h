@@ -6,3 +6,7 @@
 #include "enums.h"
 
 #include "wgraph.h"
+#include "wgen.h"
+#include "galg.h"
+#include "galgfixedmemory.h"
+#include "galgconnectivity.h"

@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
   const TStr BseFNm = OutFNm.RightOfLast('/');
   const int k = Env.GetIfArgPrefixInt("-k:", 1, "depth of degree traversal");
   const double c = Env.GetIfArgPrefixFlt("-c:", 0.85, "personalization parameter for PageRank centrality");
-  const double a = Env.GetIfArgPrefixFlt("-a:", 5.0e-3, "endogenous parameter for alpha centrality");
+  const double r = Env.GetIfArgPrefixFlt("-r:", 1, "ratio of endogenous parameter to dominant eigenvalue for alpha centrality");
   const double eps = Env.GetIfArgPrefixFlt("--eps:", 1.0e-4, "precision for power method convergence");
   const int iters = Env.GetIfArgPrefixInt("--iters:", 1.0e+3, "maximum number of iterations");
   const bool collate = Env.GetIfArgPrefixBool("--collate:", false, "collate properties into matrix: T / F");
@@ -25,10 +25,9 @@ int main(int argc, char* argv[]) {
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
   PNGraph Graph = TSnap::LoadEdgeList<PNGraph>(InFNm);
-  printf(" DONE\n");
-  printf("  nodes: %d\n", Graph->GetNodes());
-  printf("  edges: %d\n", Graph->GetEdges());
-  printf("  time elapsed: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  
+  TSnap::printGraphSummary(Graph, "Graph\n-----");
   
   // Declare variables
   TIntIntVH FirstDegVH;
@@ -58,9 +57,11 @@ int main(int argc, char* argv[]) {
   TSnap::GetDegVH(Graph, FirstDegVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
+  TSnap::printCategoryVHSummary(FirstDegVH, "FirstDegVH\n----------");
+  
   // 1:k degree distributions
   
-  printf("Computing egonet degrees for k = 1 to %d (in / out / undirected)\n", k);
+  printf("\nComputing egonet degrees for k = 1 to %d (in / out / undirected)\n", k);
   TSnap::TFixedMemorykDeg<PNGraph> FixedMemorykDeg(Graph, k);
   printf("  ...");
   FixedMemorykDeg.GetkInDegH(kInDegVH);
@@ -72,33 +73,67 @@ int main(int argc, char* argv[]) {
   FixedMemorykDeg.GetkDegH(kDegVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
-  // Centrality measures
+  TSnap::printCategoryVHSummary(kInDegVH, "kInDegVH\n--------");
+  TSnap::printCategoryVHSummary(kOutDegVH, "kOutDegVH\n---------");
+  TSnap::printCategoryVHSummary(kDegVH, "kDegVH\n------");
+  
+  // Degree centrality
   
   printf("\nComputing degree centrality...");
   TSnap::GetDegreeCentrVH(Graph, DegCentrVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
+  TSnap::printCategoryVHSummary(DegCentrVH, "DegCentrVH\n----------");
+  
+  // Eigenvector centrality
+  
   printf("\nComputing eigenvector centrality...");
   EigDiffV = TSnap::GetEigenVectorCentrVH(Graph, EigCentrVH, EigV, eps, iters);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  printf("  Convergence differences, inverse eigenvalues (in / out / undirected)\n");
-  printf("  %e, %e, %e%s\n", (double) EigDiffV[0], (double) EigV[0], 1.0 / EigV[0], EigDiffV[0] < eps ? "" : " DID NOT CONVERGE");
-  printf("  %e, %e, %e%s\n", (double) EigDiffV[1], (double) EigV[1], 1.0 / EigV[1], EigDiffV[1] < eps ? "" : " DID NOT CONVERGE");
-  printf("  %e, %e, %e%s\n", (double) EigDiffV[2], (double) EigV[2], 1.0 / EigV[2], EigDiffV[2] < eps ? "" : " DID NOT CONVERGE");
   
-  printf("\nComputing alpha centrality...");
-  AlphaDiffV = TSnap::GetAlphaCentrVH(Graph, ExoH, AlphaCentrVH, a, eps, iters);
+  printf("\nConvergence (in / out / undirected)\n");
+  printf("%e%s\n", (double) EigDiffV[0], EigDiffV[0] < eps ? "" : " DID NOT CONVERGE");
+  printf("%e%s\n", (double) EigDiffV[1], EigDiffV[1] < eps ? "" : " DID NOT CONVERGE");
+  printf("%e%s\n", (double) EigDiffV[2], EigDiffV[2] < eps ? "" : " DID NOT CONVERGE");
+  
+  printf("\nLeading eigenvalues (in / out / undirected)\n");
+  printf("%e\n", (double) EigV[0]);
+  printf("%e\n", (double) EigV[1]);
+  printf("%e\n", (double) EigV[2]);
+  
+  printf("\nInverse eigenvalues (in / out / undirected)\n");
+  printf("%e\n", 1.0 / EigV[0]);
+  printf("%e\n", 1.0 / EigV[1]);
+  printf("%e\n", 1.0 / EigV[2]);
+  
+  TSnap::printCategoryVHSummary(EigCentrVH, "EigCentrVH\n----------");
+  
+  // Alpha centrality
+  
+  double alpha = r / EigV[0];
+  
+  printf("\nComputing alpha centrality (alpha: %e)...", alpha);
+  AlphaDiffV = TSnap::GetAlphaCentrVH(Graph, ExoH, AlphaCentrVH, alpha, eps, iters);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  printf("  Convergence differences (in / out / undirected)\n");
-  printf("  %e%s\n", (double) AlphaDiffV[0], AlphaDiffV[0] < eps ? "" : " DID NOT CONVERGE");
-  printf("  %e%s\n", (double) AlphaDiffV[1], AlphaDiffV[1] < eps ? "" : " DID NOT CONVERGE");
-  printf("  %e%s\n", (double) AlphaDiffV[2], AlphaDiffV[2] < eps ? "" : " DID NOT CONVERGE");
-  printf("NOTE: for alpha centrality to converge, alpha must be less than the inverse leading eigenvalue!\n");
+  
+  printf("\nConvergence (in / out / undirected)\n");
+  printf("%e%s\n", (double) AlphaDiffV[0], AlphaDiffV[0] < eps ? "" : " DID NOT CONVERGE");
+  printf("%e%s\n", (double) AlphaDiffV[1], AlphaDiffV[1] < eps ? "" : " DID NOT CONVERGE");
+  printf("%e%s\n", (double) AlphaDiffV[2], AlphaDiffV[2] < eps ? "" : " DID NOT CONVERGE");
+  
+  if (AlphaDiffV[0] > eps || AlphaDiffV[1] > eps || AlphaDiffV[2] > eps) {
+    printf("\nNOTE: for alpha centrality to converge, alpha must be less than the inverse leading eigenvalue for the direction specified.\n");
+  }
+  
+  TSnap::printCategoryVHSummary(AlphaCentrVH, "AlphaCentrVH\n----------");
+  
+  // PageRank centrality
   
   printf("\nComputing PageRank centrality...");
   PgRDiff = TSnap::GetPageRankNew(Graph, PgRH, c, eps, iters);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  printf("  Convergence difference: %e%s\n", double(PgRDiff), PgRDiff < eps ? "" : " DID NOT CONVERGE");
+  
+  printf("\nConvergence: %e%s\n", double(PgRDiff), PgRDiff < eps ? "" : " DID NOT CONVERGE");
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
@@ -134,7 +169,7 @@ int main(int argc, char* argv[]) {
     printf(" DONE\n");
     
     printf("Saving %s.alpha.centrality...", BseFNm.CStr());
-    TSnap::SaveTxt(AlphaCentrVH, TStr::Fmt("%s.alpha.centrality", OutFNm.CStr()), TStr::Fmt("Alpha centrality (in / out / undirected) with a = %f", a), "NodeId", "InAlphaCentr\tOutAlphaCentr\tAlphaCentr");
+    TSnap::SaveTxt(AlphaCentrVH, TStr::Fmt("%s.alpha.centrality", OutFNm.CStr()), TStr::Fmt("Alpha centrality (in / out / undirected) with r = %f, a = %e", r, alpha), "NodeId", "InAlphaCentr\tOutAlphaCentr\tAlphaCentr");
     printf(" DONE\n");
     
     printf("Saving %s.pgr...", BseFNm.CStr());

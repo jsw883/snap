@@ -6,6 +6,8 @@ namespace TSnap {
 
 /////////////////////////////////////////////////
 // Deterministic graphs
+/// Generates a line graph.
+template <class PGraph> PGraph GenLine(const int& Nodes, const bool& IsDir=true);
 /// Generates a 2D-grid graph of Rows rows and Cols columns.
 template <class PGraph> PGraph GenGrid(const int& Rows, const int& Cols, const bool& IsDir=true);
 /// Generates a graph with star topology. Node id 0 is in the center and then links to all other nodes.
@@ -61,6 +63,19 @@ PUNGraph GenConfModel(const PUNGraph& G);
   
 /////////////////////////////////////////////////
 // Implementation
+template <class PGraph>
+PGraph GenLine(const int& Nodes, const bool& IsDir) {
+  PGraph Graph = PGraph::New();
+  Graph->Reserve(Nodes, Nodes - 1);
+  Graph->AddNode(0);
+  for (int node = 1; node < Nodes; node++) {
+    Graph->AddNode(node);
+    Graph->AddEdge(node - 1, node);
+    if (Graph->HasFlag(gfDirected) && ! IsDir) { Graph->AddEdge(node, node - 1); }
+  }
+  return Graph;
+}
+  
 template <class PGraph>
 PGraph GenGrid(const int& Rows, const int& Cols, const bool& IsDir) {
   PGraph GraphPt = PGraph::New();

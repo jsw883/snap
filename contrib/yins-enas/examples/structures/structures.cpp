@@ -14,17 +14,22 @@ int main(int argc, char* argv[]) {
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network (tab separated list of edges)");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
-  const double p = Env.GetIfArgPrefixFlt("-p:", 0.5, "percolation probability");
   const TEdgeDir d = (TEdgeDir) Env.GetIfArgPrefixInt("-d:", 3, "direction of traversal: in = 1, out = 2, undected = 3");
+  
+  double p = Env.GetIfArgPrefixFlt("-p:", -1, "percolation probability");
+  const double lowerBound = Env.GetIfArgPrefixFlt("--lowerbound:", 0.0, "lower bound for percolation threshold");
+  const double upperBound = Env.GetIfArgPrefixFlt("--upperbound:", 1.0, "upper bound for percolation threshold");
+  const double tol = Env.GetIfArgPrefixFlt("--tolerance:", 1e-4, "tolerance for percolation threshold");
+  const int rep = Env.GetIfArgPrefixInt("--smoothing:", 100, "repetitions for binary search for percolation threshold");
+  
   const double iters = Env.GetIfArgPrefixFlt("--iters:", 10, "number of iterations to average results");
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
   PNGraph Graph = TSnap::LoadEdgeList<PNGraph>(InFNm);
-  printf(" DONE\n");
-  printf("  nodes: %d\n", Graph->GetNodes());
-  printf("  edges: %d\n", Graph->GetEdges());
-  printf("  time elapsed: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  
+  TSnap::printGraphSummary(Graph, "Graph\n-----");
   
   // Declare variables
   PNGraph GraphCopy;
@@ -48,12 +53,16 @@ int main(int argc, char* argv[]) {
 
   // STRUCTURES (computations)
   
-  // printf("\nStarting percolation method\n");
-  Progress progress(ExeTm, iters, 5, "Computing percolation method"); 
+  // Compute percolation threshold
+  if (p == -1) {
+    p = TSnap::FindPercolationThreshold<PNGraph>(Graph, tol, lowerBound, upperBound, rep);
+  }
+  
+  Progress progress(ExeTm, iters, 5, "Applying percolation method"); 
   for (iter = 0; iter < iters; iter++) {
     
     // Percolate graph according to percolation probability
-    GraphCopy = TSnap::PercolateGraph<PNGraph>(Graph, p);
+    GraphCopy = TSnap::EdgePercolateGraph<PNGraph>(Graph, p);
     // Get weakly connected components (cluster)
     TSnap::GetWccs(GraphCopy, WCnComV);
     // Counts and giant sizes
@@ -74,7 +83,7 @@ int main(int argc, char* argv[]) {
     AvDiameterToSizeRatio = 0;
     for (WCnComI = WCnComV.BegI(); WCnComI < WCnComV.EndI(); WCnComI++) {
       // Compute the nodes, radius, and diameter
-      FixedMemoryNeighborhood.ComputeSubsetExactNF(WCnComI->NIdV, edOutDirected, NF);
+      FixedMemoryNeighborhood.ComputeSubsetNF(WCnComI->NIdV, d, NF);
       nodes = WCnComI->Len();
       radius = TSnap::InterpolateNF(NF, 0.5);
       diameter = TSnap::InterpolateNF(NF, 1.0);

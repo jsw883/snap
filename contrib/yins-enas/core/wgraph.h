@@ -127,6 +127,16 @@ public:
       }
       return W;
     }
+    void SetInEW(const int& EdgeN, const TEdgeW& W) { InNIdEdgeWV[EdgeN].Val2 = W; }
+    void SetOutEW(const int& EdgeN, const TEdgeW& W) { OutNIdEdgeWV[EdgeN].Val2 = W; }
+    void SetNbrEW(const int& EdgeN, const TEdgeW& W) { EdgeN < GetOutDeg() ? SetOutEW(EdgeN, W) : SetInEW(EdgeN - GetOutDeg(), W); }
+    void SetNbrEW(const int& EdgeN, const TEdgeW& W, const TEdgeDir& dir) {
+      switch(dir) {
+        case edInDirected: SetInEW(EdgeN, W); break;
+        case edOutDirected: SetOutEW(EdgeN, W); break;
+        case edUnDirected: SetNbrEW(EdgeN, W); break;
+      }
+    }
     
     // Needed for IsEdge method (and for traingle counting algorithms)
     bool IsInNId(const int& NId, int& NodeN) const;
@@ -362,8 +372,12 @@ public:
     
   /// Returns the edge weight corresponding to the edge SrcNId and DstNId.
   TEdgeW GetEW(const int& SrcNId, const int& DstNId);
+  /// Sets the edge weight corresponding to the edge SrcNId and DstNId.
+  void SetEW(const int& SrcNId, const int& DstNId, const TEdgeW& W = 1);
   /// Returns the total weight in the graph.
   TEdgeW GetTotalW();
+  /// Returns the minimum edge weight in the graph.
+  TEdgeW GetMnW();
   /// Returns the maximum edge weight in the graph.
   TEdgeW GetMxW();
   
@@ -567,6 +581,16 @@ TEdgeW TWNGraph<TEdgeW>::GetEW(const int& SrcNId, const int& DstNId) {
 }
 
 template <class TEdgeW>
+void TWNGraph<TEdgeW>::SetEW(const int& SrcNId, const int& DstNId, const TEdgeW& W) {
+  IAssertR(IsEdge(SrcNId, DstNId), TStr::Fmt("(%d, %d) not an edge.", SrcNId, DstNId).CStr());
+  TNode& SrcNode = GetNode(SrcNId);
+  TNode& DstNode = GetNode(DstNId);
+  int EdgeN;
+  SrcNode.IsOutNId(DstNId, EdgeN); SrcNode.SetOutEW(EdgeN, W);
+  DstNode.IsInNId(SrcNId, EdgeN); DstNode.SetInEW(EdgeN, W);
+}
+
+template <class TEdgeW>
 TEdgeW TWNGraph<TEdgeW>::GetTotalW() {
   TEdgeW TotalW = 0;
   for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
@@ -576,9 +600,21 @@ TEdgeW TWNGraph<TEdgeW>::GetTotalW() {
 }
 
 template <class TEdgeW>
+TEdgeW TWNGraph<TEdgeW>::GetMnW() {
+  TEdgeI EI;
+  TEdgeW W, MnW;
+  for (EI = BegEI(), MnW = EI.GetW(); EI < EndEI(); EI++) {
+    W = EI.GetW();
+    if (W < MnW) { MnW = W; }
+  }
+  return MnW;
+}
+
+template <class TEdgeW>
 TEdgeW TWNGraph<TEdgeW>::GetMxW() {
+  TEdgeI EI;
   TEdgeW W, MxW = 0;
-  for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
+  for (EI = BegEI(); EI < EndEI(); EI++) {
     W = EI.GetW();
     if (W > MxW) { MxW = W; }
   }
@@ -734,6 +770,8 @@ public:
     int GetDstNId() const { return DstNId; }
     // Edge weight accessor method
     TEdgeW GetW() const { return EdgeW; }
+    // Edge weight setter method
+    void SetW(const TEdgeW& W) { EdgeW = W; }
     friend class TWNEGraph<TEdgeW>;
   };
   class TNode {
@@ -814,6 +852,16 @@ public:
         case edUnDirected: W = GetNbrEW(EdgeN); break;
       }
       return W;
+    }
+    void SetInEW(const int& EdgeN, const TEdgeW& W) { InEdgeV[EdgeN].SetW(W); }
+    void SetOutEW(const int& EdgeN, const TEdgeW& W) { OutEdgeV[EdgeN].SetW(W); }
+    void SetNbrEW(const int& EdgeN, const TEdgeW& W) { EdgeN < GetOutDeg() ? SetOutEW(EdgeN, W) : SetInEW(EdgeN - GetOutDeg(), W); }
+    void SetNbrEW(const int& EdgeN, const TEdgeW& W, const TEdgeDir& dir) {
+      switch(dir) {
+        case edInDirected: SetInEW(EdgeN, W); break;
+        case edOutDirected: SetOutEW(EdgeN, W); break;
+        case edUnDirected: SetNbrEW(EdgeN, W); break;
+      }
     }
     
     // Binary search on GetEdge(EId)
@@ -1009,7 +1057,7 @@ public:
   /// Deletes all edges from node IDs SrcNId to DstNId from the graph.
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
   /// Deletes edge of ID EdgeI.GetId() from the graph.
-  void DelEdge(TEdge& EdgeI) { DelEdge(EdgeI.GetId()); }
+  void DelEdge(TEdgeI& EdgeI) { DelEdge(EdgeI.GetId()); EdgeI++; }
   /// Tests whether an edge with edge ID EId exists in the graph.
   bool IsEdge(const int& EId) const { return EdgeH.IsKey(EId); }
   
@@ -1033,10 +1081,14 @@ public:
   /// Returns an ID that is larger than any edge ID in the graph.
   int GetMxEId() const { return MxEId; }
   
+  /// Sets weight for edge with edge ID EId in the graph.
+  void SetEW(const int& EId, const TEdgeW& W);
   /// Returns the total weight in the graph.
   TEdgeW GetTotalW();
   /// Returns the maximum edge weight in the graph.
   TEdgeW GetMxW();
+  /// Returns the minimum edge weight in the graph.
+  TEdgeW GetMnW();
   
   /// Returns an ID of a random node in the graph.
   int GetRndNId(TRnd& Rnd = TInt::Rnd) { return NodeH.GetKey(NodeH.GetRndKeyId(Rnd, 0.8)); }
@@ -1268,6 +1320,21 @@ bool TWNEGraph<TEdgeW>::IsEdge(const int& SrcNId, const int& DstNId, int& EId, c
 }
 
 template <class TEdgeW>
+void TWNEGraph<TEdgeW>::SetEW(const int& EId, const TEdgeW& W) {
+  IAssertR(IsEdge(EId), TStr::Fmt("%d not an edge.", EId).CStr());
+  const int SrcNId = GetEdge(EId).GetSrcNId();
+  const int DstNId = GetEdge(EId).GetDstNId();
+  const TEdge& Edge = GetEdge(EId);
+  { TNode& N = GetNode(SrcNId);
+  const int edge = N.OutEdgeV.SearchBin(Edge);
+  if (edge != -1) { N.OutEdgeV[edge].SetW(W); } }
+  { TNode& N = GetNode(DstNId);
+  const int edge = N.InEdgeV.SearchBin(Edge);
+  if (edge != -1) { N.InEdgeV[edge].SetW(W); }
+  EdgeH.GetDat(EId).SetW(W); }
+}
+
+template <class TEdgeW>
 TEdgeW TWNEGraph<TEdgeW>::GetTotalW() {
   TEdgeI EI;
   TEdgeW TotalW = 0;
@@ -1275,6 +1342,17 @@ TEdgeW TWNEGraph<TEdgeW>::GetTotalW() {
     TotalW += EI.GetW();
   }
   return TotalW;
+}
+
+template <class TEdgeW>
+TEdgeW TWNEGraph<TEdgeW>::GetMnW() {
+  TEdgeI EI;
+  TEdgeW W, MnW;
+  for (EI = BegEI(), MnW = EI.GetW(); EI < EndEI(); EI++) {
+    W = EI.GetW();
+    if (W < MnW) { MnW = W; }
+  }
+  return MnW;
 }
 
 template <class TEdgeW>

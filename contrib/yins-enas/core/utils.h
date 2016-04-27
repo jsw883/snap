@@ -13,7 +13,7 @@ public:
   }
   void setup(const char *Message) {
     printf("\n----------------------------------------\n");
-    printf(Message);
+    printf("%s", Message);
     printf("\n----------------------------------------\n");
     display();
   }
