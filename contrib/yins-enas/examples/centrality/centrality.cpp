@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
   PNGraph Graph = TSnap::LoadEdgeList<PNGraph>(InFNm);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
-  TSnap::printGraphSummary(Graph, "Graph\n-----");
+  TSnap::printGraphSummary(Graph, "\nGraph\n-----");
   
   // Declare variables
   TIntIntVH FirstDegVH;
@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
   TSnap::GetDegVH(Graph, FirstDegVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
-  TSnap::printCategoryVHSummary(FirstDegVH, "FirstDegVH\n----------");
+  TSnap::printCategoryVHSummary(FirstDegVH, "\nFirstDegVH\n----------");
   
   // 1:k degree distributions
   
@@ -73,9 +73,9 @@ int main(int argc, char* argv[]) {
   FixedMemorykDeg.GetkDegH(kDegVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
-  TSnap::printCategoryVHSummary(kInDegVH, "kInDegVH\n--------");
-  TSnap::printCategoryVHSummary(kOutDegVH, "kOutDegVH\n---------");
-  TSnap::printCategoryVHSummary(kDegVH, "kDegVH\n------");
+  TSnap::printCategoryVHSummary(kInDegVH, "\nkInDegVH\n--------");
+  TSnap::printCategoryVHSummary(kOutDegVH, "\nkOutDegVH\n---------");
+  TSnap::printCategoryVHSummary(kDegVH, "\nkDegVH\n------");
   
   // Degree centrality
   
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
   TSnap::GetDegreeCentrVH(Graph, DegCentrVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
-  TSnap::printCategoryVHSummary(DegCentrVH, "DegCentrVH\n----------");
+  TSnap::printCategoryVHSummary(DegCentrVH, "\nDegCentrVH\n----------");
   
   // Eigenvector centrality
   
@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
   printf("%e\n", 1.0 / EigV[1]);
   printf("%e\n", 1.0 / EigV[2]);
   
-  TSnap::printCategoryVHSummary(EigCentrVH, "EigCentrVH\n----------");
+  TSnap::printCategoryVHSummary(EigCentrVH, "\nEigCentrVH\n----------");
   
   // Alpha centrality
   
@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
     printf("\nNOTE: for alpha centrality to converge, alpha must be less than the inverse leading eigenvalue for the direction specified.\n");
   }
   
-  TSnap::printCategoryVHSummary(AlphaCentrVH, "AlphaCentrVH\n----------");
+  TSnap::printCategoryVHSummary(AlphaCentrVH, "\nAlphaCentrVH\n----------");
   
   // PageRank centrality
   

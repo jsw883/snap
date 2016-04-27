@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
   PFltWNGraph WGraph = TSnap::LoadFltWEdgeList<TWNGraph>(InFNm);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
-  TSnap::printFltWGraphSummary(WGraph, true, "WGraph\n------");
+  TSnap::printFltWGraphSummary(WGraph, true, "\nWGraph\n------");
   
   // Declare variables
   int nodes, edges;

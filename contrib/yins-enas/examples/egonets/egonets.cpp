@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
   PFltWNGraph WGraph = TSnap::LoadFltWEdgeList<TWNGraph>(InFNm);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
-  TSnap::printFltWGraphSummary(WGraph, true, "WGraph\n------");
+  TSnap::printFltWGraphSummary(WGraph, true, "\nWGraph\n------");
   
   // Declare variables
   
@@ -35,7 +35,8 @@ int main(int argc, char* argv[]) {
    
   // Loop over egonets (node iterator)
   
-  Progress progress(ExeTm, WGraph->GetNodes(), 5, "Computing egonet statistics"); 
+  Progress progress(ExeTm, WGraph->GetNodes(), 5, "Computing egonet statistics");
+  progress.display();
   for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
     const int NId = NI.GetId();
     
@@ -59,11 +60,11 @@ int main(int argc, char* argv[]) {
   
   printf("\nEgonet statistics summary\n-------------------------\n");
   
-  TSnap::printDataHSummary(NodesH, "NodesH\n------");
-  TSnap::printDataHSummary(EdgesH, "EdgesH\n------");
-  TSnap::printDataHSummary(DensityH, "DensityH\n--------");
-  TSnap::printDataHSummary(TotalWH, "TotalWH\n-------");
-  TSnap::printDataHSummary(GiniH, "GiniH\n-----");
+  TSnap::printDataHSummary(NodesH, "\nNodesH\n------");
+  TSnap::printDataHSummary(EdgesH, "\nEdgesH\n------");
+  TSnap::printDataHSummary(DensityH, "\nDensityH\n--------");
+  TSnap::printDataHSummary(TotalWH, "\nTotalWH\n-------");
+  TSnap::printDataHSummary(GiniH, "\nGiniH\n-----");
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   

@@ -25,9 +25,9 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
   TSnap::InterpolateINFH(INFH, RadiusH, 0.5);
   TSnap::GetDiameterINFH(INFH, DiameterH);
   
-  TSnap::printDataHSummary(NodesH, "NodesH\n------");
-  TSnap::printDataHSummary(RadiusH, "RadiusH\n-------");
-  TSnap::printDataHSummary(DiameterH, "DiameterH\n---------");
+  TSnap::printDataHSummary(NodesH, "\nNodesH\n------");
+  TSnap::printDataHSummary(RadiusH, "\nRadiusH\n-------");
+  TSnap::printDataHSummary(DiameterH, "\nDiameterH\n---------");
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
@@ -39,7 +39,7 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
   TSnap::SaveTxt(NF, TStr::Fmt("%s.%s.hop.NF", OutFNm.CStr(), SrcNm.CStr()), "Exact subset neighbourhood function / shortest path cumulative density (hop)");
   printf(" DONE\n");
   
-  TSnap::printDataV(NF, true, "NF\n--");
+  TSnap::printDataV(NF, true, "\nNF\n--");
   
   TIntIntVH::TIter HI;
   
@@ -121,13 +121,13 @@ int main(int argc, char* argv[]) {
   PNGraph Graph = TSnap::LoadEdgeList<PNGraph>(InFNm);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
-  TSnap::printGraphSummary(Graph, "Graph\n-----");
+  TSnap::printGraphSummary(Graph, "\nGraph\n-----");
   
   // Declare variables
   TIntV SrcNIdV, DstNIdV, NIdV, RndNIdV;
   TRnd Rnd(0);
   
-  // Load subset nodes and compute disjoint random subset of nodes (same size) 
+  // Load subset nodes and compute disjoint random subset of nodes (same size)
   SrcNIdV = TSnap::LoadTxtIntV(SrcNIdVFNm);
   DstNIdV = TSnap::LoadTxtIntV(DstNIdVFNm);
   

@@ -172,7 +172,7 @@ void TSnap::SaveTxtTIntFltKdV(const TIntFltKdV& IntFltKdV, const TStr& FNm, cons
 
 void TSnap::printValVSummary(const TFltV& ValV, const TStr& Desc) {
   TMom Summary(ValV);
-  printf("\n%s\n", Desc.CStr());
+  printf("%s\n", Desc.CStr());
   printf("Vals: %d\n", Summary.GetVals());
   printf("Min: %g\n", Summary.GetMn());
   printf("Max: %g\n", Summary.GetMx());

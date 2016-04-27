@@ -19,10 +19,9 @@ int main(int argc, char* argv[]) {
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
   PNGraph Graph = TSnap::LoadEdgeList<PNGraph>(InFNm);
-  printf(" DONE\n");
-  printf("  nodes: %d\n", Graph->GetNodes());
-  printf("  edges: %d\n", Graph->GetEdges());
-  printf("  time elapsed: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  
+  TSnap::printGraphSummary(Graph, "\nGraph\n-----");
   
   // Declare variables
   PNGraph WSubGraph, SSubGraph, BSubGraph, FSubGraph, TeSubGraph;
@@ -42,8 +41,8 @@ int main(int argc, char* argv[]) {
   TSnap::GetWccs(Graph, WCnComV);
   TSnap::GetWccSccCores(Graph, WCnComV, SCnComV);
   
-  TSnap::printCnComVSummary(WCnComV, "WCnComV\n-------");
-  TSnap::printCnComVSummary(SCnComV, "SCnComV\n-------");
+  TSnap::printCnComVSummary(WCnComV, "\nWCnComV\n-------");
+  TSnap::printCnComVSummary(SCnComV, "\nSCnComV\n-------");
   
   // Components connecting in to the SCCS and out from the SCCS (IN / OUT / TE)
   
@@ -51,9 +50,9 @@ int main(int argc, char* argv[]) {
   TSnap::GetOuts(Graph, WCnComV, FCnComV);
   TSnap::GetTes(Graph, WCnComV, TCnComV);
   
-  TSnap::printCnComVSummary(BCnComV, "BCnComV\n-------");
-  TSnap::printCnComVSummary(FCnComV, "FCnComV\n-------");
-  TSnap::printCnComVSummary(TCnComV, "TCnComV\n-------");
+  TSnap::printCnComVSummary(BCnComV, "\nBCnComV\n-------");
+  TSnap::printCnComVSummary(FCnComV, "\nFCnComV\n-------");
+  TSnap::printCnComVSummary(TCnComV, "\nTCnComV\n-------");
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   

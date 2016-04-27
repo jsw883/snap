@@ -176,7 +176,7 @@ void printCategoryVHSummary(const THash<TKey, TVec<TVal> >& VH, const TStr& Desc
     }
   }
   for (int i = 0; i < ValVV.Len(); i++) {
-    printf("\n(%d)", i);
+    printf("\n(%d)\n", i);
     printValVSummary(ValVV[i], Desc);
   }
 }
@@ -204,7 +204,7 @@ void printDataVHSummary(const THash<TKey, TVec<TVal> >& VH, const TStr& Desc = "
     CategoryV.Add(Summary.GetSDev());
     CategoryVH.AddDat(HI.GetKey(), CategoryV);
   }
-  printf("\n%s\n", Desc.CStr());
+  printf("%s\n", Desc.CStr());
   printf("\nKey\n---\n");
   printf("(0) Min\n");
   printf("(1) Max\n");
@@ -213,7 +213,7 @@ void printDataVHSummary(const THash<TKey, TVec<TVal> >& VH, const TStr& Desc = "
   printf("(4) Q3\n");
   printf("(5) Mean\n");
   printf("(6) SDev\n");
-  printCategoryVHSummary(CategoryVH, "");
+  printCategoryVHSummary(CategoryVH, "\n");
 }
 
 template<class TVal>
@@ -236,7 +236,7 @@ void printGraphSummary(const PGraph& Graph, const TStr& Desc = "Graph Summary\n-
   int Edges = Graph->GetEdges();
   double AvDeg = 2*double(Edges)/double(Nodes);
   double Density = double(Edges)/(pow(double(Nodes), 2) - 1);
-  printf("\n%s\n", Desc.CStr());
+  printf("%s\n", Desc.CStr());
   printf("Nodes: %d\n", Nodes);
   printf("Edges: %d\n", Edges);
   printf("AvDeg: %f\n", AvDeg);

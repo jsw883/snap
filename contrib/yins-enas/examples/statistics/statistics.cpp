@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
   PNGraph Graph = TSnap::LoadEdgeList<PNGraph>(InFNm);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
-  TSnap::printGraphSummary(Graph, "Graph\n-----");
+  TSnap::printGraphSummary(Graph, "\nGraph\n-----");
   
   // Declare variables
   int nodes, edges;
@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
     TSnap::SaveTxt(NF, TStr::Fmt("%s.hop.NF", OutFNm.CStr()), "Exact neighbourhood function / shortest path cumulative density (hop)");
     printf(" DONE\n");
     
-    TSnap::printDataV(NF, true, "NF\n--");
+    TSnap::printDataV(NF, true, "\nNF\n--");
     
   } else {
   
@@ -145,7 +145,7 @@ int main(int argc, char* argv[]) {
     TSnap::SaveTxtTIntFltKdV(ANF, TStr::Fmt("%s.hop.ANF", OutFNm.CStr()), "Approximate neighbourhood function / shortest path cumulative density (hop)");
     printf(" DONE\n");
     
-    TSnap::printDataV(NF, true, "ANF\n---");  
+    TSnap::printDataV(NF, true, "\nANF\n---");  
   }
   
   Catch

@@ -25,10 +25,9 @@ int main(int argc, char* argv[]) {
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
   PFltWNGraph WGraph = TSnap::LoadFltWEdgeList<TWNGraph>(InFNm);
-  printf(" DONE\n");
-  printf("  nodes: %d\n", WGraph->GetNodes());
-  printf("  edges: %d\n", WGraph->GetEdges());
-  printf("  time elapsed: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  
+  TSnap::printFltWGraphSummary(WGraph, true, "\nWGraph\n------");
   
   // Declare variables
   TIntFltVH FirstWDegVH;
@@ -58,7 +57,7 @@ int main(int argc, char* argv[]) {
   TSnap::GetWDegVH(WGraph, FirstWDegVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
-  TSnap::printCategoryVHSummary(FirstWDegVH, "FirstWDegVH\n----------");
+  TSnap::printCategoryVHSummary(FirstWDegVH, "\nFirstWDegVH\n----------");
   
   // 1:k degree distributions
   
@@ -74,9 +73,9 @@ int main(int argc, char* argv[]) {
   FixedMemorykWDeg.GetkWDegH(kWDegVH);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
-  TSnap::printCategoryVHSummary(kWInDegVH, "kWInDegVH\n--------");
-  TSnap::printCategoryVHSummary(kWOutDegVH, "kWOutDegVH\n---------");
-  TSnap::printCategoryVHSummary(kWDegVH, "kWDegVH\n------");
+  TSnap::printCategoryVHSummary(kWInDegVH, "\nkWInDegVH\n--------");
+  TSnap::printCategoryVHSummary(kWOutDegVH, "\nkWOutDegVH\n---------");
+  TSnap::printCategoryVHSummary(kWDegVH, "\nkWDegVH\n------");
   
   // Degree centrality
   
@@ -84,7 +83,7 @@ int main(int argc, char* argv[]) {
   TSnap::GetWDegreeCentrVH(WGraph, WDegCentrVH, 0.5);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
-  TSnap::printCategoryVHSummary(WDegCentrVH, "WDegCentrVH\n----------");
+  TSnap::printCategoryVHSummary(WDegCentrVH, "\nWDegCentrVH\n----------");
   
   // Eigenvector centrality
   
@@ -107,7 +106,7 @@ int main(int argc, char* argv[]) {
   printf("%e\n", 1.0 / WEigV[1]);
   printf("%e\n", 1.0 / WEigV[2]);
   
-  TSnap::printCategoryVHSummary(WEigCentrVH, "WEigCentrVH\n----------");
+  TSnap::printCategoryVHSummary(WEigCentrVH, "\nWEigCentrVH\n----------");
   
   // Alpha centrality
   
@@ -126,7 +125,7 @@ int main(int argc, char* argv[]) {
     printf("\nNOTE: for alpha centrality to converge, alpha must be less than the inverse leading eigenvalue for the direction specified.\n");
   }
   
-  TSnap::printCategoryVHSummary(WAlphaCentrVH, "WAlphaCentrVH\n----------");
+  TSnap::printCategoryVHSummary(WAlphaCentrVH, "\nWAlphaCentrVH\n----------");
   
   // PageRank centrality
   

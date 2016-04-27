@@ -58,7 +58,8 @@ int main(int argc, char* argv[]) {
     p = TSnap::FindPercolationThreshold<PNGraph>(Graph, tol, lowerBound, upperBound, rep);
   }
   
-  Progress progress(ExeTm, iters, 5, "Applying percolation method"); 
+  Progress progress(ExeTm, iters, 5, "Applying percolation method");
+  progress.display(); 
   for (iter = 0; iter < iters; iter++) {
     
     // Percolate graph according to percolation probability

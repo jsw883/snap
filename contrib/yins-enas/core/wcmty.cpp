@@ -12,7 +12,7 @@ void TSnap::CmtyHierarchySummary(const TIntIntVH& CmtyVH, const int& PhaseThresh
   int CmtyId, NCmty;
   int phase, phases = CmtyVH.BegI().GetDat().Len();
   
-  printf("\n%s\n", Desc.CStr());
+  printf("%s\n", Desc.CStr());
   
   for (phase = PhaseThreshold; phase < phases; phase++) {
     TIntIntH CmtySizeH;

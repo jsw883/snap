@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
   PFltWNGraph WGraph = TSnap::LoadFltWEdgeList<TWNGraph>(InFNm);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
-  TSnap::printFltWGraphSummary(WGraph, true, "WGraph\n------");
+  TSnap::printFltWGraphSummary(WGraph, true, "\nWGraph\n------");
   
   // Declare variables
   TIntIntVH NIdCmtyVH;
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  quality: %f\n", LouvainQ);
   
-  TSnap::CmtyHierarchySummary(NIdCmtyVH, 1, -1, "Louvain hierarchy\n-----------------");
+  TSnap::CmtyHierarchySummary(NIdCmtyVH, 1, -1, "\nLouvain hierarchy\n-----------------");
   
   printf("Saving %s.louvain.modularity...", BseFNm.CStr());
   TSnap::SaveTxt(NIdCmtyVH, TStr::Fmt("%s.louvain.modularity", OutFNm.CStr()), "Louvain modularity community hierarchy", "NodeId", "CmtyV");

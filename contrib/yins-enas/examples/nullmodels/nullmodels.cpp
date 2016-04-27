@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
     WGraph = TSnap::LoadFltWEdgeList<TWNGraph>(InFNm);
     printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
     
-    TSnap::printFltWGraphSummary(WGraph, true, "WGraph\n------");
+    TSnap::printFltWGraphSummary(WGraph, true, "\nWGraph\n------");
     
     nodes = WGraph->GetNodes();
     // edges = WGraph->GetEdges();
@@ -72,14 +72,13 @@ int main(int argc, char* argv[]) {
   if (Method == "WPrefAttach") {
     IAssertR(k != -1, "k must be specified.");
     WRGraph = TSnap::GenParetoBarabasi<TFlt, TWNGraph>(nodes, k, Scale, Shape, edUnDirected, Rnd);
-    printf("Nodes = %d\n", WRGraph->GetEdges());
-    printf("Edges = %d\n", WRGraph->GetEdges());
-    printf("TotalW = %f\n", (double) WRGraph->GetTotalW());
+    TSnap::printFltWGraphSummary(WRGraph, true, "\nWRGraph\n-------");
   }
   
   if (Method == "GWShuffling") {
     TSnap::WeightShuffling<TFlt>(WGraph);
     WRGraph = WGraph;
+    TSnap::printFltWGraphSummary(WRGraph, true, "\nWRGraph\n-------");
   }
   
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());

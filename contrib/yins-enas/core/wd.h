@@ -31,8 +31,9 @@ private:
   TIntFltH NIdVWDH;
   int k;
   double tol;
+  bool preNormalized;
 public:
-  TFixedMemoryWD(const PGraph& Graph, const TIntV& DstNIdV, const int& k, const double& tol) : Graph(Graph), Queue(Graph->GetNodes()), Color(Graph->GetNodes()), k(k), tol(tol)  {
+  TFixedMemoryWD(const PGraph& Graph, const TIntV& DstNIdV, const int& k, const double& tol, const bool& preNormalized) : Graph(Graph), Queue(Graph->GetNodes()), Color(Graph->GetNodes()), k(k), tol(tol), preNormalized(preNormalized) {
     // Initialize destination nodes with -1 weighted distances in case not discovered
     TIntV::TIter VI;
     for (VI = DstNIdV.BegI(); VI < DstNIdV.EndI(); VI++) {
@@ -109,8 +110,10 @@ void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir) { // ON
         // WEIGHTED DISTANCE
         if (WD == 0) {
           VWD = UI.GetNbrEW(edge, dir);
+          if (!preNormalized) { VWD /= UI.GetWDeg(dir); }
         } else {
-          VWD = WD * UI.GetNbrEW(edge, dir) / UI.GetWDeg(dir);
+          VWD = WD * UI.GetNbrEW(edge, dir);
+          if (!preNormalized) { VWD /= UI.GetWDeg(dir); }
         }
         // STORE
         if (NIdVWDH.IsKey(V) && VWD > tol) {

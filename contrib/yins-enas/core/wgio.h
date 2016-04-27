@@ -142,7 +142,7 @@ void printFltWGraphSummary(const PGraph& Graph, const bool& Weights, const TStr&
   for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
     ValV.Add(EI.GetW());
   }
-  printValVSummary(ValV, "Weights\n");
+  printValVSummary(ValV, "\nWeights\n");
 }
 
 } // namespace TSnap
