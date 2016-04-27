@@ -21,25 +21,29 @@ int main(int argc, char* argv[]) {
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
   PFltWNGraph WGraph = TSnap::LoadFltWEdgeList<TWNGraph>(InFNm);
-  printf(" DONE\n");
-  printf("  nodes: %d\n", WGraph->GetNodes());
-  printf("  edges: %d\n", WGraph->GetEdges());
-  printf("  time elapsed: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  
+  TSnap::printFltWGraphSummary(WGraph, true, "WGraph\n------");
   
   // Declare variables
+  
   TIntIntH NodesH, EdgesH;
   TIntFltH TotalWH, DensityH, GiniH;
   TFltWNGraph::TNodeI NI;
   
+  // EGONETS
+   
   // Loop over egonets (node iterator)
+  
   Progress progress(ExeTm, WGraph->GetNodes(), 5, "Computing egonet statistics"); 
   for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
-    // Get node id for computing and storing egonet statistics
     const int NId = NI.GetId();
+    
     // Compute egonet statistics (computationally expensive)
+    
     TSnap::TFixedMemorykWEgo<TFlt, TWNGraph> FixedMemorykWEgo(WGraph, k);
     FixedMemorykWEgo.ComputeEgonetStatistics(NId, d);
-    // Get results
+    
     NodesH.AddDat(NId, FixedMemorykWEgo.GetNodes());
     EdgesH.AddDat(NId, FixedMemorykWEgo.GetEdges());
     DensityH.AddDat(NId, FixedMemorykWEgo.GetDensity());
@@ -50,6 +54,18 @@ int main(int argc, char* argv[]) {
     
     progress++;
   }
+  
+  // Summary
+  
+  printf("\nEgonet statistics summary\n-------------------------\n");
+  
+  TSnap::printDataHSummary(NodesH, "NodesH\n------");
+  TSnap::printDataHSummary(EdgesH, "EdgesH\n------");
+  TSnap::printDataHSummary(DensityH, "DensityH\n--------");
+  TSnap::printDataHSummary(TotalWH, "TotalWH\n-------");
+  TSnap::printDataHSummary(GiniH, "GiniH\n-----");
+  
+  // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
   if (collate) {
     

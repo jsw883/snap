@@ -21,10 +21,9 @@ int main(int argc, char* argv[]) {
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
   PFltWNGraph WGraph = TSnap::LoadFltWEdgeList<TWNGraph>(InFNm);
-  printf(" DONE\n");
-  printf("  nodes: %d\n", WGraph->GetNodes());
-  printf("  edges: %d\n", WGraph->GetEdges());
-  printf("  time elapsed: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  
+  TSnap::printFltWGraphSummary(WGraph, true, "WGraph\n------");
   
   // Declare variables
   TIntIntVH NIdCmtyVH;
@@ -37,7 +36,7 @@ int main(int argc, char* argv[]) {
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  quality: %f\n", LouvainQ);
   
-  TSnap::CmtyHierarchySummary(NIdCmtyVH, 250);
+  TSnap::CmtyHierarchySummary(NIdCmtyVH, 1, -1, "Louvain hierarchy\n-----------------");
   
   printf("Saving %s.louvain.modularity...", BseFNm.CStr());
   TSnap::SaveTxt(NIdCmtyVH, TStr::Fmt("%s.louvain.modularity", OutFNm.CStr()), "Louvain modularity community hierarchy", "NodeId", "CmtyV");

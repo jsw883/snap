@@ -16,6 +16,8 @@ void ComputeWD(const PFltWNGraph& WGraph, const TIntV& SrcNIdV, const TIntV& Dst
   FixedMemoryWD.ComputeSubsetWDVH(SrcNIdV, d, WDVH);
   printf(" DONE: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
+  TSnap::printDataVHSummary(WDVH, "WDVH\n----");
+  
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
   TIntFltVH::TIter HI;
@@ -25,7 +27,7 @@ void ComputeWD(const PFltWNGraph& WGraph, const TIntV& SrcNIdV, const TIntV& Dst
   FILE *F = fopen(Name.CStr(), "wt");  
   fprintf(F, "# Weighted distances from %s to %s (%d depth limited, %f tolerance limited)\n", SrcNm.CStr(), DstNm.CStr(), k, tol);
   fprintf(F, "# SrcNIdV.Len(): %d\tDstNIdV.Len(): %d\t\n", SrcNIdV.Len(), DstNIdV.Len());
-  fprintf(F, "# SrcNId\tDstNId\tShortestPathLength\n");
+  fprintf(F, "# SrcNId\tDstNId\tWD\n");
   for (HI = WDVH.BegI(); HI < WDVH.EndI(); HI++) {
     const TFltV& WDV = HI.GetDat();
     for (int i = 0; i < DstNIdV.Len(); i++) {

@@ -11,7 +11,7 @@
 namespace TSnap {
 
 template <class Community, class TEdgeW>
-double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, const TEdgeDir& dir, const double& eps = 1e-5, const double& delta = 1e-2, const int& MaxIter = 1000);
+double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, const TEdgeDir& dir, const double& eps = 1e-5, const double& delta = 1e-2, const int& MaxIter = 1000, TRnd& Rnd = TInt::Rnd);
 
 /// Base community class to be inherited and specialized.
 template <class TEdgeW>
@@ -262,12 +262,13 @@ double ModularityCommunity<TEdgeW>::GetQuality() {
 namespace TSnap {
 
 template <class Community, class TEdgeW>
-double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, const TEdgeDir& dir, const double& eps, const double& delta, const int& MaxIter) {
+double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, const TEdgeDir& dir, const double& eps, const double& delta, const int& MaxIter, TRnd& Rnd) {
   
   // Variables
   TPt<TWNGraph<TEdgeW> > GraphCopy = Graph; // smart pointer working graph copy
   typename TWNGraph<TEdgeW>::TNodeI NI;
   TIntIntVH::TIter HI;
+  TIntV NIdV;
   // Compute the absolute minimum number of moves required
   int MinMove = (int) delta*Graph->GetNodes();
   // Phase ariables
@@ -275,10 +276,12 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, 
   double phaseImprov = 0.0;
   // Setup community and output community hierarchy 
   NIdCmtyVH.Clr();
+  int i = 0;
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     int NId = NI.GetId();
     NIdCmtyVH.AddKey(NId);
-    NIdCmtyVH.GetDat(NId).Add(NId);
+    NIdCmtyVH.GetDat(NId).Add(i);
+    i++;
   }
   Community Cmty(GraphCopy);
   
@@ -301,6 +304,9 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, 
       iterImprov = 0.0;
       
       // TODO: randomly permute nodes (?)
+      
+      // GraphCopy.GetNIdV(NIdV);
+      // NIdV.Shuffle(Rnd);
       
       for (NI = GraphCopy->BegNI(); NI < GraphCopy->EndNI(); NI++) { // nodes, randomly permuted
         // Local variables
@@ -376,7 +382,7 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, 
 namespace TSnap {
 
 // Summary method
-void CmtyHierarchySummary(const TIntIntVH& NIdCmtyVH, const int& NCmtyThreshold);
+void CmtyHierarchySummary(const TIntIntVH& NIdCmtyVH, const int& PhaseThreshold = 1, const int& NCmtyThreshold = -1, const TStr& Desc = "Community hierarchy\n-------------------");
 
 } // namespace TSnap
 

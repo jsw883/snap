@@ -19,10 +19,9 @@ int main(int argc, char* argv[]) {
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
   PNGraph Graph = TSnap::LoadEdgeList<PNGraph>(InFNm);
-  printf(" DONE\n");
-  printf("  nodes: %d\n", Graph->GetNodes());
-  printf("  edges: %d\n", Graph->GetEdges());
-  printf("  time elapsed: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  
+  TSnap::printGraphSummary(Graph, "Graph\n-----");
   
   // Declare variables
   int nodes, edges;
