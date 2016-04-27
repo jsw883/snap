@@ -5,6 +5,9 @@
 
 #include "galg.h"
 
+//#//////////////////////////////////////////////
+/// Bowtie connectivity
+
 namespace TSnap {
 
 // Returns the strongly connected cores (SCC) pertaining to the weakly connected
@@ -117,5 +120,14 @@ void GetTes(const PGraph& Graph, const TCnComV& WCnComV, TCnComV& TECnComV) {
 //   if (!ValV.IsSorted()) ValV.Sort();
 //   SrcV.Diff(ValV, DstV);
 // }
+
+//#//////////////////////////////////////////////
+/// Connectivity summary
+
+namespace TSnap {
+
+void printCnComVSummary(const TCnComV& CnComV, const TStr& Desc = "CnComV Summary\n--------------");
+
+} // namespace TSnap
 
 #endif

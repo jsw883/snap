@@ -8,3 +8,4 @@
 #include "galgfixedmemory.h"
 #include "stats.h"
 #include "io.h"
+#include "deg.h"

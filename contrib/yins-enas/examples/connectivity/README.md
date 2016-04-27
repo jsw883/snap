@@ -53,5 +53,5 @@ rm -rf $DATASET/connectivity
 mkdir $DATASET/connectivity
 ./connectivity -i:$DATASET/USairport2010.snap \
                -o:$DATASET/connectivity/USairport2010 \
-               --giant-only:T
+               --gcc-only:T
 ```

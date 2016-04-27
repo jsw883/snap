@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
   double Shape = Env.GetIfArgPrefixFlt("--shape:", -1, "Pareto shape for preferential attachment model (default: FitParetoWeights(Graph, Scale, Shape))");
   
   int nodes = Env.GetIfArgPrefixInt("-n:", -1, "nodes (default: Graph->GetNodes())");
-  int edges = Env.GetIfArgPrefixInt("-m:", -1, "edges (default: Graph->GetEdges())");
+  // int edges = Env.GetIfArgPrefixInt("-m:", -1, "edges (default: Graph->GetEdges())");
   double TotalW = Env.GetIfArgPrefixFlt("-w:", -1, "sum of weights (default: Graph->GetTotalW())");
 
   PFltWNGraph WGraph, WRGraph;
@@ -36,13 +36,12 @@ int main(int argc, char* argv[]) {
     // Load graph and create directed and undirected graphs (pointer to the same memory)
     printf("\nLoading %s...", InFNm.CStr());
     WGraph = TSnap::LoadFltWEdgeList<TWNGraph>(InFNm);
-    printf(" DONE\n");
-    printf("  nodes: %d\n", WGraph->GetNodes());
-    printf("  edges: %d\n", WGraph->GetEdges());
-    printf("  time elapsed: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+    printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+    
+    TSnap::printFltWGraphSummary(WGraph, true, "WGraph\n------");
     
     nodes = WGraph->GetNodes();
-    edges = WGraph->GetEdges();
+    // edges = WGraph->GetEdges();
     TotalW = WGraph->GetTotalW();
 
     TSnap::FitParetoWeights<TFlt, TWNGraph>(WGraph, Scale, Shape);
@@ -56,17 +55,20 @@ int main(int argc, char* argv[]) {
   TRnd Rnd(0);
 
   printf("Generating random graph model...");
+  
   if (Method == "ExpWRGM") {
     IAssertR(false, "ExpWRGM is not currently enabled.");
     IAssertR(TotalW != -1, "w must be specified.");
     IAssertR(Threshold != -1, "Threshold must be specified.");
     // WRGraph = TSnap::GenExpErdosRenyi<TFlt, TWNGraph>(nodes, TotalW, Threshold, Rnd);
   }
+  
   if (Method == "GeoWRGM") {
     IAssertR(false, "GeoWRGM is not currently enabled.");
     IAssertR(TotalW != -1, "w must be specified.");
     // WRGraph = TSnap::GenGeoErdosRenyi<TFlt, TWNGraph>(nodes, TotalW, Rnd);
   }
+  
   if (Method == "WPrefAttach") {
     IAssertR(k != -1, "k must be specified.");
     WRGraph = TSnap::GenParetoBarabasi<TFlt, TWNGraph>(nodes, k, Scale, Shape, edUnDirected, Rnd);
@@ -74,10 +76,12 @@ int main(int argc, char* argv[]) {
     printf("Edges = %d\n", WRGraph->GetEdges());
     printf("TotalW = %f\n", (double) WRGraph->GetTotalW());
   }
+  
   if (Method == "GWShuffling") {
     TSnap::WeightShuffling<TFlt>(WGraph);
     WRGraph = WGraph;
   }
+  
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
