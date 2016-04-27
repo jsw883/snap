@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
   // OUTPUTTING 
   
   printf("\nSaving %s-%f.snap...", OutFNm.CStr(), alpha);
-  TSnap::SaveFltWEdgeList(WGraph, TStr::Fmt("%s-%f.snap", OutFNm.CStr(), alpha), "");
+  TSnap::SaveFltWEdgeList(WGraph, TStr::Fmt("%s-%9e.snap", OutFNm.CStr(), alpha), "");
   printf(" DONE\n");
 
   Catch

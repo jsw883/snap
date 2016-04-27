@@ -52,3 +52,6 @@ generated/
 # Deprecated
 *deprecated*
 *DEPRECATED*
+
+# LOG
+*.LOG
