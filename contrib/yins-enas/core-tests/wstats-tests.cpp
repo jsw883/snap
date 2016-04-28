@@ -67,8 +67,8 @@ TYPED_TEST(WStatsTest, RandomGraphWeightedClustering) {
   
   // Clustering coefficients
   
-  AvDirClustCoeff = TSnap::GetAvLocalClustCoeff(Graph);
-  WAvDirClustCoeff = TSnap::GetWAvLocalClustCoeff(Graph);
+  AvDirClustCoeff = TSnap::GetAvDirLocalClustCoeff(Graph);
+  WAvDirClustCoeff = TSnap::GetWAvDirLocalClustCoeff(Graph);
   
   EXPECT_FLOAT_EQ(AvDirClustCoeff, WAvDirClustCoeff);
   

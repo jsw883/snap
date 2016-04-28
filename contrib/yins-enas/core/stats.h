@@ -11,14 +11,14 @@
 namespace TSnap {
 
 // Computes global clustering coefficient (need to check this for method)
-template<class PGraph> double GetGlobClustCf(const PGraph& Graph, int SampleNodes = -1);
+template<class PGraph> double GetGlClustCf(const PGraph& Graph, int SampleNodes = -1);
 // Computes average clustering coefficient (need to check this for method)
 template<class PGraph> double GetAvClustCf(const PGraph& Graph, int SampleNodes = -1);
 
 // Computes local clustering coefficient for each node in NIdV (returns average)
-template<class PGraph> double GetAvLocalClustCoeff(const PGraph& Graph, const TIntV& NIdV, TIntFltH& NIdClustCoeffH);
+template<class PGraph> double GetAvDirLocalClustCoeff(const PGraph& Graph, const TIntV& NIdV, TIntFltH& NIdClustCoeffH);
 // Computes average local clustering coefficient (entire graph)
-template<class PGraph> double GetAvLocalClustCoeff(const PGraph& Graph);
+template<class PGraph> double GetAvDirLocalClustCoeff(const PGraph& Graph);
   
 // Compute directed binary local clustering coefficients as defined in Clustering in Complex Directed Networks [Fagiolo, 2007]
 template<class PGraph> double GetDirLocalClustCoeff(const PGraph& Graph, const int& NId, double& CycleCoeff, double& MidCoeff, double& InCoeff, double& OutCoeff);
@@ -27,7 +27,7 @@ template<class PGraph> double GetDirLocalClustCoeff(const PGraph& Graph, const i
 
 // Computes global clustering coefficient (need to check this for method)
 template<class PGraph>
-double GetGlobClustCf(const PGraph& Graph, int SampleNodes) {
+double GetGlClustCf(const PGraph& Graph, int SampleNodes) {
   int64 ClosedTriadsX, OpenTriadsX;
   GetTriads(Graph, ClosedTriadsX, OpenTriadsX, SampleNodes);
   if (OpenTriadsX == 0) {
@@ -44,7 +44,7 @@ template<class PGraph> double GetAvClustCf(const PGraph& Graph, int SampleNodes)
 
 // Computes local clustering coefficient for each node in NIdV (returns average)
 template<class PGraph>
-double GetAvLocalClustCoeff(const PGraph& Graph, const TIntV& NIdV, TIntFltH& NIdClustCoeffH) {
+double GetAvDirLocalClustCoeff(const PGraph& Graph, const TIntV& NIdV, TIntFltH& NIdClustCoeffH) {
   // Variables
   // PGraph::TObj::TNodeI NI;
   TIntV::TIter NI;
@@ -63,11 +63,11 @@ double GetAvLocalClustCoeff(const PGraph& Graph, const TIntV& NIdV, TIntFltH& NI
 
 // Computes average local clustering coefficient (entire graph)
 template<class PGraph>
-double GetAvLocalClustCoeff(const PGraph& Graph) {
+double GetAvDirLocalClustCoeff(const PGraph& Graph) {
   // Variables
   TIntV NIdV; Graph->GetNIdV(NIdV);
   TIntFltH NIdClustCoeffH;
-  return GetAvLocalClustCoeff(Graph, NIdV, NIdClustCoeffH);
+  return GetAvDirLocalClustCoeff(Graph, NIdV, NIdClustCoeffH);
 }
 
 // Compute directed binary local clustering coefficients as defined in Clustering in Complex Directed Networks [Fagiolo, 2007]

@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
   TFltV percentiles, pvalues;
   TIntFltKdV ANF;
   double EffDiam, AppDiam, Radius;
-  double AvClustCf, GlClustCf;
+  double AvClustCf, GlClustCf, AvDirClustCoeff;
   TStrFltH StatsV;
   TIntIntH DegH;
   
@@ -104,11 +104,13 @@ int main(int argc, char* argv[]) {
   // CLUSTERING COEFFICIENTS
   
   // Computes average and global clustering coefficients (need to check this for method)
-  printf("Computing average / global clustering coefficients...");
+  printf("Computing global / average clustering coefficients...");
+  GlClustCf = TSnap::GetGlClustCf(Graph);
   AvClustCf = TSnap::GetAvClustCf(Graph);
-  GlClustCf = TSnap::GetGlobClustCf(Graph);
-  StatsV.AddDat("AvClustCf", AvClustCf);
+  AvDirClustCoeff = TSnap::GetAvDirLocalClustCoeff(Graph);
   StatsV.AddDat("GlClustCf", GlClustCf);
+  StatsV.AddDat("AvClustCf", AvClustCf);
+  StatsV.AddDat("AvDirClustCoeff", AvDirClustCoeff);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
@@ -124,8 +126,9 @@ int main(int argc, char* argv[]) {
   printf("EffDiam: %f\n", EffDiam);
   printf("AppDiam: %f\n", AppDiam);
   printf("Radius: %f\n", Radius);
-  printf("AvClustCf: %f\n", AvClustCf);
   printf("GlClustCf: %f\n", GlClustCf);
+  printf("AvClustCf: %f\n", AvClustCf);
+  printf("AvDirClustCoeff: %f\n", AvDirClustCoeff);
   
   printf("\nSaving %s.summary...", BseFNm.CStr());
   TSnap::SaveTxt(StatsV, TStr::Fmt("%s.summary", OutFNm.CStr()), "Graph statistics summary", "Stat", "Value");

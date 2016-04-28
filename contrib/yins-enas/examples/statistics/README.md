@@ -11,7 +11,7 @@ Statistics:
   - maximum degree (in / out / undirected)
   - diameter (effective / approximate)
   - radius (median path length)
-  - clustering coefficient (average / global)
+  - clustering coefficient (average, global, average directed)
 
 Curves:
 
