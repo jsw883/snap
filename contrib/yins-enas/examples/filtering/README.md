@@ -1,4 +1,4 @@
-vespignani (multiscale backbone extraction)
+filtering (multiscale backbone extraction)
 -------------------------------------------
 
 Applies the edge filtering algorithm defined by Serrano, Boguna, and Vespignani
@@ -22,16 +22,16 @@ well. For makefiles, compile the code with `make all`.
 ### Usage ###
 
 ```bash
-rm -r ../../datasets/USairport2010/vespignani
-mkdir ../../datasets/USairport2010/vespignani
-./vespignani -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/vespignani/USairport2010
+rm -r ../../datasets/USairport2010/filtering
+mkdir ../../datasets/USairport2010/filtering
+./filtering -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/filtering/USairport2010
 ```
 
 
 ### Usage ###
 
 ```
-Usage: ./vespignani -i:<input network> -o:<output prefix> [Options]
+Usage: ./filtering -i:<input network> -o:<output prefix> [Options]
 Options:
     -i      input network (tab separated list of edges with edge weights)
     -o      output prefix (filename extensions added)
@@ -45,9 +45,9 @@ which is included in this repository.
 
 ```bash
 DATASET=../../datasets/USairport2010
-rm -rf $DATASET/vespignani
-mkdir $DATASET/vespignani
-./vespignani -i:$DATASET/USairport2010.snap \
-             -o:$DATASET/vespignani/USairport2010 \
+rm -rf $DATASET/filtering
+mkdir $DATASET/filtering
+./filtering -i:$DATASET/USairport2010.snap \
+             -o:$DATASET/filtering/USairport2010 \
              -a:0.05
 ```
