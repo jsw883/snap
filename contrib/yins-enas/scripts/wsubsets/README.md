@@ -1,5 +1,5 @@
 wsubsets
--------
+--------
 
 Generates random subsets of weighted graphs for testing.
 

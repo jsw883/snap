@@ -1,4 +1,6 @@
 # Example executables (need to be specified manually or manually cleaned)
+*/drawing
+*/drawing.exe
 */generators
 */generators.exe
 */wsubsets

@@ -43,4 +43,6 @@ public:
   }
 };
 
+void ConvertHexToRGB(const TStr& Hex, TFltTr& RGB);
+
 #endif
