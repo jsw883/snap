@@ -8,6 +8,7 @@ Statistics:
 
   - nodes |V|, edges |E|, sum of weights, average weighted degree
   - maximum weighted degree (in / out / undirected)
+  - clustering coefficient (average weighted / directed)
 
 Makefiles are provided for compilation under Windows with Cygwin and gcc,
 and under Mac OS X, Linux, and other Unix operating systems with gcc as

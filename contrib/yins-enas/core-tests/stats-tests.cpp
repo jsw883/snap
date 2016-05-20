@@ -38,7 +38,7 @@ TYPED_TEST(StatsClustTest, SmallGraphStatistics) {
   GlobClustCf = TSnap::GetGlobClustCf(Graph);
   AvClustCf = TSnap::GetAvClustCf(Graph);
   
-  AvDirClustCoeff = TSnap::GetAvLocalClustCoeff(Graph);
+  AvDirClustCoeff = TSnap::GetAvDirLocalClustCoeff(Graph);
   
   // Known answers
   EXPECT_EQ(0.4, GlobClustCf); // 4 closed triples, 10 connected triples 
@@ -71,7 +71,7 @@ TYPED_TEST(StatsClustTest, TinyGraphStatistics) {
   GlobClustCf = TSnap::GetGlobClustCf(Graph);
   AvClustCf = TSnap::GetAvClustCf(Graph);
   
-  AvDirClustCoeff = TSnap::GetAvLocalClustCoeff(Graph);
+  AvDirClustCoeff = TSnap::GetAvDirLocalClustCoeff(Graph);
   
   // Known answers
   EXPECT_EQ(0, GlobClustCf); 
@@ -103,7 +103,7 @@ TYPED_TEST(StatsClustTest, RandomGraphStatistics) {
   GlobClustCf = TSnap::GetGlobClustCf(Graph);
   AvClustCf = TSnap::GetAvClustCf(Graph);
   
-  AvDirClustCoeff = TSnap::GetAvLocalClustCoeff(Graph);
+  AvDirClustCoeff = TSnap::GetAvDirLocalClustCoeff(Graph);
   
   // Expected ranges
   EXPECT_LE(0, GlobClustCf);

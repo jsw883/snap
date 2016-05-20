@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
   double TotalW, AvW;
   double AvWDeg;
   double MxWInDeg, MxWOutDeg, MxWDeg;
-  // double AvClustCf, GlClustCf;
+  double WAvDirClustCoeff;
   TStrFltH WStatsV;
   
   // WEIGHTED STATISTICS (computations)
@@ -59,14 +59,11 @@ int main(int argc, char* argv[]) {
   WStatsV.AddDat("MxWDeg", MxWDeg);
   
   // Computes weighted average and global clustering coefficients (need to check this for method)
-  // TODO: Implemented generalised, weighted measures (Tore Opsahl) 
   
-  // printf("Computing average / global clustering coefficients...");
-  // AvClustCf = TSnap::GetAvClustCf(WGraph);
-  // GloClustCf = TSnap::GetGlClustCf(WGraph);
-  // StatsV.AddDat("AvClustCf", AvClustCf);
-  // StatsV.AddDat("GlClustCf", GlClustCf);
-  // printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  printf("Computing weighted, directed average clustering coefficients...");
+  WAvDirClustCoeff = TSnap::GetWAvDirLocalClustCoeff(WGraph);
+  WStatsV.AddDat("WAvDirClustCoeff", WAvDirClustCoeff);
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
@@ -79,8 +76,7 @@ int main(int argc, char* argv[]) {
   printf("MxWInDeg: %e\n", MxWInDeg);
   printf("MxWOutDeg: %e\n", MxWOutDeg);
   printf("MxWDeg: %e\n", MxWDeg);
-  // printf("AvClustCf: %f\n", AvClustCf);
-  // printf("GlClustCf: %f\n", GlClustCf);
+  printf("WAvDirClustCoeff: %f\n", WAvDirClustCoeff);
   
   printf("\nSaving %s.wsummary...", BseFNm.CStr());
   TSnap::SaveTxt(WStatsV, TStr::Fmt("%s.wsummary", OutFNm.CStr()), "Weighted graph statistics summary", "Stat", "Value");

@@ -41,5 +41,5 @@ mkdir $DATASET/wdistance
             -s:$DATASET/SrcNIdV.TIntV \
             -d:$DATASET/DstNIdV.TIntV \
             -o:$DATASET/wdistance/USairport2010 \
-            -k:10 --tol:0 --dir:3
+            -k:10 --tol:1e-1 --dir:3
 ```

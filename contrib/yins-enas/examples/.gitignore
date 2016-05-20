@@ -7,6 +7,8 @@
 */connectivity.exe
 */egonets
 */egonets.exe
+*/filtering
+*/filtering.exe
 */nullmodels
 */nullmodels.exe
 */statistics
@@ -15,8 +17,6 @@
 */structures.exe
 */subsets
 */subsets.exe
-*/vespignani
-*/vespignani.exe
 */wcentrality
 */wcentrality.exe
 */wdistance

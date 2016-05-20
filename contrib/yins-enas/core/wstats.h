@@ -12,9 +12,9 @@
 namespace TSnap {
 
 // Computes local clustering coefficient for each node in NIdV (returns average)
-template <class TEdgeW, template <class> class TGraph > double GetWAvLocalClustCoeff(const TPt<TGraph<TEdgeW> >& Graph, const TIntV& NIdV, TIntFltH& NIdClustCoeffH);
+template <class TEdgeW, template <class> class TGraph > double GetWAvDirLocalClustCoeff(const TPt<TGraph<TEdgeW> >& Graph, const TIntV& NIdV, TIntFltH& NIdClustCoeffH);
 // Computes average local clustering coefficient (entire graph)
-template <class TEdgeW, template <class> class TGraph > double GetWAvLocalClustCoeff(const TPt<TGraph<TEdgeW> >& Graph);
+template <class TEdgeW, template <class> class TGraph > double GetWAvDirLocalClustCoeff(const TPt<TGraph<TEdgeW> >& Graph);
 
 // Compute directed binary local clustering coefficients as defined in Clustering in Complex Directed Networks [Fagiolo, 2007]
 template <class TEdgeW, template <class> class TGraph > double GetWDirLocalClustCoeff(const TPt<TGraph<TEdgeW> >& Graph, const int& NId, double& CycleCoeff, double& MidCoeff, double& InCoeff, double& OutCoeff);
@@ -23,7 +23,7 @@ template <class TEdgeW, template <class> class TGraph > double GetWDirLocalClust
 
 // Computes local clustering coefficient for each node in NIdV (returns average)
 template <class TEdgeW, template <class> class TGraph >
-double GetWAvLocalClustCoeff(const TPt<TGraph<TEdgeW> >& Graph, const TIntV& NIdV, TIntFltH& NIdClustCoeffH) {
+double GetWAvDirLocalClustCoeff(const TPt<TGraph<TEdgeW> >& Graph, const TIntV& NIdV, TIntFltH& NIdClustCoeffH) {
   // Variables
   // PGraph::TObj::TNodeI NI;
   TIntV::TIter NI;
@@ -42,11 +42,11 @@ double GetWAvLocalClustCoeff(const TPt<TGraph<TEdgeW> >& Graph, const TIntV& NId
 
 // Computes average local clustering coefficient (entire graph)
 template <class TEdgeW, template <class> class TGraph >
-double GetWAvLocalClustCoeff(const TPt<TGraph<TEdgeW> >& Graph) {
+double GetWAvDirLocalClustCoeff(const TPt<TGraph<TEdgeW> >& Graph) {
   // Variables
   TIntV NIdV; Graph->GetNIdV(NIdV);
   TIntFltH NIdClustCoeffH;
-  return GetWAvLocalClustCoeff(Graph, NIdV, NIdClustCoeffH);
+  return GetWAvDirLocalClustCoeff(Graph, NIdV, NIdClustCoeffH);
 }
 
 // Compute directed binary local clustering coefficients as defined in Clustering in Complex Directed Networks [Fagiolo, 2007]
