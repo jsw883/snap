@@ -151,6 +151,8 @@ int main(int argc, char* argv[]) {
   
   // Layouts
   
+  printf("\nComputing %s layout...", layout.CStr());
+  
   if (layout == "random") {
     TSnap::RandomLayout(NIdV, CoordH);
   } else if (layout == "circular") {
@@ -161,6 +163,8 @@ int main(int argc, char* argv[]) {
     IAssertR(false, "Layout must be one of \"random\", \"circular\", \"reingold\".");
   }
   TSnap::TransformLayout(CoordH, TFltPr(b, w - b), TFltPr(b, h - b), true);
+  
+  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // Drawing
 

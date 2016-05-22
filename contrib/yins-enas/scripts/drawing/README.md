@@ -35,8 +35,10 @@ This example generates graphs for testing.
 
 ```bash
 DATASET=../../datasets/USairport2010
+rm -rf $DATASET/drawing
+mkdir $DATASET/drawing
 ./drawing -i:$DATASET/USairport2010.snap \
-          -o:$DATASET/USairport2010.drawing
+          -o:$DATASET/drawing
           -w:2500 -h:2500 --layout:reingold
           --cooling:1.5
 ```
