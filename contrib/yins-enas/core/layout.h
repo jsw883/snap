@@ -65,7 +65,7 @@ void ReingoldLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, 
   for (int i = 0; i < iterations; i++) {  
     
     // Qudaratic cooling
-    temperature = pow(1 - i / (double) iterations, cooling);
+    temperature = pow(0.5*sqrt(N)*(1 - i / (double) iterations), cooling);
     
     // Repulsive
     for (U = 0; U < NIdV.Len(); U++) {

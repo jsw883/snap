@@ -89,8 +89,8 @@ int main(int argc, char* argv[]) {
   
   // Reingold
   
-  const int iterations = Env.GetIfArgPrefixInt("--iterations:", 1000, "number of iterations for reingold");
-  const double cooling = Env.GetIfArgPrefixFlt("--cooling:", 3.0, "cooling coefficient for reingold");
+  const int iterations = Env.GetIfArgPrefixInt("--iterations:", 1500, "number of iterations for reingold");
+  const double cooling = Env.GetIfArgPrefixFlt("--cooling:", 1.5, "cooling coefficient for reingold");
   const bool shuffle = Env.GetIfArgPrefixBool("--shuffle:", false, "shuffle vertex order for circular layout (and reingold)");
   
   // Node appearance
