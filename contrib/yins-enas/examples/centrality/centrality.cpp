@@ -34,6 +34,7 @@ int main(int argc, char* argv[]) {
   TIntIntVH kInDegVH, kOutDegVH, kDegVH;
   TIntFltH ExoH;
   TIntFltVH DegCentrVH, EigCentrVH, AlphaCentrVH;
+  TFltV AlphaV;
   TFltV EigDiffV, EigV, AlphaDiffV;
   TIntFltH PgRH;
   double PgRDiff;
@@ -110,11 +111,18 @@ int main(int argc, char* argv[]) {
   
   // Alpha centrality
   
-  double alpha = r / EigV[0];
-  
-  printf("\nComputing alpha centrality (alpha: %e)...", alpha);
-  AlphaDiffV = TSnap::GetAlphaCentrVH(Graph, ExoH, AlphaCentrVH, alpha, eps, iters);
+  AlphaV.Add(r / EigV[0]);
+  AlphaV.Add(r / EigV[1]);
+  AlphaV.Add(r / EigV[2]);
+
+  printf("\nComputing alpha centrality...");
+  AlphaDiffV = TSnap::GetAlphaCentrVH(Graph, ExoH, AlphaCentrVH, AlphaV, eps, iters);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+  
+  printf("\nAlpha parameters (r: %f)\n", r);
+  printf("%e\n", (double) AlphaV[0]);
+  printf("%e\n", (double) AlphaV[1]);
+  printf("%e\n", (double) AlphaV[2]);
   
   printf("\nConvergence (in / out / undirected)\n");
   printf("%e%s\n", (double) AlphaDiffV[0], AlphaDiffV[0] < eps ? "" : " DID NOT CONVERGE");
@@ -169,7 +177,7 @@ int main(int argc, char* argv[]) {
     printf(" DONE\n");
     
     printf("Saving %s.alpha.centrality...", BseFNm.CStr());
-    TSnap::SaveTxt(AlphaCentrVH, TStr::Fmt("%s.alpha.centrality", OutFNm.CStr()), TStr::Fmt("Alpha centrality (in / out / undirected) with r = %f, a = %e", r, alpha), "NodeId", "InAlphaCentr\tOutAlphaCentr\tAlphaCentr");
+    TSnap::SaveTxt(AlphaCentrVH, TStr::Fmt("%s.alpha.centrality", OutFNm.CStr()), TStr::Fmt("Alpha centrality (in / out / undirected) with r = %f, a = (%e, %e, %e)", r, AlphaV[0], AlphaV[1], AlphaV[2]), "NodeId", "InAlphaCentr\tOutAlphaCentr\tAlphaCentr");
     printf(" DONE\n");
     
     printf("Saving %s.pgr...", BseFNm.CStr());

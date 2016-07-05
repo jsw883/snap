@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNIdV, const TEdgeDir& d, const TStr& OutFNm, const TStr& BseFNm, const TStr& SrcNm, const TStr& DstNm, const bool& collate, const TExeTm& ExeTm) {
+void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNIdV, const TEdgeDir& dir, const TIntSet& SkipNIdS, const TStr& OutFNm, const TStr& BseFNm, const TStr& SrcNm, const TStr& DstNm, const bool& collate, const TExeTm& ExeTm) {
   
   // Declare variables
   TUInt64V NF;
@@ -14,7 +14,7 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
   
   printf("\nComputing %s subset diameter, node counts, and exact shortest paths...", SrcNm.CStr());
   TSnap::TFixedMemoryExhaustiveNeighborhood<PNGraph> FixedMemoryExhaustiveNeighborhood(Graph, DstNIdV);
-  FixedMemoryExhaustiveNeighborhood.ComputeSubsetINFH(SrcNIdV, d, INFH, ShortestPathVH);
+  FixedMemoryExhaustiveNeighborhood.ComputeSubsetINFH(SrcNIdV, dir, SkipNIdS, INFH, ShortestPathVH);
   TSnap::ConvertSubsetINFHSubsetNF(INFH, NF);
   printf(" DONE: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
@@ -32,7 +32,7 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
   printf("\nSaving %s.%s.INFH...", BseFNm.CStr(), SrcNm.CStr());
-  TSnap::SaveTxt(INFH, TStr::Fmt("%s.%s.INFH", OutFNm.CStr(), SrcNm.CStr()), TStr::Fmt("Exact individual neighborhood function with d = %d", d), "Node", "INFVH");
+  TSnap::SaveTxt(INFH, TStr::Fmt("%s.%s.INFH", OutFNm.CStr(), SrcNm.CStr()), TStr::Fmt("Exact individual neighborhood function (dir: %d)", dir), "Node", "INFVH");
   printf(" DONE\n");   
   
   printf("\nSaving %s.%s.hop.NF...", BseFNm.CStr(), SrcNm.CStr());
@@ -52,7 +52,9 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
   for (HI = ShortestPathVH.BegI(); HI < ShortestPathVH.EndI(); HI++) {
     const TIntV& ShortestPathV = HI.GetDat();
     for (int i = 0; i < DstNIdV.Len(); i++) {
-      fprintf(F, "%d\t%d\t%d\n", (int) HI.GetKey(), (int) DstNIdV[i], (int) ShortestPathV[i]);
+      if (ShortestPathV[i] != -1) {
+        fprintf(F, "%d\t%d\t%d\n", (int) HI.GetKey(), (int) DstNIdV[i], (int) ShortestPathV[i]);
+      }
     }
   }
   printf(" DONE\n");
@@ -66,7 +68,7 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
     printf("\nSaving %s.%s.diameters.summary...", BseFNm.CStr(), SrcNm.CStr());
     const TStr CombinedFNm = TStr::Fmt("%s.%s.diameters.summary", OutFNm.CStr(), SrcNm.CStr());
     FILE *F = fopen(CombinedFNm.CStr(), "wt");
-    fprintf(F, "# Subset node counts, radius (median path length), and diameter with d = %d\n", d);
+    fprintf(F, "# Subset node counts, radius (median path length), and diameter (dir: %d)\n", dir);
     fprintf(F, "# Nodes: %d\tEdges: %d\t Subset size: %d\n", Graph->GetNodes(), Graph->GetEdges(), SrcNIdV.Len());
     fprintf(F, "# SubsetNodeId\tNodes\tRadius\tDiameter\n");
     for (VI = SrcNIdV.BegI(); VI < SrcNIdV.EndI(); VI++) {
@@ -79,15 +81,15 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
   } else {
     
     printf("\nSaving %s.%s.nodes...", BseFNm.CStr(), SrcNm.CStr());
-    TSnap::SaveTxt(NodesH, TStr::Fmt("%s.%s.nodes", OutFNm.CStr(), SrcNm.CStr()), TStr::Fmt("Node counts with d = %d", d), "Node", "Nodes");
+    TSnap::SaveTxt(NodesH, TStr::Fmt("%s.%s.nodes", OutFNm.CStr(), SrcNm.CStr()), TStr::Fmt("Node counts (dir: %d)", dir), "Node", "Nodes");
     printf(" DONE");
    
     printf("\nSaving %s.%s.diameter...", BseFNm.CStr(), SrcNm.CStr());
-    TSnap::SaveTxt(DiameterH, TStr::Fmt("%s.%s.diameter", OutFNm.CStr(), SrcNm.CStr()), TStr::Fmt("Diameter of neighborhood with d = %d", d), "Node", "Diameter");
+    TSnap::SaveTxt(DiameterH, TStr::Fmt("%s.%s.diameter", OutFNm.CStr(), SrcNm.CStr()), TStr::Fmt("Diameter of neighborhood (dir: %d)", dir), "Node", "Diameter");
     printf(" DONE\n");
  
     printf("\nSaving %s.%s.radius...", BseFNm.CStr(), SrcNm.CStr());
-    TSnap::SaveTxt(RadiusH, TStr::Fmt("%s.%s.radius", OutFNm.CStr(), SrcNm.CStr()), TStr::Fmt("Radius (median path length) of neighborhood with d = %d", d), "Node", "Radius");
+    TSnap::SaveTxt(RadiusH, TStr::Fmt("%s.%s.radius", OutFNm.CStr(), SrcNm.CStr()), TStr::Fmt("Radius (median path length) of neighborhood (dir: %d)", dir), "Node", "Radius");
     printf(" DONE\n");
  
   }
@@ -112,7 +114,8 @@ int main(int argc, char* argv[]) {
   const TStr DstNm = DstNIdVFNm.RightOfLast('/').LeftOfLast('.');
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
-  const TEdgeDir d = (TEdgeDir) Env.GetIfArgPrefixInt("--dir:", 3, "direction of traversal: in = 1, out = 2, undected = 3");
+  const TEdgeDir dir = (TEdgeDir) Env.GetIfArgPrefixInt("--dir:", 3, "direction of traversal: in = 1, out = 2, undected = 3");
+  const bool exclude = Env.GetIfArgPrefixBool("--exclude:", true, "exclude other source nodes from BFS");
   const bool exhaustive = Env.GetIfArgPrefixBool("--exhaustive:", false, "compute for every node (overrides -s, -d): T / F");
   const bool collate = Env.GetIfArgPrefixBool("--collate:", true, "collate properties into matrix: T / F");
   
@@ -126,20 +129,25 @@ int main(int argc, char* argv[]) {
   // Declare variables
   TIntV SrcNIdV, DstNIdV, NIdV, RndNIdV;
   TRnd Rnd(0);
+  TIntSet SkipNIdS;
   
   // Load subset nodes and compute disjoint random subset of nodes (same size)
   SrcNIdV = TSnap::LoadTxtIntV(SrcNIdVFNm);
   DstNIdV = TSnap::LoadTxtIntV(DstNIdVFNm);
   
+  if (exclude) {
+    SkipNIdS.AddKeyV(SrcNIdV);
+  }
+
   // SUBSET DIAMETER AND NODE COUNTS
   
   if (exhaustive) {
     // EXHAUSTIVE
     Graph->GetNIdV(NIdV);
-    ComputeINFH(Graph, NIdV, NIdV, d, OutFNm, BseFNm, TStr("exhaustive"), TStr("exhaustive"), collate, ExeTm);
+    ComputeINFH(Graph, NIdV, NIdV, dir, SkipNIdS, OutFNm, BseFNm, TStr("exhaustive"), TStr("exhaustive"), collate, ExeTm);
   } else {
     // SUBSET
-    ComputeINFH(Graph, SrcNIdV, DstNIdV, d, OutFNm, BseFNm, SrcNm, DstNm, collate, ExeTm);
+    ComputeINFH(Graph, SrcNIdV, DstNIdV, dir, SkipNIdS, OutFNm, BseFNm, SrcNm, DstNm, collate, ExeTm);
   }
   
   Catch

@@ -38,6 +38,7 @@ Options:
     -d              destination subset nodes (column of nodes)
     --dir           direction of traversal: in = 1, out = 2, undirected = 3
                         (default: 3)
+    --exclude       exclude other source nodes from BFS (default: true)
     --exhaustive    compute for every node (overrides -s, --compare): T / F
                         (default: F)
     --collate       collate properties into matrix: T / F (default: F)
@@ -56,5 +57,5 @@ mkdir $DATASET/subsets
             -s:$DATASET/SrcNIdV.TIntV \
             -d:$DATASET/DstNIdV.TIntV \
             -o:$DATASET/subsets/USairport2010 \
-            --dir:3 --collate:T
+            --dir:3 --exclude:F --collate:T
 ```

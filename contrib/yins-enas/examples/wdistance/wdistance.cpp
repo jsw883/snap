@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-void ComputeWD(const PFltWNGraph& WGraph, const TIntV& SrcNIdV, const TIntV& DstNIdV, const TEdgeDir& dir, const bool& preNormalized, const int& k, const double& tol, const TStr& OutFNm, const TStr& BseFNm, const TStr& SrcNm, const TStr& DstNm, const TExeTm& ExeTm) {
+void ComputeWD(const PFltWNGraph& WGraph, const TIntV& SrcNIdV, const TIntV& DstNIdV, const TEdgeDir& dir, const TIntSet& SkipNIdS, const bool& preNormalized, const int& k, const double& tol, const TStr& OutFNm, const TStr& BseFNm, const TStr& SrcNm, const TStr& DstNm, const TExeTm& ExeTm) {
   
   // Declare variables
   TUInt64V NF;
@@ -13,7 +13,7 @@ void ComputeWD(const PFltWNGraph& WGraph, const TIntV& SrcNIdV, const TIntV& Dst
   
   printf("\nComputing weighted distances from %s to %s ...", SrcNm.CStr(), DstNm.CStr());
   TSnap::TFixedMemoryWD<PFltWNGraph> FixedMemoryWD(WGraph, DstNIdV, k, tol, preNormalized);
-  FixedMemoryWD.ComputeSubsetWDVH(SrcNIdV, dir, WDVH);
+  FixedMemoryWD.ComputeSubsetWDVH(SrcNIdV, dir, SkipNIdS, WDVH);
   printf(" DONE: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   TSnap::printDataVHSummary(WDVH, "\nWDVH\n----");
@@ -31,7 +31,9 @@ void ComputeWD(const PFltWNGraph& WGraph, const TIntV& SrcNIdV, const TIntV& Dst
   for (HI = WDVH.BegI(); HI < WDVH.EndI(); HI++) {
     const TFltV& WDV = HI.GetDat();
     for (int i = 0; i < DstNIdV.Len(); i++) {
-      fprintf(F, "%d\t%d\t%f\n", (int) HI.GetKey(), (int) DstNIdV[i], (double) WDV[i]);
+      if (WDV[i] > 0) {
+        fprintf(F, "%d\t%d\t%f\n", (int) HI.GetKey(), (int) DstNIdV[i], (double) WDV[i]);
+      }
     }
   }
   printf(" DONE\n");
@@ -61,6 +63,7 @@ int main(int argc, char* argv[]) {
   const int k = Env.GetIfArgPrefixInt("-k:", 10, "depth limit for BFS");
   const double tol = Env.GetIfArgPrefixFlt("--tol:", 1e-3, "weighted distance limit for BFS");
   const TEdgeDir dir = (TEdgeDir) Env.GetIfArgPrefixInt("--dir:", 3, "direction of traversal: in = 1, out = 2, undected = 3");
+  const bool exclude = Env.GetIfArgPrefixBool("--exclude:", true, "exclude other source nodes from BFS");
   const bool preNormalized = Env.GetIfArgPrefixBool("--normalized:", false, "edge weights are pre-normalized");
   const bool exhaustive = Env.GetIfArgPrefixBool("--exhaustive:", false, "compute for every node (overrides -s, -d): T / F");
   
@@ -78,20 +81,25 @@ int main(int argc, char* argv[]) {
   // Declare variables
   TIntV SrcNIdV, DstNIdV, NIdV, RndNIdV;
   TRnd Rnd(0);
-  
+  TIntSet SkipNIdS;
+
   // Load subset nodes and compute disjoint random subset of nodes (same size) 
   SrcNIdV = TSnap::LoadTxtIntV(SrcNIdVFNm);
   DstNIdV = TSnap::LoadTxtIntV(DstNIdVFNm);
   
+  if (exclude) {
+    SkipNIdS.AddKeyV(SrcNIdV);
+  }
+
   // SUBSET DIAMETER AND NODE COUNTS
   
   if (exhaustive) {
     // EXHAUSTIVE
     WGraph->GetNIdV(NIdV);
-    ComputeWD(WGraph, NIdV, NIdV, dir, preNormalized, k, tol, OutFNm, BseFNm, TStr("exhaustive"), TStr("exhaustive"), ExeTm);
+    ComputeWD(WGraph, NIdV, NIdV, dir, SkipNIdS, preNormalized, k, tol, OutFNm, BseFNm, TStr("exhaustive"), TStr("exhaustive"), ExeTm);
   } else {
     // SUBSET
-    ComputeWD(WGraph, SrcNIdV, DstNIdV, dir, preNormalized, k, tol, OutFNm, BseFNm, SrcNm, DstNm, ExeTm);
+    ComputeWD(WGraph, SrcNIdV, DstNIdV, dir, SkipNIdS, preNormalized, k, tol, OutFNm, BseFNm, SrcNm, DstNm, ExeTm);
   }
   
   Catch

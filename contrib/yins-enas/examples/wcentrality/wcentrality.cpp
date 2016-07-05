@@ -34,6 +34,7 @@ int main(int argc, char* argv[]) {
   TIntFltVH kWInDegVH, kWOutDegVH, kWDegVH;
   TIntFltH ExoH;
   TIntFltVH WDegCentrVH, WEigCentrVH, WAlphaCentrVH;
+  TFltV AlphaV;
   TFltV WEigDiffV, WEigV, WAlphaDiffV;
   TIntFltH WPgRH;
   double WPgRDiff;
@@ -110,12 +111,19 @@ int main(int argc, char* argv[]) {
   
   // Alpha centrality
   
-  double alpha = r / WEigV[0];
-  
-  printf("\nComputing alpha centrality (alpha: %e)...", alpha);
-  WAlphaDiffV = TSnap::GetWAlphaCentrVH<TFlt>(WGraph, ExoH, WAlphaCentrVH, alpha, eps, iters);
+  AlphaV.Add(r / WEigV[0]);
+  AlphaV.Add(r / WEigV[1]);
+  AlphaV.Add(r / WEigV[2]);
+
+  printf("\nComputing alpha centrality...");
+  WAlphaDiffV = TSnap::GetWAlphaCentrVH<TFlt>(WGraph, ExoH, WAlphaCentrVH, AlphaV, eps, iters);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
 
+  printf("\nAlpha parameters (r: %f)\n", r);
+  printf("%e\n", (double) AlphaV[0]);
+  printf("%e\n", (double) AlphaV[1]);
+  printf("%e\n", (double) AlphaV[2]);
+  
   printf("\nConvergence (in / out / undirected)\n");
   printf("%e%s\n", (double) WAlphaDiffV[0], WAlphaDiffV[0] < eps ? "" : " DID NOT CONVERGE");
   printf("%e%s\n", (double) WAlphaDiffV[1], WAlphaDiffV[1] < eps ? "" : " DID NOT CONVERGE");
@@ -169,7 +177,7 @@ int main(int argc, char* argv[]) {
     printf(" DONE\n");
     
     printf("Saving %s.alpha.wcentrality...", BseFNm.CStr());
-    TSnap::SaveTxt(WAlphaCentrVH, TStr::Fmt("%s.alpha.wcentrality", OutFNm.CStr()), TStr::Fmt("Weighted alpha centrality (in / out / undirected) with r = %f, a = %e", r, alpha), "NodeId", "WInAlphaCentr\tWOutAlphaCentr\tWAlphaCentr");
+    TSnap::SaveTxt(WAlphaCentrVH, TStr::Fmt("%s.alpha.wcentrality", OutFNm.CStr()), TStr::Fmt("Weighted alpha centrality (in / out / undirected) with r = %f,  a = (%e, %e, %e)", r, AlphaV[0], AlphaV[1], AlphaV[2]), "NodeId", "WInAlphaCentr\tWOutAlphaCentr\tWAlphaCentr");
     printf(" DONE\n");
     
     printf("Saving %s.wpgr...", BseFNm.CStr());
