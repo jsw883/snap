@@ -33,9 +33,12 @@ mkdir ../../datasets/USairport2010/filtering
 ```
 Usage: ./filtering -i:<input network> -o:<output prefix> [Options]
 Options:
-    -i      input network (tab separated list of edges with edge weights)
-    -o      output prefix (filename extensions added)
-    -a      alpha significance level threshold (default: 0.01)
+    -i          input network (tab separated list of edges with edge weights)
+    -o          output prefix (filename extensions added)
+    -a          alpha significance level threshold (default: 0.01)
+    --alphav    vector of alpha significance level threshold (overrides -a)
+    --verbose   verbose output for each step of the Vespignani method
+                    (default: true)
 ```
 
 ### Example ###
@@ -49,5 +52,6 @@ rm -rf $DATASET/filtering
 mkdir $DATASET/filtering
 ./filtering -i:$DATASET/USairport2010.snap \
              -o:$DATASET/filtering/USairport2010 \
-             -a:0.05
+             --alphav:$DATASET/AlphaV.TFltV \
+             --verbose
 ```

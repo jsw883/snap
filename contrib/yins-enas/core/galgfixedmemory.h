@@ -26,7 +26,11 @@ protected:
 public:
   TFixedMemoryBFS(const PGraph& Graph) : Graph(Graph), Queue(Graph->GetNodes()), Color(Graph->GetNodes()) { }
   void SetGraph(const PGraph& Graph);
-  template <class TVisitor> void GetBfsVisitor(const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir, const int& k = -1);
+  template <class TVisitor> void GetBfsVisitor(const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir, const TIntSet& SkipNIdS, const int& k = -1);
+  template <class TVisitor> void GetBfsVisitor(const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir, const int& k = -1) {
+    TIntSet SkipNIdS;
+    GetBfsVisitor(SubGraph, Visitor, dir, SkipNIdS, k);
+  }
   void Clr(const bool& DoDel = false);
 };
 
@@ -40,9 +44,8 @@ void TFixedMemoryBFS<PGraph>::SetGraph(const PGraph& Graph) {
 
 template <class PGraph> // class template still needs to be declared
 template <class TVisitor> // member template
-void TFixedMemoryBFS<PGraph>::GetBfsVisitor(const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir, const int& k) {
-  Queue.Clr(false);
-  Color.Clr(false);
+void TFixedMemoryBFS<PGraph>::GetBfsVisitor(const PGraph& SubGraph, TVisitor& Visitor, const TEdgeDir& dir, const TIntSet& SkipNIdS, const int& k) {
+  Clr(false);
   Visitor.Start();
   int depth = 0, peekdepth = 0, edge = 0, Deg = 0, U = 0, V = 0, VDeg = 0;
   typename PGraph::TObj::TNodeI NI, UI;
@@ -57,7 +60,7 @@ void TFixedMemoryBFS<PGraph>::GetBfsVisitor(const PGraph& SubGraph, TVisitor& Vi
       }
       Queue.Push(TIntTr(U, depth, Deg));
       Visitor.DiscoverNode(U, depth); // discover node
-      while (! Queue.Empty()) { // while stack is not empty
+      while (!Queue.Empty()) { // while stack is not empty
         const TIntTr& Top = Queue.Top();
         U = Top.Val1; depth = Top.Val2; Deg = Top.Val3;
         UI = Graph->GetNI(U);
@@ -75,7 +78,7 @@ void TFixedMemoryBFS<PGraph>::GetBfsVisitor(const PGraph& SubGraph, TVisitor& Vi
             peekdepth = depth + 1;
           }
           Visitor.ExamineEdge(U, depth, edge, V); // examine edge
-          if (! Color.IsKey(V)) { // V has not been discovered
+          if (!SkipNIdS.IsKey(V) && !Color.IsKey(V)) { // V is not excluded and V has not been discovered
             Color.AddDat(V, 1);
             Visitor.DiscoverNode(V, peekdepth); // discover node
             Visitor.TreeEdge(U, depth, edge, V); // tree edge

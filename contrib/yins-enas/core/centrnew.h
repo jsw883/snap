@@ -295,20 +295,20 @@ double GetAlphaCentr(const PGraph& Graph, const TIntFltH& ExoH, TIntFltH& AlphaC
 }
 
 template <class PGraph>
-TFltV GetAlphaCentrVH(const PGraph& Graph, const TIntFltH& ExoH, TIntFltVH& AlphaCentrVH, const double& alpha, const double& eps, const int& MaxIter) {
+TFltV GetAlphaCentrVH(const PGraph& Graph, const TIntFltH& ExoH, TIntFltVH& AlphaCentrVH, const TFltV& AlphaV, const double& eps, const int& MaxIter) {
   typename PGraph::TObj::TNodeI NI;
   TIntFltH InAlphaCentrH, OutAlphaCentrH, AlphaCentrH;
-  TFltV DiffV, AlphaV;
+  TFltV DiffV, AlphaCentrV;
   DiffV.Clr();
-  DiffV.Add(GetInAlphaCentr(Graph, ExoH, InAlphaCentrH, alpha, eps, MaxIter));
-  DiffV.Add(GetOutAlphaCentr(Graph, ExoH, OutAlphaCentrH, alpha, eps, MaxIter));
-  DiffV.Add(GetAlphaCentr(Graph, ExoH, AlphaCentrH, alpha / 2.0, eps, MaxIter));
+  DiffV.Add(GetInAlphaCentr(Graph, ExoH, InAlphaCentrH, AlphaV[0], eps, MaxIter));
+  DiffV.Add(GetOutAlphaCentr(Graph, ExoH, OutAlphaCentrH, AlphaV[1], eps, MaxIter));
+  DiffV.Add(GetAlphaCentr(Graph, ExoH, AlphaCentrH, AlphaV[2], eps, MaxIter));
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    AlphaV.Clr();
-    AlphaV.Add(InAlphaCentrH.GetDat(NI.GetId()));
-    AlphaV.Add(OutAlphaCentrH.GetDat(NI.GetId()));
-    AlphaV.Add(AlphaCentrH.GetDat(NI.GetId()));
-    AlphaCentrVH.AddDat(NI.GetId(), AlphaV);
+    AlphaCentrV.Clr();
+    AlphaCentrV.Add(InAlphaCentrH.GetDat(NI.GetId()));
+    AlphaCentrV.Add(OutAlphaCentrH.GetDat(NI.GetId()));
+    AlphaCentrV.Add(AlphaCentrH.GetDat(NI.GetId()));
+    AlphaCentrVH.AddDat(NI.GetId(), AlphaCentrV);
   }
   return(DiffV);
 }

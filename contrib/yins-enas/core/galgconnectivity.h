@@ -64,40 +64,21 @@ public:
   TFixedMemoryExhaustiveNeighborhood(const PGraph& Graph, const TIntV& DstNIdV) : TFixedMemoryBFS<PGraph>(Graph), Visitor(TExhaustiveNeighborhoodVisitor(DstNIdV)) { }
 
   // Compute neighborhood depth counts using the direction specified
-  void ComputeNeighborhood(const int& NId, const TEdgeDir& Dir, TUInt64V& Neigborhood, TIntV& ShortestPathV);
+  void ComputeNeighborhood(const int& NId, const TEdgeDir& Dir, const TIntSet& SkipNIdS, TUInt64V& Neigborhood, TIntV& ShortestPathV);
   // Get INF for a single node using the direction specified 
-  void ComputeINF(const int& NId, const TEdgeDir& Dir, TUInt64V& INF, TIntV& ShortestPathV);
+  void ComputeINF(const int& NId, const TEdgeDir& Dir, const TIntSet& SkipNIdS, TUInt64V& INF, TIntV& ShortestPathV);
 
   // Get neighborhood for the subset of nodes using the direction specified
-  void ComputeSubsetNeighborhoodH(const TIntV& NIdV, const TEdgeDir& Dir, THash<TInt, TUInt64V>& NeighborhoodH, TIntIntVH& DstNIdVShortestPathVH);
+  void ComputeSubsetNeighborhoodH(const TIntV& NIdV, const TEdgeDir& Dir, const TIntSet& SkipNIdS, THash<TInt, TUInt64V>& NeighborhoodH, TIntIntVH& DstNIdVShortestPathVH);
   // Get INF for the subset of nodes using the direction specified
-  void ComputeSubsetINFH(const TIntV& NIdV, const TEdgeDir& Dir, THash<TInt, TUInt64V>& INFH, TIntIntVH& DstNIdVShortestPathVH);
+  void ComputeSubsetINFH(const TIntV& NIdV, const TEdgeDir& Dir, const TIntSet& SkipNIdS, THash<TInt, TUInt64V>& INFH, TIntIntVH& DstNIdVShortestPathVH);
   
-  // Get exact NF for the subset of nodes (int / out / undirected)
-  void ComputeInSubsetNF(const TIntV& NIdV, TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH) {
-    ComputeSubsetNF(NIdV, edInDirected, NF, DstNIdVShortestPathVH);
-  }
-  void ComputeOutSubsetNF(const TIntV& NIdV, TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH) {
-    ComputeSubsetNF(NIdV, edOutDirected, NF, DstNIdVShortestPathVH);
-  }
-  void ComputeSubsetNF(const TIntV& NIdV, TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH) {
-    ComputeSubsetNF(NIdV, edUnDirected, NF, DstNIdVShortestPathVH);
-  }
   // Get exact NF for the subset of nodes using the direction specified
-  void ComputeSubsetNF(const TIntV& NIdV, const TEdgeDir& Dir, TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH);
-  
+  void ComputeSubsetNF(const TIntV& NIdV, const TEdgeDir& Dir, const TIntSet& SkipNIdS, TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH);
   // Get exact NF for the entire graph (int / out / undirected)
-  void ComputeInNF(TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH) {
+  void ComputeNF(TUInt64V& NF, const TEdgeDir& Dir, const TIntSet& SkipNIdS, TIntIntVH& DstNIdVShortestPathVH) {
     TIntV NIdV; this->Graph->GetNIdV(NIdV);
-    ComputeSubsetNF(NIdV, edInDirected, NF, DstNIdVShortestPathVH);
-  }
-  void ComputeOutNF(TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH) {
-    TIntV NIdV; this->Graph->GetNIdV(NIdV);
-    ComputeSubsetNF(NIdV, edOutDirected, NF, DstNIdVShortestPathVH);
-  }
-  void ComputeNF(TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH) {
-    TIntV NIdV; this->Graph->GetNIdV(NIdV);
-    ComputeSubsetNF(NIdV, edUnDirected, NF, DstNIdVShortestPathVH);
+    ComputeSubsetNF(NIdV, Dir, SkipNIdS, NF, DstNIdVShortestPathVH);
   }
   
   void Clr(const bool& DoDel = false);
@@ -105,24 +86,24 @@ public:
 
 // Compute neighborhood depth counts using the direction specified
 template <class PGraph>
-void TFixedMemoryExhaustiveNeighborhood<PGraph>::ComputeNeighborhood(const int& NId, const TEdgeDir& Dir, TUInt64V& Neighborhood, TIntV& ShortestPathV) {
+void TFixedMemoryExhaustiveNeighborhood<PGraph>::ComputeNeighborhood(const int& NId, const TEdgeDir& Dir, const TIntSet& SkipNIdS, TUInt64V& Neighborhood, TIntV& ShortestPathV) {
   PGraph Ego = PGraph::TObj::New(); Ego->AddNode(NId);
   Visitor.Clr();
-  this->GetBfsVisitor(Ego, Visitor, Dir);
+  this->GetBfsVisitor(Ego, Visitor, Dir, SkipNIdS);
   Neighborhood = Visitor.Neighborhood;
   Visitor.NIdVShortestPathLengthH.GetDatV(ShortestPathV);
 }
 
 // Compute INF using the direction specified
 template <class PGraph>
-void TFixedMemoryExhaustiveNeighborhood<PGraph>::ComputeINF(const int& NId, const TEdgeDir& Dir, TUInt64V& INF, TIntV& ShortestPathV) {
-  ComputeNeighborhood(NId, Dir, INF, ShortestPathV);
+void TFixedMemoryExhaustiveNeighborhood<PGraph>::ComputeINF(const int& NId, const TEdgeDir& Dir, const TIntSet& SkipNIdS, TUInt64V& INF, TIntV& ShortestPathV) {
+  ComputeNeighborhood(NId, Dir, SkipNIdS, INF, ShortestPathV);
   ConvertNeighborhoodNF(INF);
 }
 
 // Compute subset neighborhood depth counts using the direction specified
 template <class PGraph>
-void TFixedMemoryExhaustiveNeighborhood<PGraph>::ComputeSubsetNeighborhoodH(const TIntV& NIdV, const TEdgeDir& Dir, THash<TInt, TUInt64V>& NeighborhoodH, TIntIntVH& DstNIdVShortestPathVH) {
+void TFixedMemoryExhaustiveNeighborhood<PGraph>::ComputeSubsetNeighborhoodH(const TIntV& NIdV, const TEdgeDir& Dir, const TIntSet& SkipNIdS, THash<TInt, TUInt64V>& NeighborhoodH, TIntIntVH& DstNIdVShortestPathVH) {
   // Variables
   TIntV::TIter VI;
   TUInt64V Neighborhood;
@@ -134,7 +115,7 @@ void TFixedMemoryExhaustiveNeighborhood<PGraph>::ComputeSubsetNeighborhoodH(cons
   for (VI = NIdV.BegI(); VI < NIdV.EndI();  VI++) {
     NId = VI->Val;
     // Compute the INFH
-    ComputeNeighborhood(NId, Dir, Neighborhood, ShortestPathV);
+    ComputeNeighborhood(NId, Dir, SkipNIdS, Neighborhood, ShortestPathV);
     // Add INFH
     NeighborhoodH.AddDat(NId, Neighborhood);
     DstNIdVShortestPathVH.AddDat(NId, ShortestPathV);
@@ -143,7 +124,7 @@ void TFixedMemoryExhaustiveNeighborhood<PGraph>::ComputeSubsetNeighborhoodH(cons
 
 // Compute subset INFH using the direction specified
 template <class PGraph>
-void TFixedMemoryExhaustiveNeighborhood<PGraph>::ComputeSubsetINFH(const TIntV& NIdV, const TEdgeDir& Dir, THash<TInt, TUInt64V>& INFH, TIntIntVH& DstNIdVShortestPathVH) {
+void TFixedMemoryExhaustiveNeighborhood<PGraph>::ComputeSubsetINFH(const TIntV& NIdV, const TEdgeDir& Dir, const TIntSet& SkipNIdS, THash<TInt, TUInt64V>& INFH, TIntIntVH& DstNIdVShortestPathVH) {
   // Variables
   TIntV::TIter VI;
   TUInt64V INF;
@@ -155,7 +136,7 @@ void TFixedMemoryExhaustiveNeighborhood<PGraph>::ComputeSubsetINFH(const TIntV& 
   for (VI = NIdV.BegI(); VI < NIdV.EndI();  VI++) {
     NId = VI->Val;
     // Compute the INFH
-    ComputeINF(NId, Dir, INF, ShortestPathV);
+    ComputeINF(NId, Dir, SkipNIdS, INF, ShortestPathV);
     // Add INFH
     INFH.AddDat(NId, INF);
     DstNIdVShortestPathVH.AddDat(NId, ShortestPathV);
@@ -164,12 +145,12 @@ void TFixedMemoryExhaustiveNeighborhood<PGraph>::ComputeSubsetINFH(const TIntV& 
 
 // Compute subset NF using the direction specified
 template <class PGraph>
-void TFixedMemoryExhaustiveNeighborhood<PGraph>::ComputeSubsetNF(const TIntV& NIdV, const TEdgeDir& Dir, TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH) {
+void TFixedMemoryExhaustiveNeighborhood<PGraph>::ComputeSubsetNF(const TIntV& NIdV, const TEdgeDir& Dir, const TIntSet& SkipNIdS, TUInt64V& NF, TIntIntVH& DstNIdVShortestPathVH) {
   // Variables
   THash<TInt, TUInt64V>::TIter HI;
   THash<TInt, TUInt64V> NeighborhoodH;
   // Compute neighborhoods
-  ComputeSubsetNeighborhoodH(NIdV, Dir, NeighborhoodH, DstNIdVShortestPathVH);
+  ComputeSubsetNeighborhoodH(NIdV, Dir, SkipNIdS, NeighborhoodH, DstNIdVShortestPathVH);
   ConvertSubsetNeighborhoodHSubsetNF(NeighborhoodH, NF);
 }
 

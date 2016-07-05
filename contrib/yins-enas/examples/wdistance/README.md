@@ -24,6 +24,8 @@ Options:
     --tol           weighted distance limit for BFS (default: 1e-3)
     --dir           direction of traversal: in = 1, out = 2, undirected = 3
                         (default: 3)
+    --exclude       exclude other source nodes from BFS (default: true)
+    --normalized    edge weights are pre-normalized (default: false)
     --exhaustive    compute for every node (overrides -s, --compare): T / F
                         (default: F)
 ```
@@ -41,5 +43,5 @@ mkdir $DATASET/wdistance
             -s:$DATASET/SrcNIdV.TIntV \
             -d:$DATASET/DstNIdV.TIntV \
             -o:$DATASET/wdistance/USairport2010 \
-            -k:10 --tol:1e-1 --dir:3
+            -k:10 --tol:1e-1 --dir:3 --exclude:F
 ```

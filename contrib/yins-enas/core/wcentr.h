@@ -296,20 +296,20 @@ double GetWAlphaCentr(const TPt<TGraph<TEdgeW> >& Graph, const TIntFltH& ExoH, T
 }
 
 template <class TEdgeW, template <class> class TGraph >
-TFltV GetWAlphaCentrVH(const TPt<TGraph<TEdgeW> >& Graph, const TIntFltH& ExoH, TIntFltVH& WAlphaCentrVH, const double& alpha, const double& eps, const int& MaxIter) {
+TFltV GetWAlphaCentrVH(const TPt<TGraph<TEdgeW> >& Graph, const TIntFltH& ExoH, TIntFltVH& WAlphaCentrVH, const TFltV& AlphaV, const double& eps, const int& MaxIter) {
   typename TGraph<TEdgeW>::TNodeI NI;
   TIntFltH WInAlphaCentrH, WOutAlphaCentrH, WAlphaCentrH;
-  TFltV DiffV, WEigV;
+  TFltV DiffV, WAlphaCentrV;
   DiffV.Clr();
-  DiffV.Add(GetWInAlphaCentr(Graph, ExoH, WInAlphaCentrH, alpha, eps, MaxIter));
-  DiffV.Add(GetWOutAlphaCentr(Graph, ExoH, WOutAlphaCentrH, alpha, eps, MaxIter));
-  DiffV.Add(GetWAlphaCentr(Graph, ExoH, WAlphaCentrH, alpha / 2.0, eps, MaxIter));
+  DiffV.Add(GetWInAlphaCentr(Graph, ExoH, WInAlphaCentrH, AlphaV[0], eps, MaxIter));
+  DiffV.Add(GetWOutAlphaCentr(Graph, ExoH, WOutAlphaCentrH, AlphaV[1], eps, MaxIter));
+  DiffV.Add(GetWAlphaCentr(Graph, ExoH, WAlphaCentrH, AlphaV[2], eps, MaxIter));
   for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    WEigV.Clr();
-    WEigV.Add(WInAlphaCentrH.GetDat(NI.GetId()));
-    WEigV.Add(WOutAlphaCentrH.GetDat(NI.GetId()));
-    WEigV.Add(WAlphaCentrH.GetDat(NI.GetId()));
-    WAlphaCentrVH.AddDat(NI.GetId(), WEigV);
+    WAlphaCentrV.Clr();
+    WAlphaCentrV.Add(WInAlphaCentrH.GetDat(NI.GetId()));
+    WAlphaCentrV.Add(WOutAlphaCentrH.GetDat(NI.GetId()));
+    WAlphaCentrV.Add(WAlphaCentrH.GetDat(NI.GetId()));
+    WAlphaCentrVH.AddDat(NI.GetId(), WAlphaCentrV);
   }
   return(DiffV);
 }
