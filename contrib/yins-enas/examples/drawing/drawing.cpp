@@ -49,7 +49,7 @@ void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<S
   
   for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
     const TFltPr& Coord = CoordH.GetDat(NI.GetId());
-    cr->arc(Coord.Val1, Coord.Val2, s*vr, 0, 2.0 * M_PI);
+    cr->arc(Coord.Val1, Coord.Val2, s*vr, 0, 2.0 * PI);
     cr->set_source_rgba(vfRGB.Val1, vfRGB.Val2, vfRGB.Val3, vfAlpha);
     cr->fill_preserve();
     cr->set_source_rgba(vcRGB.Val1, vcRGB.Val2, vcRGB.Val3, vcAlpha);

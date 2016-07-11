@@ -3,6 +3,8 @@
 #include "stdafx.h"
 #include "layout.h"
 
+const double PI = 3.141592653589793238463;
+
 //#//////////////////////////////////////////////
 /// Transformations
 
@@ -60,8 +62,8 @@ void TSnap::CircularLayout(const TIntV& NIdV, TIntFltPrH& CoordH) {
   // Method
   CoordH.Clr();
   for (NI = NIdV.BegI(); NI < NIdV.EndI(); NI++, i++) {
-    double x = 0.5 + 0.5*cos(2 * M_PI * (i / n));
-    double y = 0.5 + 0.5*sin(2 * M_PI * (i / n));
+    double x = 0.5 + 0.5*cos(2 * PI * (i / n));
+    double y = 0.5 + 0.5*sin(2 * PI * (i / n));
     CoordH.AddDat(NI->Val, TFltPr(x, y));
   }
 }

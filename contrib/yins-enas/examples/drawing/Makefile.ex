@@ -4,6 +4,8 @@
 
 MAIN = drawing
 
+EXCXXFLAGS = -std=c++11
+
 DEPH = \
     $(EXCORE)/wgraph.h \
     $(EXCORE)/wgio.h \
@@ -22,6 +24,12 @@ DEPCPP = \
     $(EXCORE)/layout.cpp
 
 LIBS = \
+    -I/usr/include/cairomm-1.0 \
+    -I/usr/lib/cairomm-1.0/include \
+    -I/usr/include/cairo \
+	-I/usr/lib/sigc++-2.0/include \
+    -I/usr/lib/glib-2.0/include \
+	\
     -I/usr/local/include/cairomm-1.0 \
     -I/usr/local/lib/cairomm-1.0/include \
     -I/usr/local/include/cairo \

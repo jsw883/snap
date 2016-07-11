@@ -8,6 +8,7 @@ make-examples:
 	$(MAKE) -C centrality
 	$(MAKE) -C community
 	$(MAKE) -C connectivity
+	$(MAKE) -C drawing
 	$(MAKE) -C egonets
 	$(MAKE) -C filtering
 	$(MAKE) -C nullmodels
@@ -22,6 +23,7 @@ clean:
 	$(MAKE) clean -C centrality
 	$(MAKE) clean -C community
 	$(MAKE) clean -C connectivity
+	$(MAKE) clean -C drawing
 	$(MAKE) clean -C egonets
 	$(MAKE) clean -C filtering
 	$(MAKE) clean -C nullmodels

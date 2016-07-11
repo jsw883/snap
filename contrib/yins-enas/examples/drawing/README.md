@@ -16,13 +16,15 @@ Options:
     -o              output prefix (filename extensions added)
     -w              output width (default: 1000)
     -h              output height (default: 1000)
-    -h              output border (default: 10)
+    -b              output border (default: 10)
     --png           output PNG (default: T)
     --pdf           output PDF (default: T)
     --layout        layout algorithm (random / circular / reingold)
                         (default: circular)
     --iterations    number of iterations for reingold (default: 1500)
     --cooling       cooling coefficient for reingold (default: 1.5)
+	--shuffle       shuffle vertex order for circular layout (and reingold)
+                        (default: F)
     --vr            vertex radius relative to minimum axis
                         (default: 0.1*sqrt(nodes))
     --vw            vertex border width (default: 1)
@@ -43,7 +45,7 @@ This example generates graphs for testing.
 DATASET=../../datasets/USairport2010
 rm -rf $DATASET/drawing
 mkdir $DATASET/drawing
-./drawing -i:$DATASET/espignani/USairport2010-3.727594e-04.snap \
+./drawing -i:$DATASET/filtering/USairport2010-3.727594e-04.snap \
           -o:$DATASET/drawing/USairport2010 \
           -w:2500 -h:2500 -b:50 --layout:reingold --iterations:1500 \
           --cooling:1.5 --shuffle:T --vfstr:FF0000 --ecalpha:0.1

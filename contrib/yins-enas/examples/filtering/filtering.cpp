@@ -46,13 +46,16 @@ int main(int argc, char* argv[]) {
   for (VI = AlphaV.BegI(); VI < AlphaV.EndI(); VI++) {
     const double& alpha = VI->Val;
     
+    printf("Computing Vespignani method (alpha: %e)", alpha);
+    printf("\n");
+	
     *WGraphCopy = *WGraph;
     
     TSnap::FilterEdgesVespignani<TFlt, TWNGraph>(WGraphCopy, alpha);
     TSnap::SaveFltWEdgeList(WGraphCopy, TStr::Fmt("%s-%9e.snap", OutFNm.CStr(), alpha), TStr::Fmt("Vespignani backbone with alpha: %e", alpha));
     
     if (verbose) {
-      TSnap::printFltWGraphSummary(WGraphCopy, true, TStr::Fmt("WGraphCopy (alpha: %e)\n---", VI->Val));
+      TSnap::printFltWGraphSummary(WGraphCopy, true, TStr::Fmt("WGraphCopy (alpha: %e)\n------", alpha));
       printf("\n");
     }
     
