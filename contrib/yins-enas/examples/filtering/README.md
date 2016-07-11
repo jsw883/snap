@@ -47,11 +47,14 @@ This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
 which is included in this repository. 
 
 ```bash
-DATASET=../../datasets/USairport2010
-rm -rf $DATASET/filtering
-mkdir $DATASET/filtering
-./filtering -i:$DATASET/USairport2010.snap \
-             -o:$DATASET/filtering/USairport2010 \
-             --alphav:$DATASET/AlphaV.TFltV \
+DATASET=amazon0302
+EXT=snap.FltW
+EXAMPLE=filtering
+ROOT=../../datasets/$DATASET
+rm -rf $ROOT/$EXAMPLE
+mkdir $ROOT/$EXAMPLE
+./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
+             -o:$ROOT/$EXAMPLE/$DATASET \
+             --alphav:$ROOT/AlphaV.TFltV \
              --verbose
 ```
