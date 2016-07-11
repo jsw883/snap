@@ -52,6 +52,7 @@ int main(int argc, char* argv[]) {
     *WGraphCopy = *WGraph;
     
     TSnap::FilterEdgesVespignani<TFlt, TWNGraph>(WGraphCopy, alpha);
+    TSnap::RemoveIsolated(WGraphCopy);
     TSnap::SaveFltWEdgeList(WGraphCopy, TStr::Fmt("%s-%9e.snap", OutFNm.CStr(), alpha), TStr::Fmt("Vespignani backbone with alpha: %e", alpha));
     
     if (verbose) {

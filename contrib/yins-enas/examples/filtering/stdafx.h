@@ -12,3 +12,4 @@
 #include "io.h"
 #include "deg.h"
 #include "utils.h"
+#include "gauxiliary.h"

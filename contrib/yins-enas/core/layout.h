@@ -31,7 +31,7 @@ void CircularLayout(const TIntV& NIdV, TIntFltPrH& CoordH);
 
 /// Fruchterman Reingold layout method
 template<class PGraph>
-void ReingoldLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, const int& iterations = 100, const double& cooling = 3) {
+void ReingoldLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, const int& iterations = 100, const double& cooling = 3, const) {
   
   // Variables
   // typename PGraph::TObj::TNodeI UI, VI;
@@ -62,6 +62,10 @@ void ReingoldLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, 
   
   bool connected = TSnap::IsConnected(Graph);
   
+  Progress progress(ExeTm, AlphaV.Len(), 5, "Computing Fruchterman Reingold", !verbose);
+  if (verbose) {
+    printf("\n");
+  }
   for (int i = 0; i < iterations; i++) {  
     
     // Qudaratic cooling

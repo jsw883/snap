@@ -326,7 +326,7 @@ public:
   /// Deletes node of ID NId from the graph. 
   void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the graph.
-  void DelNode(TNode& NodeI) { DelNode(NodeI.GetId()); }
+  void DelNode(TNodeI& NodeI) { DelNode(NodeI.GetId()); }
   /// Tests whether ID NId is a node.
   bool IsNode(const int& NId) const { return NodeH.IsKey(NId); }
   /// Returns an iterator referring to the first node in the graph.
@@ -1034,7 +1034,7 @@ public:
   /// Deletes node of ID NId from the graph.
   void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the graph.
-  void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }
+  void DelNode(const TNodeI& NodeI) { DelNode(NodeI.GetId()); }
   /// Tests whether ID NId is a node.
   bool IsNode(const int& NId) const { return NodeH.IsKey(NId); }
   /// Returns an iterator referring to the first node in the graph.

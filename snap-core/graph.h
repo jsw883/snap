@@ -193,7 +193,7 @@ public:
   /// Deletes node of ID NId from the graph. ##TUNGraph::DelNode
   void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the graph.
-  void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }
+  void DelNode(const TNodeI& NodeI) { DelNode(NodeI.GetId()); }
   /// Tests whether ID NId is a node.
   bool IsNode(const int& NId) const { return NodeH.IsKey(NId); }
   /// Returns an iterator referring to the first node in the graph.
@@ -447,7 +447,7 @@ public:
   /// Deletes node of ID NId from the graph. ##TNGraph::DelNode
   void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the graph.
-  void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }
+  void DelNode(const TNodeI& NodeI) { DelNode(NodeI.GetId()); }
   /// Tests whether ID NId is a node.
   bool IsNode(const int& NId) const { return NodeH.IsKey(NId); }
   /// Returns an iterator referring to the first node in the graph.
@@ -456,8 +456,6 @@ public:
   TNodeI EndNI() const { return TNodeI(NodeH.EndI()); }
   /// Returns an iterator referring to the node of ID NId in the graph.
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId)); }
-  // GetNodeC() has been commented out. It was a quick shortcut, do not use.
-  //const TNode& GetNodeC(const int& NId) const { return NodeH.GetDat(NId); }
   /// Returns an ID that is larger than any node ID in the graph.
   int GetMxNId() const { return MxNId; }
 
@@ -698,7 +696,7 @@ public:
   /// Deletes node of ID NId from the graph. ##TNEGraph::DelNode
   void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the graph.
-  void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }
+  void DelNode(const TNodeI& NodeI) { DelNode(NodeI.GetId()); }
   /// Tests whether ID NId is a node.
   bool IsNode(const int& NId) const { return NodeH.IsKey(NId); }
   /// Returns an iterator referring to the first node in the graph.
@@ -924,7 +922,7 @@ public:
   /// Deletes node of ID NId from the graph. ##TBPGraph::DelNode
   void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the graph.
-  void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }
+  void DelNode(const TNodeI& NodeI) { DelNode(NodeI.GetId()); }
   /// Tests whether ID NId is a node.
   bool IsNode(const int& NId) const { return IsLNode(NId) || IsRNode(NId); }
   /// Tests whether ID NId is a 'left' side node.
