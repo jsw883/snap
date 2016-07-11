@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
   // Loop over egonets (node iterator)
   
   Progress progress(ExeTm, WGraph->GetNodes(), 5, "Computing egonet statistics");
-  progress.display();
+  progress.start();
   for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
     const int NId = NI.GetId();
     

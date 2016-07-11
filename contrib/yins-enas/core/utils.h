@@ -8,11 +8,12 @@ private:
   TExeTm ExeTm;
   int stepsCompleted, stepsRequired, percentageCompleted, percentageThreshold;
   bool showPercentage;
+  const char *Message;
 public:
-  Progress(const TExeTm& ExeTm, const int& stepsRequired, const int& percentageThreshold, const char *Message = "Computing", const bool& showPercentage = false) : ExeTm(ExeTm), stepsCompleted(0), stepsRequired(stepsRequired), percentageCompleted(0), percentageThreshold(percentageThreshold), showPercentage(showPercentage) {
-    setup(Message);
+  Progress(const TExeTm& ExeTm, const int& stepsRequired, const int& percentageThreshold, const char *Message = "Computing", const bool& showPercentage = true) : ExeTm(ExeTm), stepsCompleted(0), stepsRequired(stepsRequired), percentageCompleted(0), percentageThreshold(percentageThreshold), showPercentage(showPercentage), Message(Message) {
+    // start(Message);
   }
-  void setup(const char *Message) {
+  void start() {
     printf("\n----------------------------------------\n");
     printf("%s", Message);
     printf("\n----------------------------------------\n");

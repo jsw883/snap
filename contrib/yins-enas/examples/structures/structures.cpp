@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
   }
   
   Progress progress(ExeTm, iters, 5, "Applying percolation method");
-  progress.display(); 
+  progress.start();
   for (iter = 0; iter < iters; iter++) {
     
     // Percolate graph according to percolation probability

@@ -40,6 +40,7 @@ int main(int argc, char* argv[]) {
   // VESPIGNANI METHOD
 
   Progress progress(ExeTm, AlphaV.Len(), 5, "Computing Vespignani method", !verbose);
+  progress.start();
   if (verbose) {
     printf("\n");
   }

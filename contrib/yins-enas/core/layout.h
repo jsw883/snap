@@ -6,6 +6,8 @@
 
 // Headers (?)
 
+#include "utils.h"
+
 #include <cmath>
 #include <ctime>
 
@@ -31,7 +33,7 @@ void CircularLayout(const TIntV& NIdV, TIntFltPrH& CoordH);
 
 /// Fruchterman Reingold layout method
 template<class PGraph>
-void ReingoldLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, const int& iterations = 100, const double& cooling = 3, const) {
+void ReingoldLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, const int& iterations = 100, const double& cooling = 3, const bool& verbose = true) {
   
   // Variables
   // typename PGraph::TObj::TNodeI UI, VI;
@@ -62,9 +64,10 @@ void ReingoldLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, 
   
   bool connected = TSnap::IsConnected(Graph);
   
-  Progress progress(ExeTm, AlphaV.Len(), 5, "Computing Fruchterman Reingold", !verbose);
+  TExeTm ExeTm;
+  Progress progress(ExeTm, iterations, 5, "Computing Fruchterman Reingold");
   if (verbose) {
-    printf("\n");
+    progress.start();
   }
   for (int i = 0; i < iterations; i++) {  
     
@@ -122,7 +125,9 @@ void ReingoldLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, 
       DispH[U].Val1 = 0;
       DispH[U].Val2 = 0;
     }
-
+    
+    if (verbose) { progress++; }
+    
   }
   
   // Transform
