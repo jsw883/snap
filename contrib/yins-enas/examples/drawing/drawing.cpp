@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 template <class Surface>
-void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<Surface> surface, const double& w, const double& h, const double& vr, const double& vw, const TFltTr& vfRGB, const double& vfAlpha, const TFltTr& vcRGB, const double& vcAlpha, const double& ew, const TFltTr& ecRGB, const double& ecAlpha) {
+void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<Surface> surface, const double& w, const double& h, const TIntFltH& NIdvrH, const TIntFltH& NIdvwH, const TFltTr& vfRGB, const double& vfAlpha, const TFltTr& vcRGB, const double& vcAlpha, const double& ew, const TFltTr& ecRGB, const double& ecAlpha) {
   
   // Variables
   
@@ -45,11 +45,14 @@ void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<S
   
   // Nodes
   
-  cr->set_line_width(vw);
-  
   for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
-    const TFltPr& Coord = CoordH.GetDat(NI.GetId());
-    cr->arc(Coord.Val1, Coord.Val2, s*vr, 0, 2.0 * PI);
+    
+    const int& NId = NI.GetId(); 
+    const TFltPr& Coord = CoordH.GetDat(NId);
+    
+    cr->set_line_width(NIdvwH.GetDat(NId));
+    
+    cr->arc(Coord.Val1, Coord.Val2, s*NIdvrH.GetDat(NId), 0, 2.0 * PI);
     cr->set_source_rgba(vfRGB.Val1, vfRGB.Val2, vfRGB.Val3, vfAlpha);
     cr->fill_preserve();
     cr->set_source_rgba(vcRGB.Val1, vcRGB.Val2, vcRGB.Val3, vcAlpha);
@@ -59,6 +62,22 @@ void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<S
   
   cr->show_page();
 
+}
+
+template <class TKey, class TVal>
+void ScaleH(THash<TKey, TVal>& GenH, const double& minVal, const double& maxVal) {
+  typename THash<TKey, TVal>::TIter HI;
+  double minActual = GenH[0], maxActual = GenH[0];
+  for (HI = GenH.BegI(); HI < GenH.EndI(); HI++) {
+    const TVal& Val = HI.GetDat();
+    if (Val < minActual) { minActual = Val; }
+    if (Val > maxActual) { maxActual = Val; }
+  }
+  double scale = (maxVal - minVal) / (maxActual - minActual);
+  for (HI = GenH.BegI(); HI < GenH.EndI(); HI++) {
+    TVal& Val = HI.GetDat();
+    Val = minVal + scale*(Val - minActual);
+  }
 }
 
 int main(int argc, char* argv[]) {
@@ -102,7 +121,12 @@ int main(int argc, char* argv[]) {
   double vfAlpha = Env.GetIfArgPrefixFlt("--vfalpha:", 1.0, "vertex fill alpha");
   double vcAlpha = Env.GetIfArgPrefixFlt("--vcalpha:", -1.0, "vertex color alpha (default: --vfalpha)");
   
-  // Node appearance
+  const TStr NIdvrHFNm = Env.GetIfArgPrefixStr("--vrv:", "", "vertex radius mapping relative to vertex radius (--vr)");
+  const TStr NIdvwHFNm = Env.GetIfArgPrefixStr("--vwv:", "", "vertex border width mapping (overrides --vw)");
+  // const TStr NIdvfHexVFNm = Env.GetIfArgPrefixStr("--vfstrv:", "", "vertex fill mapping (overrides --vfstr)");
+  // const TStr NIdvcHexVFNm = Env.GetIfArgPrefixStr("--vcstrv:", "", "vertex border color mapping (overrides --vcstr)");
+  
+  // Edge appearance
   
   double ew = Env.GetIfArgPrefixFlt("--ew:", 1.0, "edge width");
   const TStr ecHex = Env.GetIfArgPrefixStr("--ecstr:", "000000", "edge color (default: black)");
@@ -111,6 +135,7 @@ int main(int argc, char* argv[]) {
   // Variables
   
   TStr Name;
+  
   TFltTr vfRGB, vcRGB, ecRGB;
   
   ConvertHexToRGB(vfHex, vfRGB);
@@ -133,15 +158,55 @@ int main(int argc, char* argv[]) {
     vr = std::min(0.01, 0.1 / sqrt(WGraph->GetNodes()));
   }
   
+  // Load node appearance array
+  
+  TIntFltH NIdvrH, NIdvwH;
+  TIntV NIdV;
+  TIntV::TIter VI;
+  
+  WGraph->GetNIdV(NIdV);
+  
+  if (!NIdvrHFNm.Empty()) {
+    NIdvrH = TSnap::LoadTxtIntFltH(NIdvrHFNm);
+    ScaleH(NIdvrH, vr, 2*vr);
+  } else {
+    for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
+      NIdvrH.AddDat(VI->Val, vr);
+    }
+  }
+  
+  if (!NIdvwHFNm.Empty()) {
+    NIdvwH = TSnap::LoadTxtIntFltH(NIdvwHFNm);
+    ScaleH(NIdvwH, vw, 2*vw);
+  } else {
+    for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
+      NIdvwH.AddDat(VI->Val, vw);
+    }
+  }
+  
+  // if (!NIdvfHexHFNm.Empty()) {
+    // NIdvfHexH = TSnap::LoadTxtIntFltH(NIdvfHexHFNm);
+  // } else {
+    // for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
+      // NIdvfHexH.AddDat(VI->Val, vw);
+    // }
+  // }
+  
+  // if (!NIdvcHexHFNm.Empty()) {
+    // NIdvcHexH = TSnap::LoadTxtIntFltH(NIdvcHexHFNm);
+  // } else {
+    // for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
+      // NIdvcHexH.AddDat(VI->Val, vw);
+    // }
+  // }
+  
   // Layout method
   
   TIntFltPrH CoordH;
-  TIntV NIdV;
   TIntIntH NIdDegH;
   
   if (shuffle) {
     TRnd Rnd = TInt::Rnd;
-    WGraph->GetNIdV(NIdV);
     NIdV.Shuffle(Rnd);
   } else {
     TSnap::GetDegH(WGraph, NIdDegH);
@@ -166,6 +231,13 @@ int main(int argc, char* argv[]) {
   
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
+  // Saving
+  
+  Name = TStr::Fmt("%s.%s.CoordH", OutFNm.CStr(), layout.CStr());
+  printf("\nSaving %s...", Name.CStr());
+  TSnap::SaveTxt(CoordH, Name.CStr(), "Degree centrality (in / out / undirected)", "NodeId", "InDegCentr\tOutDegCentr\tDegCentr");
+  printf(" DONE\n");  
+  
   // Drawing
 
   if (pdf) {
@@ -176,7 +248,7 @@ int main(int argc, char* argv[]) {
       printf("\nDrawing %s...", Name.CStr());
       Cairo::RefPtr<Cairo::PdfSurface> surface = Cairo::PdfSurface::create(Name.CStr(), w, h);
       
-      render(WGraph, CoordH, surface, w, h, vr, vw, vfRGB, vfAlpha, vcRGB, vcAlpha, ew, ecRGB, ecAlpha);
+      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, vfRGB, vfAlpha, vcRGB, vcAlpha, ew, ecRGB, ecAlpha);
       
       printf("DONE\n");
       
@@ -198,7 +270,7 @@ int main(int argc, char* argv[]) {
       printf("\nDrawing %s...", Name.CStr());
       Cairo::RefPtr<Cairo::ImageSurface> surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h);
       
-      render(WGraph, CoordH, surface, w, h, vr, vw, vfRGB, vfAlpha, vcRGB, vcAlpha, ew, ecRGB, ecAlpha);
+      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, vfRGB, vfAlpha, vcRGB, vcAlpha, ew, ecRGB, ecAlpha);
 
       surface->write_to_png(Name.CStr());
       

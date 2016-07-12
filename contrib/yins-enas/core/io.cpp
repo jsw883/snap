@@ -52,74 +52,100 @@ TIntFltH TSnap::LoadTxtIntFltH(const TStr& FNm) {
   return GenH;
 }
 
+TIntIntPrH TSnap::LoadTxtIntIntPrH(const TStr& FNm) {
+  TSsParser Ss(FNm);
+  TIntIntPrH GenH;
+  int Key;
+  int Val1, Val2;
+  while (Ss.Next()) {
+    if (Ss.GetInt(0, Key) && Ss.GetInt(1, Val1) && Ss.GetInt(1, Val2)) {
+      GenH.AddDat(Key, TIntPr(Val1, Val2));
+    }
+  }
+  return GenH;
+}
+
+TIntFltPrH TSnap::LoadTxtIntFltPrH(const TStr& FNm) {
+  TSsParser Ss(FNm);
+  TIntFltPrH GenH;
+  int Key;
+  double Val1, Val2;
+  while (Ss.Next()) {
+    if (Ss.GetInt(0, Key) && Ss.GetFlt(1, Val1) && Ss.GetFlt(1, Val2)) {
+      GenH.AddDat(Key, TFltPr(Val1, Val2));
+    }
+  }
+  return GenH;
+}
+
 // Specific SaveTxt for TIntV
-// void TSnap::SaveTxtTIntV(const TIntV& NIdV, const TStr& FNm, const TStr& Desc) {
-//   typename TIntV::TIter VI;
-//   FILE *F = fopen(FNm.CStr(), "wt");
-//   if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
-//   fprintf(F, "# Nodes:\t%d\n", NIdV.Len());
-//   fprintf(F, "# NodeId\n");
-//   for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
-//     fprintf(F, "%d", VI->Val);
-//     fprintf(F, "\n");
-//   }
-//   fclose(F);
-// }
+void TSnap::SaveTxtTIntV(const TIntV& NIdV, const TStr& FNm, const TStr& Desc) {
+  typename TIntV::TIter VI;
+  FILE *F = fopen(FNm.CStr(), "wt");
+  if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
+  fprintf(F, "# Nodes:\t%d\n", NIdV.Len());
+  fprintf(F, "# NodeId\n");
+  for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
+    fprintf(F, "%d", VI->Val);
+    fprintf(F, "\n");
+  }
+  fclose(F);
+}
 
 // Specific SaveTxt for TIntIntVH
-// void TSnap::SaveTxtTIntIntVH(const TIntIntVH& IntIntVH, const TStr& FNm, const TStr& Desc) {
-//   typename TIntIntVH::TIter IntIntVI;
-//   typename TIntV::TIter DI;
-//   FILE *F = fopen(FNm.CStr(), "wt");
-//   if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
-//   fprintf(F, "# Nodes:\t%d\n", IntIntVH.Len());
-//   fprintf(F, "# NodeId\tValV\n");
-//   for (IntIntVI = IntIntVH.BegI(); IntIntVI < IntIntVH.EndI(); IntIntVI++) {
-//     const int NId = IntIntVI.GetKey();
-//     fprintf(F, "%d", NId);
-//     const TIntV ValV = IntIntVI.GetDat();
-//     for (DI = ValV.BegI(); DI < ValV.EndI(); DI++) {
-//       fprintf(F, "\t%d", DI->Val);
-//     }
-//     fprintf(F, "\n");
-//   }
-//   fclose(F);
-// }
+void TSnap::SaveTxtTIntIntVH(const TIntIntVH& IntIntVH, const TStr& FNm, const TStr& Desc) {
+  typename TIntIntVH::TIter IntIntVI;
+  typename TIntV::TIter DI;
+  FILE *F = fopen(FNm.CStr(), "wt");
+  if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
+  fprintf(F, "# Nodes:\t%d\n", IntIntVH.Len());
+  fprintf(F, "# NodeId\tValV\n");
+  for (IntIntVI = IntIntVH.BegI(); IntIntVI < IntIntVH.EndI(); IntIntVI++) {
+    const int NId = IntIntVI.GetKey();
+    fprintf(F, "%d", NId);
+    const TIntV ValV = IntIntVI.GetDat();
+    for (DI = ValV.BegI(); DI < ValV.EndI(); DI++) {
+      fprintf(F, "\t%d", DI->Val);
+    }
+    fprintf(F, "\n");
+  }
+  fclose(F);
+}
 
 // Specific SaveTxt for TIntFltVH
-// void TSnap::SaveTxtTIntFltVH(const TIntFltVH& IntFltVH, const TStr& FNm, const TStr& Desc) {
-//   typename TIntFltVH::TIter IntFltVI;
-//   typename TFltV::TIter DI;
-//   FILE *F = fopen(FNm.CStr(), "wt");
-//   if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
-//   fprintf(F, "# Nodes:\t%d\n", IntFltVH.Len());
-//   fprintf(F, "# NodeId\tValV\n");
-//   for (IntFltVI = IntFltVH.BegI(); IntFltVI < IntFltVH.EndI(); IntFltVI++) {
-//     const int NId = IntFltVI.GetKey();
-//     fprintf(F, "%d", NId);
-//     const TFltV ValV = IntFltVI.GetDat();
-//     for (DI = ValV.BegI(); DI < ValV.EndI(); DI++) {
-//       fprintf(F, "\t%f", DI->Val);
-//     }
-//     fprintf(F, "\n");
-//   }
-//   fclose(F);
-// }
+void TSnap::SaveTxtTIntFltVH(const TIntFltVH& IntFltVH, const TStr& FNm, const TStr& Desc) {
+  typename TIntFltVH::TIter IntFltVI;
+  typename TFltV::TIter DI;
+  FILE *F = fopen(FNm.CStr(), "wt");
+  if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
+  fprintf(F, "# Nodes:\t%d\n", IntFltVH.Len());
+  fprintf(F, "# NodeId\tValV\n");
+  for (IntFltVI = IntFltVH.BegI(); IntFltVI < IntFltVH.EndI(); IntFltVI++) {
+    const int NId = IntFltVI.GetKey();
+    fprintf(F, "%d", NId);
+    const TFltV ValV = IntFltVI.GetDat();
+    for (DI = ValV.BegI(); DI < ValV.EndI(); DI++) {
+      fprintf(F, "\t%f", DI->Val);
+    }
+    fprintf(F, "\n");
+  }
+  fclose(F);
+}
 
 // Specific SaveTxt for TStrFltH
-// void TSnap::SaveTxtTStrFltH(const TStrFltH& StrFltH, const TStr& FNm, const TStr& Desc) {
-//   typename TStrFltH::TIter StrFltI;
-//   FILE *F = fopen(FNm.CStr(), "wt");
-//   if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
-//   fprintf(F, "# Keys:\t%d\n", StrFltH.Len());
-//   fprintf(F, "# Key\tVal\n");
-//   for (StrFltI = StrFltH.BegI(); StrFltI < StrFltH.EndI(); StrFltI++) {
-//     const double Val = StrFltI.GetDat();
-//     fprintf(F, "%s\t%f", StrFltI.GetKey().CStr(), Val);
-//     fprintf(F, "\n");
-//   }
-//   fclose(F);
-// }
+void TSnap::SaveTxtTStrFltH(const TStrFltH& StrFltH, const TStr& FNm, const TStr& Desc) {
+  typename TStrFltH::TIter StrFltI;
+  FILE *F = fopen(FNm.CStr(), "wt");
+  if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
+  fprintf(F, "# Keys:\t%d\n", StrFltH.Len());
+  fprintf(F, "# Key\tVal\n");
+  for (StrFltI = StrFltH.BegI(); StrFltI < StrFltH.EndI(); StrFltI++) {
+    const double Val = StrFltI.GetDat();
+    fprintf(F, "%s\t%f", StrFltI.GetKey().CStr(), Val);
+    fprintf(F, "\n");
+  }
+  fclose(F);
+}
 
 // Generic SaveTxt for TVec template class using GetStr()
 void TSnap::SaveTxt(const TFltV& GenV, const TStr& FNm, const TStr& Desc, const TStr& ValNm, const int& Width, const int& Prec) {
