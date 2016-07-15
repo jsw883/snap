@@ -52,6 +52,19 @@ TIntFltH TSnap::LoadTxtIntFltH(const TStr& FNm) {
   return GenH;
 }
 
+TIntFltH TSnap::LoadTxtIntStrH(const TStr& FNm) {
+  TSsParser Ss(FNm);
+  TIntStrH GenH;
+  int Key;
+  double Val;
+  while (Ss.Next()) {
+    if (Ss.GetInt(0, Key) && Ss.GetStr("", Val)) {
+      GenH.AddDat(Key, Val);
+    }
+  }
+  return GenH;
+}
+
 TIntIntPrH TSnap::LoadTxtIntIntPrH(const TStr& FNm) {
   TSsParser Ss(FNm);
   TIntIntPrH GenH;
