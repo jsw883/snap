@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 template <class Surface>
-void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<Surface> surface, const double& w, const double& h, const TIntFltH& NIdvrH, const TIntFltH& NIdvwH, const TIntFltTrH& NIdvfRGBH, const double& vfAlpha, const TIntFltTrH& NIdvcRGBH, const double& vcAlpha, const double& ew, const TIntFltTrH& NIdecRGBH, const double& ecAlpha) {
+void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<Surface> surface, const double& w, const double& h, const TIntFltH& NIdvrH, const TIntFltH& NIdvwH, const TIntFltTrH& NIdvfRGBH, const double& vfAlpha, const TIntFltTrH& NIdvcRGBH, const double& vcAlpha, const double& ew, const TFltTr& ecRGB, const double& ecAlpha) {
   
   // Variables
   
@@ -33,15 +33,12 @@ void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<S
   // Edges
   
   cr->set_line_width(ew);
+  cr->set_source_rgba(ecRGB.Val1, ecRGB.Val2, ecRGB.Val3, ecAlpha);
   
   for (EI = WGraph->BegEI(); EI < WGraph->EndEI(); EI++) {
     
     const TFltPr& SrcCoord = CoordH.GetDat(EI.GetSrcNId());
     const TFltPr& DstCoord = CoordH.GetDat(EI.GetDstNId());
-    
-    const TFltTr& ecRGB = NIdecRGBH.GetDat(NId);
-
-    cr->set_source_rgba(ecRGB.Val1, ecRGB.Val2, ecRGB.Val3, ecAlpha);
 
     cr->move_to(SrcCoord.Val1, SrcCoord.Val2);
     cr->line_to(DstCoord.Val1, DstCoord.Val2);
@@ -140,8 +137,6 @@ int main(int argc, char* argv[]) {
   const TStr ecHex = Env.GetIfArgPrefixStr("--ecstr:", "000000", "edge color (default: black)");
   double ecAlpha = Env.GetIfArgPrefixFlt("--ecalpha:", 0.25, "edge color alpha");
   
-  const TStr NIdecHexHFNm = Env.GetIfArgPrefixStr("--ecstrv:", "", "edge color mapping (overrides --ecstr)");
-  
   // Variables
   
   TStr Name;
@@ -173,7 +168,8 @@ int main(int argc, char* argv[]) {
   TIntFltH NIdvrH, NIdvwH;
   TIntV NIdV;
   TIntV::TIter VI;
-  TIntFltTrH NIdvfRGBH, NIdvcRGBH, NIdecRGBH;
+  TIntStrH NIdvfHexH, NIdvcHexH;
+  TIntFltTrH NIdvfRGBH, NIdvcRGBH;
 
   WGraph->GetNIdV(NIdV);
   
@@ -196,7 +192,7 @@ int main(int argc, char* argv[]) {
   }
   
   if (!NIdvfHexHFNm.Empty()) {
-    NIdvfHexHFNm = TSnap::LoadTxtIntStrH(NIdvfHexHFNm);
+    NIdvfHexH = TSnap::LoadTxtIntStrH(NIdvfHexHFNm);
   } else {
     for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
       NIdvfHexH.AddDat(VI->Val, vfHex);
@@ -205,7 +201,7 @@ int main(int argc, char* argv[]) {
   ConvertHexToRGB(NIdvfHexH, NIdvfRGBH);
 
   if (!NIdvcHexHFNm.Empty()) {
-    NIdvcHexHFNm = TSnap::LoadTxtIntStrH(NIdvcHexHFNm);
+    NIdvcHexH = TSnap::LoadTxtIntStrH(NIdvcHexHFNm);
   } else {
     for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
       NIdvcHexH.AddDat(VI->Val, vcHex);
@@ -213,15 +209,6 @@ int main(int argc, char* argv[]) {
   }
   ConvertHexToRGB(NIdvcHexH, NIdvcRGBH);
 
-  if (!NIdecHexHFNm.Empty()) {
-    NIdecHexHFNm = TSnap::LoadTxtIntStrH(NIdecHexHFNm);
-  } else {
-    for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
-      NIdecHexH.AddDat(VI->Val, vcHex);
-    }
-  }
-  ConvertHexToRGB(NIdecHexH, NIdecRGBH);
-  
   // Layout method
   
   TIntFltPrH CoordH;
@@ -270,7 +257,7 @@ int main(int argc, char* argv[]) {
       printf("\nDrawing %s...", Name.CStr());
       Cairo::RefPtr<Cairo::PdfSurface> surface = Cairo::PdfSurface::create(Name.CStr(), w, h);
       
-      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, ew, NIdecRGBH, ecAlpha);
+      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, ew, ecRGB, ecAlpha);
       
       printf("DONE\n");
       
@@ -292,7 +279,7 @@ int main(int argc, char* argv[]) {
       printf("\nDrawing %s...", Name.CStr());
       Cairo::RefPtr<Cairo::ImageSurface> surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h);
       
-      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, ew, NIdecRGBH, ecAlpha);
+      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, ew, ecRGB, ecAlpha);
 
       surface->write_to_png(Name.CStr());
       

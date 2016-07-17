@@ -50,7 +50,8 @@ rm -rf $DATASET/$SCRIPT
 mkdir $DATASET/$SCRIPT
 ./$SCRIPT -i:$ROOT/filtering/$DATASET-3.727594e-04.$EXT \
           -o:$ROOT/$SCRIPT/$DATASET \
-          --vrv:$ROOT/centrality/$DATASET.pgr \
+          --vrv:$ROOT/wcentrality/$DATASET.wpgr \
           -w:2500 -h:2500 -b:50 --layout:reingold --iterations:1500 \
-          --cooling:1.5 --shuffle:T --vfstr:FF0000 --ecalpha:0.1
+          --cooling:1.5 --shuffle:T --vfstr:FF0000 --ecalpha:0.1 \
+          --vfstrv:$ROOT/NIdV.vfHex
 ```

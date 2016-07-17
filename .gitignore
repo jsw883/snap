@@ -47,7 +47,9 @@ doxygen/log*.txt
 doxygen/snap
 
 # Ignore executables, but keep everything else
+*.exe
 snap-core/testSnap
+snap-core/testSnap.exe
 test/run-all-tests
 !test/graphviz/base*
 tutorials/*

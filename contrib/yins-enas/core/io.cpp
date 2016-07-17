@@ -52,13 +52,13 @@ TIntFltH TSnap::LoadTxtIntFltH(const TStr& FNm) {
   return GenH;
 }
 
-TIntFltH TSnap::LoadTxtIntStrH(const TStr& FNm) {
+TIntStrH TSnap::LoadTxtIntStrH(const TStr& FNm) {
   TSsParser Ss(FNm);
   TIntStrH GenH;
   int Key;
-  double Val;
   while (Ss.Next()) {
-    if (Ss.GetInt(0, Key) && Ss.GetStr("", Val)) {
+    if (Ss.GetInt(0, Key)) {
+      const char* Val = Ss.GetFld(1);
       GenH.AddDat(Key, Val);
     }
   }
@@ -71,7 +71,7 @@ TIntIntPrH TSnap::LoadTxtIntIntPrH(const TStr& FNm) {
   int Key;
   int Val1, Val2;
   while (Ss.Next()) {
-    if (Ss.GetInt(0, Key) && Ss.GetInt(1, Val1) && Ss.GetInt(1, Val2)) {
+    if (Ss.GetInt(0, Key) && Ss.GetInt(1, Val1) && Ss.GetInt(2, Val2)) {
       GenH.AddDat(Key, TIntPr(Val1, Val2));
     }
   }
@@ -84,7 +84,7 @@ TIntFltPrH TSnap::LoadTxtIntFltPrH(const TStr& FNm) {
   int Key;
   double Val1, Val2;
   while (Ss.Next()) {
-    if (Ss.GetInt(0, Key) && Ss.GetFlt(1, Val1) && Ss.GetFlt(1, Val2)) {
+    if (Ss.GetInt(0, Key) && Ss.GetFlt(1, Val1) && Ss.GetFlt(2, Val2)) {
       GenH.AddDat(Key, TFltPr(Val1, Val2));
     }
   }

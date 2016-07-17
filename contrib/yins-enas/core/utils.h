@@ -47,14 +47,14 @@ public:
 void ConvertHexToRGB(const TStr& Hex, TFltTr& RGB);
 void ConvertHexToRGB(const TStrV& HexV, TFltTrV& RGBV);
 
-template <class TKey> void ConvertHexToRGB(const THash<TKey, TStr>& HexH, THash<TKey, FltTr>& RGBH);
+template <class TKey> void ConvertHexToRGB(const THash<TKey, TStr>& HexH, THash<TKey, TFltTr>& RGBH);
 
 template <class TKey>
-void ConvertHexToRGB(const THash<TKey, TStr>& HexH, THash<TKey, FltTr>& RGBH) {
-  THash<TKey, TStr>::TIter HI;
+void ConvertHexToRGB(const THash<TKey, TStr>& HexH, THash<TKey, TFltTr>& RGBH) {
+  typename THash<TKey, TStr>::TIter HI;
   RGBH.Clr();
   for (HI = HexH.BegI(); HI < HexH.EndI(); HI++) {
-    TFltTr RGB& RGBH.AddDat(HI.GetKey());
+    TFltTr& RGB = RGBH.AddDat(HI.GetKey());
     ConvertHexToRGB(HI.GetDat(), RGB);
   }
 }
