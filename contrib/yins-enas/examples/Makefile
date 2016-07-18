@@ -6,7 +6,6 @@ all: make-examples
 
 make-examples:
 	$(MAKE) -C centrality
-	$(MAKE) -C community
 	$(MAKE) -C connectivity
 	$(MAKE) -C drawing
 	$(MAKE) -C egonets
@@ -16,12 +15,12 @@ make-examples:
 	$(MAKE) -C structures
 	$(MAKE) -C subsets
 	$(MAKE) -C wcentrality
+	$(MAKE) -C wcommunity
 	$(MAKE) -C wdistance
 	$(MAKE) -C wstatistics
 
 clean:
 	$(MAKE) clean -C centrality
-	$(MAKE) clean -C community
 	$(MAKE) clean -C connectivity
 	$(MAKE) clean -C drawing
 	$(MAKE) clean -C egonets
@@ -31,5 +30,6 @@ clean:
 	$(MAKE) clean -C structures
 	$(MAKE) clean -C subsets
 	$(MAKE) clean -C wcentrality
+	$(MAKE) clean -C wcommunity
 	$(MAKE) clean -C wdistance
 	$(MAKE) clean -C wstatistics

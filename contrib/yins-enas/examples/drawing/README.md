@@ -39,19 +39,22 @@ Options:
 
 ### Example ###
 
-This example generates graphs for testing.
+This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
+which is included in this repository.
+
+Run filtering and wcentrality examples before drawing.
 
 ```bash
 DATASET=USairport2010
 EXT=snap
-SCRIPT=drawing
+EXAMPLE=filtering
 ROOT=../../datasets/$DATASET
-rm -rf $DATASET/$SCRIPT
-mkdir $DATASET/$SCRIPT
-./$SCRIPT -i:$ROOT/filtering/$DATASET-3.727594e-04.$EXT \
-          -o:$ROOT/$SCRIPT/$DATASET \
-          --vrv:$ROOT/wcentrality/$DATASET.wpgr \
-          -w:2500 -h:2500 -b:50 --layout:reingold --iterations:1500 \
-          --cooling:1.5 --shuffle:T --vfstr:FF0000 --ecalpha:0.1 \
-          --vfstrv:$ROOT/NIdV.vfHex
+rm -rf $ROOT/$EXAMPLE
+mkdir $ROOT/$EXAMPLE
+./$EXAMPLE -i:$ROOT/filtering/$DATASET-3.727594e-04.$EXT \
+           -o:$ROOT/$EXAMPLE/$DATASET \
+           --vrv:$ROOT/wcentrality/$DATASET.wpgr \
+           -w:2500 -h:2500 -b:50 --layout:reingold --iterations:1500 \
+           --cooling:1.5 --shuffle:T --vfstr:FF0000 --ecalpha:0.1 \
+           --vfstrv:$ROOT/NIdvfHexH.TIntStrH
 ```

@@ -54,7 +54,7 @@ ROOT=../../datasets/$DATASET
 rm -rf $ROOT/$EXAMPLE
 mkdir $ROOT/$EXAMPLE
 ./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
-             -o:$ROOT/$EXAMPLE/$DATASET \
-             --alphav:$ROOT/AlphaV.TFltV \
-             --verbose
+           -o:$ROOT/$EXAMPLE/$DATASET \
+           --alphav:$ROOT/AlphaV.TFltV \
+           --verbose
 ```

@@ -1,5 +1,5 @@
-community (efficient community detection algorithms)
-----------------------------------------------------
+wcommunity (efficient weighted community detection algorithms)
+--------------------------------------------------------------
 
 Computes clusters of nodes using efficient community detection algorithms;
 Louvain method with an arbitrary quality objective (modularity objective),
@@ -8,7 +8,7 @@ Louvain method with an arbitrary quality objective (modularity objective),
 Community detection algorithms currently implemented:
 
   - Louvain method (arbitrary quality objective)
-    - Modularity
+    - Weighted modularity
 
 To be implemented:
 
@@ -30,14 +30,6 @@ well. For makefiles, compile the code with `make all`.
 
 ### Usage ###
 
-```bash
-rm -r ../../datasets/USairport2010/community
-mkdir ../../datasets/USairport2010/community
-community -i:../../datasets/USairport2010/USairport2010.snap -o:../../datasets/USairport2010/community/USairport2010 -c:F
-```
-
-### Usage ###
-
 ```
 Usage: ./community -i:<input network> -o:<output prefix> [Options]
 Options:
@@ -54,10 +46,13 @@ This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
 which is included in this repository. 
 
 ```bash
-DATASET=../../datasets/USairport2010
-rm -rf $DATASET/community
-mkdir $DATASET/community
-./community -i:$DATASET/USairport2010.snap \
-          -o:$DATASET/community/USairport2010 \
-          --eps 1.0e-5 --moves:1.0e-2 --iters:1.0e+4
+DATASET=USairport2010
+EXT=snap
+EXAMPLE=wcommunity
+ROOT=../../datasets/$DATASET
+rm -rf $ROOT/$EXAMPLE
+mkdir $ROOT/$EXAMPLE
+./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
+           -o:$ROOT/$EXAMPLE/$DATASET \
+           --eps 1.0e-5 --moves:1.0e-2 --iters:1.0e+4
 ```

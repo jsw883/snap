@@ -1,8 +1,6 @@
 # Example executables (need to be specified manually or manually cleaned)
 */centrality
 */centrality.exe
-*/community
-*/community.exe
 */connectivity
 */connectivity.exe
 */drawing
@@ -21,6 +19,8 @@
 */subsets.exe
 */wcentrality
 */wcentrality.exe
+*/wcommunity
+*/wcommunity.exe
 */wdistance
 */wdistance.exe
 */wstatistics

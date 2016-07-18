@@ -31,7 +31,9 @@ int main(int argc, char* argv[]) {
   
   // COMMUNITY
   
-  printf("\nLouvain method...");
+  // Louvain method (modularity objective)
+  
+  printf("\nLouvain method (weighted)...");
   LouvainQ = TSnap::LouvainMethod<TSnap::ModularityCommunity<TFlt>, TFlt>(WGraph, NIdCmtyVH, edUnDirected, eps, moves, iters);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  quality: %f\n", LouvainQ);
@@ -39,10 +41,8 @@ int main(int argc, char* argv[]) {
   TSnap::CmtyHierarchySummary(NIdCmtyVH, 1, -1, "\nLouvain hierarchy\n-----------------");
   
   printf("Saving %s.louvain.modularity...", BseFNm.CStr());
-  TSnap::SaveTxt(NIdCmtyVH, TStr::Fmt("%s.louvain.modularity", OutFNm.CStr()), "Louvain modularity community hierarchy", "NodeId", "CmtyV");
+  TSnap::SaveTxt(NIdCmtyVH, TStr::Fmt("%s.louvain.modularity", OutFNm.CStr()), "Louvain modularity community hierarchy (weighted)", "NodeId", "CmtyV");
   printf(" DONE\n");
-  
-  // Louvain method (modularity objective)
   
   Catch
   

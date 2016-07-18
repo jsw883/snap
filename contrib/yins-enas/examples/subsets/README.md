@@ -50,12 +50,15 @@ This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
 which is included in this repository. 
 
 ```bash
-DATASET=../../datasets/USairport2010
-rm -rf $DATASET/subsets
-mkdir $DATASET/subsets
-./subsets -i:$DATASET/USairport2010.snap \
-            -s:$DATASET/SrcNIdV.TIntV \
-            -d:$DATASET/DstNIdV.TIntV \
-            -o:$DATASET/subsets/USairport2010 \
-            --dir:3 --exclude:F --collate:T
+DATASET=USairport2010
+EXT=snap
+EXAMPLE=subsets
+ROOT=../../datasets/$DATASET
+rm -rf $ROOT/$EXAMPLE
+mkdir $ROOT/$EXAMPLE
+./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
+           -s:$ROOT/SrcNIdV.TIntV \
+           -d:$ROOT/DstNIdV.TIntV \
+           -o:$ROOT/$EXAMPLE/$DATASET \
+           --dir:3 --exclude:F --collate:T
 ```

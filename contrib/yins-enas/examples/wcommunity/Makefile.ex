@@ -2,7 +2,7 @@
 #	configuration variables for the example
 #
 
-MAIN = community
+MAIN = wcommunity
 DEPH = \
     $(EXCORE)/wgraph.h \
     $(EXCORE)/wgio.h \

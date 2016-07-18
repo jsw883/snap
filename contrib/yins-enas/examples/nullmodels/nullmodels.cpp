@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", " input network (tab separated list of edges with edge weights)");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
-  const TStr Method = Env.GetIfArgPrefixStr("-g:", "GWShuffling", "generator or algorithm to apply (default: 3)");
+  const TStr Method = Env.GetIfArgPrefixStr("-g:", "GWShuffling", "generator or algorithm to apply (default: GWShuffling)");
   const int k = Env.GetIfArgPrefixInt("-k:", -1, "edges (default: Graph->GetEdges())");
   const double Threshold = Env.GetIfArgPrefixFlt("--threshold:", -1, "lower threshold for exponentially weighted random graph model");
   double Scale = Env.GetIfArgPrefixFlt("--scale:", -1, "Pareto scale for preferential attachment model (default: FitParetoWeights(Graph, Scale, Shape))");

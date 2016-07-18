@@ -36,12 +36,15 @@ This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
 which is included in this repository. 
 
 ```bash
-DATASET=../../datasets/USairport2010
-rm -rf $DATASET/wdistance
-mkdir $DATASET/wdistance
-./wdistance -i:$DATASET/USairport2010.snap \
-            -s:$DATASET/SrcNIdV.TIntV \
-            -d:$DATASET/DstNIdV.TIntV \
-            -o:$DATASET/wdistance/USairport2010 \
-            -k:10 --tol:1e-1 --dir:3 --exclude:F
+DATASET=USairport2010
+EXT=snap
+EXAMPLE=wdistance
+ROOT=../../datasets/$DATASET
+rm -rf $ROOT/$EXAMPLE
+mkdir $ROOT/$EXAMPLE
+./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
+           -s:$ROOT/SrcNIdV.TIntV \
+           -d:$ROOT/DstNIdV.TIntV \
+           -o:$ROOT/$EXAMPLE/$DATASET \
+           -k:10 --tol:1e-1 --dir:3 --exclude:F
 ```
