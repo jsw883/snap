@@ -85,6 +85,27 @@ void ScaleH(THash<TKey, TVal>& GenH, const double& minVal, const double& maxVal)
   }
 }
 
+void GetNIdValH(const TStr& FNm, TIntFltH& NIdValH, const TIntV& NIdV, const TFlt DefaultVal) {
+  if (!FNm.Empty()) {
+    NIdValH = TSnap::LoadTxtIntFltH(FNm);
+    ScaleH(NIdValH, DefaultVal, 3*DefaultVal);
+  } else {
+    for (TIntV::TIter VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
+      NIdValH.AddDat(VI->Val, DefaultVal);
+    }
+  }
+}
+
+void GetNIdColH(const TStr& FNm, TIntStrH& NIdColH, const TIntV& NIdV, const TStr DefaultCol) {
+  if (!FNm.Empty()) {
+    NIdColH = TSnap::LoadTxtIntStrH(FNm);
+  } else {
+    for (TIntV::TIter VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
+      NIdColH.AddDat(VI->Val, DefaultCol);
+    }
+  }
+}
+
 int main(int argc, char* argv[]) {
   
   setbuf(stdout, NULL); // disables the buffer so that print statements are not buffered and display immediately (?)
@@ -121,35 +142,45 @@ int main(int argc, char* argv[]) {
   
   double vr = Env.GetIfArgPrefixFlt("--vr:", 0.0, "vertex radius relative to minimum axis (default: 0.1*sqrt(nodes))");
   double vw = Env.GetIfArgPrefixFlt("--vw:", 1.0, "vertex border width");
-  const TStr vfHex = Env.GetIfArgPrefixStr("--vfstr:", "000000", "vertex fill (default: black)");
-  const TStr vcHex = Env.GetIfArgPrefixStr("--vcstr:", "FFFFFF", "vertex border color (default: white)");
+  const TStr vf = Env.GetIfArgPrefixStr("--vf:", "000000", "vertex fill (default: black)");
+  const TStr vc = Env.GetIfArgPrefixStr("--vc:", "FFFFFF", "vertex border color (default: white)");
   double vfAlpha = Env.GetIfArgPrefixFlt("--vfalpha:", 1.0, "vertex fill alpha");
   double vcAlpha = Env.GetIfArgPrefixFlt("--vcalpha:", -1.0, "vertex color alpha (default: --vfalpha)");
   
   const TStr NIdvrHFNm = Env.GetIfArgPrefixStr("--vrv:", "", "vertex radius mapping relative to vertex radius (--vr)");
   const TStr NIdvwHFNm = Env.GetIfArgPrefixStr("--vwv:", "", "vertex border width mapping (overrides --vw)");
-  const TStr NIdvfHexHFNm = Env.GetIfArgPrefixStr("--vfstrv:", "", "vertex fill mapping (overrides --vfstr)");
-  const TStr NIdvcHexHFNm = Env.GetIfArgPrefixStr("--vcstrv:", "", "vertex border color mapping (overrides --vcstr)");
+  const TStr NIdvfHFNm = Env.GetIfArgPrefixStr("--vfv:", "", "vertex fill mapping (overrides --vf)");
+  const TStr NIdvcHFNm = Env.GetIfArgPrefixStr("--vcv:", "", "vertex border color mapping (overrides --vcstr)");
+  
+  const bool community = Env.GetIfArgPrefixBool("--vfcommunity:", false, "color vertices by community (overrides --vf and --vfv) (default: F)");
+  const double eps = Env.GetIfArgPrefixFlt("--eps:", 1.0e-5, "minimum quality improvement threshold");
+  const double moves = Env.GetIfArgPrefixFlt("--moves:", 1.0e-2, "minimum number of moves (relative)");
+  const int iters = Env.GetIfArgPrefixInt("--iters:", 1.0e+4, "maximum number of iterations");
+
+  const double S = Env.GetIfArgPrefixFlt("-s:", 1.0, "community vertex color saturation value (0.0 - 1.0)");
+  const double L = Env.GetIfArgPrefixFlt("-l:", 0.5, "community vertex lightness value (0.0 - 1.0)");
+  
+  TFltTr vfRGB, vcRGB;
+  
+  ConvertHexToRGB(vf, vfRGB);
+  ConvertHexToRGB(vc, vcRGB);
+
+  if (vcAlpha < 0) vcAlpha = vfAlpha;
+
   
   // Edge appearance
   
   double ew = Env.GetIfArgPrefixFlt("--ew:", 1.0, "edge width");
-  const TStr ecHex = Env.GetIfArgPrefixStr("--ecstr:", "000000", "edge color (default: black)");
+  const TStr ec = Env.GetIfArgPrefixStr("--ec:", "000000", "edge color (default: black)");
   double ecAlpha = Env.GetIfArgPrefixFlt("--ecalpha:", 0.25, "edge color alpha");
   
+  TFltTr ecRGB;
+  
+  ConvertHexToRGB(ec, ecRGB);
+
   // Variables
   
   TStr Name;
-  
-  TFltTr vfRGB, vcRGB, ecRGB;
-  
-  ConvertHexToRGB(vfHex, vfRGB);
-  ConvertHexToRGB(vcHex, vcRGB);
-  ConvertHexToRGB(ecHex, ecRGB);
-  
-  if (vcAlpha < 0) {
-    vcAlpha = vfAlpha;
-  }
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   
@@ -159,55 +190,42 @@ int main(int argc, char* argv[]) {
   
   TSnap::printFltWGraphSummary(WGraph, true, "\nWGraph\n------");
   
-  if (vr == 0.0) {
-    vr = std::min(0.01, 0.1 / sqrt(WGraph->GetNodes()));
-  }
+  // Node appearance
   
-  // Load node appearance array
+  if (vr == 0.0) vr = std::min(0.01, 0.1 / sqrt(WGraph->GetNodes()));
   
   TIntFltH NIdvrH, NIdvwH;
   TIntV NIdV;
-  TIntV::TIter VI;
-  TIntStrH NIdvfHexH, NIdvcHexH;
+  TIntStrH NIdvfH, NIdvcH;
   TIntFltTrH NIdvfRGBH, NIdvcRGBH;
 
   WGraph->GetNIdV(NIdV);
-  
-  if (!NIdvrHFNm.Empty()) {
-    NIdvrH = TSnap::LoadTxtIntFltH(NIdvrHFNm);
-    ScaleH(NIdvrH, vr, 2*vr);
-  } else {
-    for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
-      NIdvrH.AddDat(VI->Val, vr);
-    }
-  }
-  
-  if (!NIdvwHFNm.Empty()) {
-    NIdvwH = TSnap::LoadTxtIntFltH(NIdvwHFNm);
-    ScaleH(NIdvwH, vw, 2*vw);
-  } else {
-    for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
-      NIdvwH.AddDat(VI->Val, vw);
-    }
-  }
-  
-  if (!NIdvfHexHFNm.Empty()) {
-    NIdvfHexH = TSnap::LoadTxtIntStrH(NIdvfHexHFNm);
-  } else {
-    for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
-      NIdvfHexH.AddDat(VI->Val, vfHex);
-    }
-  }
-  ConvertHexToRGB(NIdvfHexH, NIdvfRGBH);
 
-  if (!NIdvcHexHFNm.Empty()) {
-    NIdvcHexH = TSnap::LoadTxtIntStrH(NIdvcHexHFNm);
-  } else {
-    for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
-      NIdvcHexH.AddDat(VI->Val, vcHex);
+  GetNIdValH(NIdvrHFNm, NIdvrH, NIdV, vr);
+  GetNIdValH(NIdvwHFNm, NIdvwH, NIdV, vw);
+
+  if (community) {
+    // Compute community
+    TIntIntVH NIdCmtyVH;
+    int NCmty;
+    double LouvainQ;
+    LouvainQ = TSnap::LouvainMethod<TSnap::ModularityCommunity<TFlt>, TFlt>(WGraph, NIdCmtyVH, NCmty, edUnDirected, eps, moves, iters);
+    // Get colors
+    TIntFltTrH RGBH;
+    GenHSLBasedRGB(NCmty, S, L, RGBH);
+    // NId
+    TIntIntVH::TIter HI;
+    for (HI = NIdCmtyVH.BegI(); HI < NIdCmtyVH.EndI(); HI++) {
+      NIdvfRGBH.AddDat(HI.GetKey(), RGBH.GetDat(HI.GetDat().Last()));
     }
+    printf("\nCommunities computed (quality: %f)\n", LouvainQ);
+  } else {
+    GetNIdColH(NIdvfHFNm, NIdvfH, NIdV, vf);
+    ConvertHexToRGB(NIdvfH, NIdvfRGBH);
   }
-  ConvertHexToRGB(NIdvcHexH, NIdvcRGBH);
+
+  GetNIdColH(NIdvcHFNm, NIdvcH, NIdV, vc);
+  ConvertHexToRGB(NIdvcH, NIdvcRGBH);
 
   // Layout method
   
@@ -222,8 +240,6 @@ int main(int argc, char* argv[]) {
     NIdDegH.SortByDat();
     NIdDegH.GetKeyV(NIdV); // Circular layout sorted by degree preferentially
   }
-  
-  // Layouts
   
   printf("\nComputing %s layout...", layout.CStr());
   

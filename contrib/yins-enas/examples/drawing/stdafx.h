@@ -10,6 +10,7 @@ const double PI = 3.141592653589793238463;
 
 #include "wgraph.h"
 #include "wgio.h"
+#include "wcmty.h"
 #include "deg.h"
 #include "utils.h"
 #include "io.h"

@@ -11,6 +11,8 @@
 namespace TSnap {
 
 template <class Community, class TEdgeW>
+double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, int& NCmty, const TEdgeDir& dir, const double& eps = 1e-5, const double& delta = 1e-2, const int& MaxIter = 1000, TRnd& Rnd = TInt::Rnd);
+template <class Community, class TEdgeW>
 double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, const TEdgeDir& dir, const double& eps = 1e-5, const double& delta = 1e-2, const int& MaxIter = 1000, TRnd& Rnd = TInt::Rnd);
 
 /// Base community class to be inherited and specialized.
@@ -273,7 +275,7 @@ double ModularityCommunity<TEdgeW>::GetQuality() {
 namespace TSnap {
 
 template <class Community, class TEdgeW>
-double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, const TEdgeDir& dir, const double& eps, const double& delta, const int& MaxIter, TRnd& Rnd) {
+double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, int& NCmty, const TEdgeDir& dir, const double& eps, const double& delta, const int& MaxIter, TRnd& Rnd) {
   
   // Variables
   TPt<TWNGraph<TEdgeW> > GraphCopy = Graph; // smart pointer working graph copy
@@ -380,7 +382,7 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, 
 
     // Remove empty communities and renumber communities by size (descending)
     Cmty.CleanCmty();
-    
+
     // Update output community hierarchy
     // printf("OUTPUT (phase: %d)\n", phase);
     for (HI = NIdCmtyVH.BegI(); HI < NIdCmtyVH.EndI(); HI++) {
@@ -394,6 +396,10 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, 
       }
     }
     // printf("\n");    
+    
+    // Update number of communities dynamically
+    NCmty = Cmty.NCmty;
+    
     // -------
     
     // Phase B
@@ -411,6 +417,12 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, 
   
   return Cmty.GetQuality(); // return modularity
   
+}
+
+template <class Community, class TEdgeW>
+double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, const TEdgeDir& dir, const double& eps, const double& delta, const int& MaxIter, TRnd& Rnd) {
+  int NCmty;
+  return LouvainMethod(Graph, NIdCmtyVH, NCmty, dir, eps, delta, MaxIter, Rnd);
 }
 
 } // namespace TSnap

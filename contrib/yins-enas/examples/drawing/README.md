@@ -28,12 +28,12 @@ Options:
     --vr            vertex radius relative to minimum axis
                         (default: 0.1*sqrt(nodes))
     --vw            vertex border width (default: 1)
-    --vfstr         vertex fill (default: 000000)
-    --vcstr         vertex border color (default: FFFFFF)
+    --vf            vertex fill (default: 000000)
+    --vc            vertex border color (default: FFFFFF)
     --vfalpha       vertex fill alpha (default: 1)
     --vcalpha       vertex color alpha (default: --vfalpha)
     --ew            edge width (default: 1)
-    --ecstr         edge color (default: black)
+    --ec            edge color (default: black)
     --ecalpha       edge color alpha (default: 0.5)
 ```
 
@@ -47,7 +47,7 @@ Run filtering and wcentrality examples before drawing.
 ```bash
 DATASET=USairport2010
 EXT=snap
-EXAMPLE=filtering
+EXAMPLE=drawing
 ROOT=../../datasets/$DATASET
 rm -rf $ROOT/$EXAMPLE
 mkdir $ROOT/$EXAMPLE
@@ -56,5 +56,10 @@ mkdir $ROOT/$EXAMPLE
            --vrv:$ROOT/wcentrality/$DATASET.wpgr \
            -w:2500 -h:2500 -b:50 --layout:reingold --iterations:1500 \
            --cooling:1.5 --shuffle:T --vfstr:FF0000 --ecalpha:0.1 \
-           --vfstrv:$ROOT/NIdvfHexH.TIntStrH
+           --vfv:$ROOT/wcommunity/USairport2010.louvain.modularity.HEX
+           
+           --vfcommunity:T -s:1.0 -l:0.7
+
+           --vfv:$ROOT/NIdvfHexH.TIntStrH
+
 ```

@@ -18,6 +18,9 @@ int main(int argc, char* argv[]) {
   const double moves = Env.GetIfArgPrefixFlt("--moves:", 1.0e-2, "minimum number of moves (relative)");
   const int iters = Env.GetIfArgPrefixInt("--iters:", 1.0e+4, "maximum number of iterations");
   
+  const double S = Env.GetIfArgPrefixFlt("-s:", 1.0, "community vertex color saturation value (0.0 - 1.0)");
+  const double L = Env.GetIfArgPrefixFlt("-l:", 0.5, "community vertex lightness value (0.0 - 1.0)");
+
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
   PFltWNGraph WGraph = TSnap::LoadFltWEdgeList<TWNGraph>(InFNm);
@@ -27,16 +30,34 @@ int main(int argc, char* argv[]) {
   
   // Declare variables
   TIntIntVH NIdCmtyVH;
+  int NCmty;
   double LouvainQ;
-  
+
   // COMMUNITY
   
   // Louvain method (modularity objective)
   
   printf("\nLouvain method (weighted)...");
-  LouvainQ = TSnap::LouvainMethod<TSnap::ModularityCommunity<TFlt>, TFlt>(WGraph, NIdCmtyVH, edUnDirected, eps, moves, iters);
+  LouvainQ = TSnap::LouvainMethod<TSnap::ModularityCommunity<TFlt>, TFlt>(WGraph, NIdCmtyVH, NCmty, edUnDirected, eps, moves, iters);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   printf("  quality: %f\n", LouvainQ);
+  
+  // Get colors
+  TIntFltTrH RGBH, NIdRGBH;
+  TIntStrH NIdHexH;
+  GenHSLBasedRGB(NCmty, S, L, RGBH);
+  // NId
+  TIntIntVH::TIter HI;
+  for (HI = NIdCmtyVH.BegI(); HI < NIdCmtyVH.EndI(); HI++) {
+    NIdRGBH.AddDat(HI.GetKey(), RGBH.GetDat(HI.GetDat().Last()));
+  }
+  printf("Saving %s.louvain.modularity.RGB...", BseFNm.CStr());
+  TSnap::SaveTxt(NIdRGBH, TStr::Fmt("%s.louvain.modularity.RGB", OutFNm.CStr()), "Louvain modularity final community hierarchy coloring (weighted)", "NodeId", "Col");
+  printf(" DONE\n");
+  ConvertRGBToHex(NIdRGBH, NIdHexH);
+  printf("Saving %s.louvain.modularity.HEX...", BseFNm.CStr());
+  TSnap::SaveTxt(NIdHexH, TStr::Fmt("%s.louvain.modularity.HEX", OutFNm.CStr()), "Louvain modularity final community hierarchy coloring (weighted)", "NodeId", "Col");
+  printf(" DONE\n");
   
   TSnap::CmtyHierarchySummary(NIdCmtyVH, 1, -1, "\nLouvain hierarchy\n-----------------");
   

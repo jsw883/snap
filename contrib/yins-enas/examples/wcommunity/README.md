@@ -54,5 +54,6 @@ rm -rf $ROOT/$EXAMPLE
 mkdir $ROOT/$EXAMPLE
 ./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
            -o:$ROOT/$EXAMPLE/$DATASET \
-           --eps 1.0e-5 --moves:1.0e-2 --iters:1.0e+4
+           --eps 1.0e-5 --moves:1.0e-2 --iters:1.0e+4 \
+           -s:1.0 -l:0.5
 ```

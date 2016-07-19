@@ -73,6 +73,18 @@ void ConvertHexToRGB(const THash<TKey, TStr>& HexH, THash<TKey, TFltTr>& RGBH) {
   }
 }
 
+template <class TKey> void ConvertRGBToHex(const THash<TKey, TFltTr>& RGBH, THash<TKey, TStr>& HexH);
+
+template <class TKey>
+void ConvertRGBToHex(const THash<TKey, TFltTr>& RGBH, THash<TKey, TStr>& HexH) {
+  typename THash<TKey, TFltTr>::TIter HI;
+  HexH.Clr();
+  for (HI = RGBH.BegI(); HI < RGBH.EndI(); HI++) {
+    TStr& Hex = HexH.AddDat(HI.GetKey());
+    ConvertRGBToHex(HI.GetDat(), Hex);
+  }
+}
+
 // HSV
 
 void ConvertHSVToRGB(const TFltTr& HSV, TFltTr& RGB);
