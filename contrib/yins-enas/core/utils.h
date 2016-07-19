@@ -3,6 +3,12 @@
 
 // Headers (?)
 
+#include <cmath>
+#include <algorithm>
+
+//#//////////////////////////////////////////////
+/// Progress
+
 class Progress {
 private:
   TExeTm ExeTm;
@@ -44,8 +50,16 @@ public:
   }
 };
 
+//#//////////////////////////////////////////////
+/// Colors
+
+// Hex
+
 void ConvertHexToRGB(const TStr& Hex, TFltTr& RGB);
 void ConvertHexToRGB(const TStrV& HexV, TFltTrV& RGBV);
+
+void ConvertRGBToHex(const TFltTr& RGB, TStr& Hex);
+void ConvertRGBToHex(const TFltTrV& RGBV, TStrV& HexV);
 
 template <class TKey> void ConvertHexToRGB(const THash<TKey, TStr>& HexH, THash<TKey, TFltTr>& RGBH);
 
@@ -58,5 +72,21 @@ void ConvertHexToRGB(const THash<TKey, TStr>& HexH, THash<TKey, TFltTr>& RGBH) {
     ConvertHexToRGB(HI.GetDat(), RGB);
   }
 }
+
+// HSV
+
+void ConvertHSVToRGB(const TFltTr& HSV, TFltTr& RGB);
+void ConvertHSVToRGB(const TFltTrV& HSVV, TFltTrV& RGBV);
+
+void ConvertRGBToHSV(const TFltTr& RGB, TFltTr& HSV);
+void ConvertRGBToHSV(const TFltTrV& RGBV, TFltTrV& HSVV);
+
+// HSV
+
+void ConvertHSLToRGB(const TFltTr& HSL, TFltTr& RGB);
+void ConvertHSLToRGB(const TFltTrV& HSLV, TFltTrV& RGBV);
+
+void ConvertRGBToHSL(const TFltTr& RGB, TFltTr& HSL);
+void ConvertRGBToHSL(const TFltTrV& RGBV, TFltTrV& HSLV);
 
 #endif
