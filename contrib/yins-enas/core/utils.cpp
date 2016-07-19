@@ -16,24 +16,23 @@ void ConvertHexToRGB(const TStr& Hex, TFltTr& RGB) {
 
 void ConvertHexToRGB(const TStrV& HexV, TFltTrV& RGBV) {
   RGBV.Clr();
-  int i;
-  for (i = 0; i < HexV.Len(); i++) {
+  for (int i = 0; i < HexV.Len(); i++) {
     RGBV.Add();
     ConvertHexToRGB(HexV[i], RGBV[i]);
   }
 }
 
 void ConvertRGBToHex(const TFltTr& RGB, TStr& Hex) {
+  int R = RGB.Val1 * 255 + 0.5, G = RGB.Val2 * 255 + 0.5, B = RGB.Val3 * 255 + 0.5;
   Hex = "";
-  Hex += TInt::GetHexStr((int) (RGB.Val1 * 255)).CStr();
-  Hex += TInt::GetHexStr((int) (RGB.Val2 * 255)).CStr();
-  Hex += TInt::GetHexStr((int) (RGB.Val3 * 255)).CStr();
+  Hex += (R < 16 ? "0" : "") + TInt::GetHexStr(R);
+  Hex += (G < 16 ? "0" : "") + TInt::GetHexStr(G);
+  Hex += (B < 16 ? "0" : "") + TInt::GetHexStr(B);
 }
 
 void ConvertRGBToHex(const TFltTrV& RGBV, TStrV& HexV) {
   HexV.Clr();
-  int i;
-  for (i = 0; i < RGBV.Len(); i++) {
+  for (int i = 0; i < RGBV.Len(); i++) {
     HexV.Add();
     ConvertRGBToHex(RGBV[i], HexV[i]);
   }
@@ -80,10 +79,17 @@ void ConvertHSVToRGB(const TFltTr& HSV, TFltTr& RGB) {
 
 void ConvertHSVToRGB(const TFltTrV& HSVV, TFltTrV& RGBV) {
   RGBV.Clr();
-  int i;
-  for (i = 0; i < HSVV.Len(); i++) {
+  for (int i = 0; i < HSVV.Len(); i++) {
     RGBV.Add();
     ConvertHSVToRGB(HSVV[i], RGBV[i]);
+  }
+}
+
+void ConvertHSVToRGB(TFltTrV& ColV) {
+  TFltTr RGB;
+  for (int i = 0; i < ColV.Len(); i++) {
+    ConvertHSVToRGB(ColV[i], RGB);
+    ColV[i] = RGB;
   }
 }
 
@@ -124,10 +130,17 @@ void ConvertRGBToHSV(const TFltTr& RGB, TFltTr& HSV) {
 
 void ConvertRGBToHSV(const TFltTrV& RGBV, TFltTrV& HSVV) {
   HSVV.Clr();
-  int i;
-  for (i = 0; i < HSVV.Len(); i++) {
+  for (int i = 0; i < HSVV.Len(); i++) {
     HSVV.Add();
     ConvertHSVToRGB(RGBV[i], HSVV[i]);
+  }
+}
+
+void ConvertRGBToHSV(TFltTrV& ColV) {
+  TFltTr HSV;
+  for (int i = 0; i < ColV.Len(); i++) {
+    ConvertRGBToHSV(ColV[i], HSV);
+    ColV[i] = HSV;
   }
 }
 
@@ -171,10 +184,18 @@ void ConvertHSLToRGB(const TFltTr& HSL, TFltTr& RGB) {
 
 void ConvertHSLToRGB(const TFltTrV& HSLV, TFltTrV& RGBV) {
   RGBV.Clr();
-  int i;
-  for (i = 0; i < HSLV.Len(); i++) {
+  for (int i = 0; i < HSLV.Len(); i++) {
     RGBV.Add();
     ConvertHSLToRGB(HSLV[i], RGBV[i]);
+  }
+}
+
+template <class Array>
+void ConvertHSLToRGB(Array& ColArray) {
+  TFltTr RGB;
+  for (int i = 0; i < ColArray.Len(); i++) {
+    ConvertHSLToRGB(ColArray[i], RGB);
+    ColArray[i] = RGB;
   }
 }
 
@@ -213,9 +234,43 @@ void ConvertRGBToHSL(const TFltTr& RGB, TFltTr& HSL) {
 
 void ConvertRGBToHSL(const TFltTrV& RGBV, TFltTrV& HSLV) {
   HSLV.Clr();
-  int i;
-  for (i = 0; i < RGBV.Len(); i++) {
+  for (int i = 0; i < RGBV.Len(); i++) {
     HSLV.Add();
     ConvertRGBToHSL(RGBV[i], HSLV[i]);
   }
+}
+
+void ConvertRGBToHSL(TFltTrV& ColV) {
+  TFltTr HSL;
+  for (int i = 0; i < ColV.Len(); i++) {
+    ConvertRGBToHSL(ColV[i], HSL);
+    ColV[i] = HSL;
+  }
+}
+
+// Gen
+
+void GenHSLBasedRGB(const int& N, const double& S, const double& L, TFltTrV& ColV, double HDiff) {
+  ColV.Clr();
+  ColV.Reserve(N);
+  if (HDiff == 0.0) HDiff = 1.0 / N;
+  double H = 0;
+  for (int i = 0; i < N; i++) {
+    ColV.Add(TFltTr(H, S, L));
+    H += HDiff;
+  }
+  ConvertHSLToRGB(ColV);
+
+}
+
+void GenHSLBasedRGB(const int& N, const double& S, const double& L, TIntFltTrH& ColH, double HDiff) {
+  ColH.Clr();
+  ColH.Gen(N);
+  if (HDiff == 0.0) HDiff = 1.0 / N;
+  double H = 0;
+  for (int i = 0; i < N; i++) {
+    ColH.AddDat(i, TFltTr(H, S, L));
+    H += HDiff;
+  }
+  ConvertHSLToRGB(ColH);
 }

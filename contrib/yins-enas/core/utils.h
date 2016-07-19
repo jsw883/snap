@@ -77,16 +77,25 @@ void ConvertHexToRGB(const THash<TKey, TStr>& HexH, THash<TKey, TFltTr>& RGBH) {
 
 void ConvertHSVToRGB(const TFltTr& HSV, TFltTr& RGB);
 void ConvertHSVToRGB(const TFltTrV& HSVV, TFltTrV& RGBV);
+void ConvertHSVToRGB(TFltTrV& ColV);
 
 void ConvertRGBToHSV(const TFltTr& RGB, TFltTr& HSV);
 void ConvertRGBToHSV(const TFltTrV& RGBV, TFltTrV& HSVV);
+void ConvertRGBToHSV(TFltTrV& ColV);
 
-// HSV
+// HSL
 
 void ConvertHSLToRGB(const TFltTr& HSL, TFltTr& RGB);
 void ConvertHSLToRGB(const TFltTrV& HSLV, TFltTrV& RGBV);
+template <class Array> void ConvertHSLToRGB(Array& ColArray);
 
 void ConvertRGBToHSL(const TFltTr& RGB, TFltTr& HSL);
 void ConvertRGBToHSL(const TFltTrV& RGBV, TFltTrV& HSLV);
+void ConvertRGBToHSL(TFltTrV& ColV);
+
+// Gen
+
+void GenHSLBasedRGB(const int& N, const double& S, const double& L, TFltTrV& ColV, double HDiff = 0.0);
+void GenHSLBasedRGB(const int& N, const double& S, const double& L, TIntFltTrH& ColH, double HDiff = 0.0);
 
 #endif
