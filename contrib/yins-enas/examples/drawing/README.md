@@ -53,10 +53,10 @@ rm -rf $ROOT/$EXAMPLE
 mkdir $ROOT/$EXAMPLE
 ./$EXAMPLE -i:$ROOT/filtering/$DATASET-3.727594e-04.$EXT \
            -o:$ROOT/$EXAMPLE/$DATASET \
-           --vrv:$ROOT/wcentrality/$DATASET.wpgr \
            -w:2500 -h:2500 -b:50 --layout:reingold --iterations:1500 \
-           --cooling:1.5 --shuffle:T --vfstr:FF0000 --ecalpha:0.1 \
-           --vfv:$ROOT/wcommunity/USairport2010.louvain.modularity.HEX
+           --cooling:1.5 --shuffle:T --vf:FF0000 --ecalpha:0.1 \
+           --vrv:$ROOT/wcentrality/$DATASET.wpgr \
+           --vfv:$ROOT/wcommunity/$DATASET.louvain.modularity.HEX
            
            --vfcommunity:T -s:1.0 -l:0.7
 
