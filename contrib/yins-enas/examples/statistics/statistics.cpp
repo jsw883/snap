@@ -33,10 +33,13 @@ int main(int argc, char* argv[]) {
   double AvClustCf, GlClustCf, AvDirClustCoeff;
   TStrFltH StatsV;
   TIntIntH DegH;
-  
   TIntV NIdV;
+  TIntFltH NIdClustCoeffH;
+
   TUInt64V NF;
-  
+
+  Graph->GetNIdV(NIdV);
+
   // STATISTICS (computations)
   
   // Computes nodes, edges, average degree, and density
@@ -65,8 +68,6 @@ int main(int argc, char* argv[]) {
   // NEIGHBORHOOD FUNCTION
   
   if (exact) {
-    
-    Graph->GetNIdV(NIdV);
     
     // Computes diameter (effective / approximate) and median path length exactly
     printf("\nComputing exact neighborhood function...");
@@ -107,7 +108,7 @@ int main(int argc, char* argv[]) {
   printf("Computing global / average clustering coefficients...");
   GlClustCf = TSnap::GetGlClustCf(Graph);
   AvClustCf = TSnap::GetAvClustCf(Graph);
-  AvDirClustCoeff = TSnap::GetAvDirLocalClustCoeff(Graph);
+  AvDirClustCoeff = TSnap::GetAvDirLocalClustCoeff(Graph, NIdV, NIdClustCoeffH);
   StatsV.AddDat("GlClustCf", GlClustCf);
   StatsV.AddDat("AvClustCf", AvClustCf);
   StatsV.AddDat("AvDirClustCoeff", AvDirClustCoeff);
@@ -130,22 +131,26 @@ int main(int argc, char* argv[]) {
   printf("AvClustCf: %f\n", AvClustCf);
   printf("AvDirClustCoeff: %f\n", AvDirClustCoeff);
   
-  printf("\nSaving %s.summary...", BseFNm.CStr());
-  TSnap::SaveTxt(StatsV, TStr::Fmt("%s.summary", OutFNm.CStr()), "Graph statistics summary", "Stat", "Value");
+  printf("\nSaving %s.StatsV...", BseFNm.CStr());
+  TSnap::SaveTxt(StatsV, TStr::Fmt("%s.StatsV", OutFNm.CStr()), "Graph statistics summary", "Stat", "Value");
+  printf(" DONE\n");
+  
+  printf("\nSaving %s.NIdClustCoeffH...", BseFNm.CStr());
+  TSnap::SaveTxt(NIdClustCoeffH, TStr::Fmt("%s.NIdClustCoeffH", OutFNm.CStr()), "Weighted local clustering coefficients", "NId", "WDirLocalClustCoeff");
   printf(" DONE\n");
   
   if (exact) {
     
-    printf("\nSaving %s.hop.NF...", BseFNm.CStr());
-    TSnap::SaveTxt(NF, TStr::Fmt("%s.hop.NF", OutFNm.CStr()), "Exact neighbourhood function / shortest path cumulative density (hop)");
+    printf("\nSaving %s.NF...", BseFNm.CStr());
+    TSnap::SaveTxt(NF, TStr::Fmt("%s.NF", OutFNm.CStr()), "Exact neighbourhood function / shortest path cumulative density (hop)");
     printf(" DONE\n");
     
     TSnap::printDataV(NF, true, "\nNF\n--");
     
   } else {
   
-    printf("\nSaving %s.hop.ANF...", BseFNm.CStr());
-    TSnap::SaveTxtTIntFltKdV(ANF, TStr::Fmt("%s.hop.ANF", OutFNm.CStr()), "Approximate neighbourhood function / shortest path cumulative density (hop)");
+    printf("\nSaving %s.ANF...", BseFNm.CStr());
+    TSnap::SaveTxtTIntFltKdV(ANF, TStr::Fmt("%s.ANF", OutFNm.CStr()), "Approximate neighbourhood function / shortest path cumulative density (hop)");
     printf(" DONE\n");
     
     TSnap::printDataV(NF, true, "\nANF\n---");  
