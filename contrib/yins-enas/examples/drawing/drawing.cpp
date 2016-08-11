@@ -130,8 +130,9 @@ int main(int argc, char* argv[]) {
   
   // Layout method
   
-  const TStr layout = Env.GetIfArgPrefixStr("--layout:", "circular", "layout algorithm (random / circular / reingold)");
-  
+  const TStr layout = Env.GetIfArgPrefixStr("--layout:", "circular", "layout algorithm (random / circular / reingold / precomputed)");
+  const TStr precomputed = Env.GetIfArgPrefixStr("--precomputed:", "", "precomputed layout (*.CoordH)");
+
   // Reingold
   
   const int iterations = Env.GetIfArgPrefixInt("--iterations:", 1500, "number of iterations for reingold");
@@ -244,13 +245,28 @@ int main(int argc, char* argv[]) {
   printf("\nComputing %s layout...", layout.CStr());
   
   if (layout == "random") {
+
     TSnap::RandomLayout(NIdV, CoordH);
+
   } else if (layout == "circular") {
+
     TSnap::CircularLayout(NIdV, CoordH);
+
   } else if (layout == "reingold") {
+
     TSnap::ReingoldLayout(WGraph, NIdV, CoordH, iterations, cooling);
+
+  } else if (layout == "precomputed") {
+
+    if (precomputed.Empty()) {
+      IAssertR(false, "Precomputed must be specified.");
+    }
+    CoordH = TSnap::LoadTxtIntFltPrH(precomputed);
+
   } else {
-    IAssertR(false, "Layout must be one of \"random\", \"circular\", \"reingold\".");
+
+    IAssertR(false, "Layout must be one of \"random\", \"circular\", \"reingold\", or \"precomputed\".");
+
   }
   TSnap::TransformLayout(CoordH, TFltPr(b, w - b), TFltPr(b, h - b), true);
   
@@ -258,11 +274,15 @@ int main(int argc, char* argv[]) {
   
   // Saving
   
-  Name = TStr::Fmt("%s.%s.CoordH", OutFNm.CStr(), layout.CStr());
-  printf("\nSaving %s...", Name.CStr());
-  TSnap::SaveTxt(CoordH, Name.CStr(), "Degree centrality (in / out / undirected)", "NodeId", "InDegCentr\tOutDegCentr\tDegCentr");
-  printf(" DONE\n");  
-  
+  if (layout != "precomputed") {
+
+    Name = TStr::Fmt("%s.%s.CoordH", OutFNm.CStr(), layout.CStr());
+    printf("\nSaving %s...", Name.CStr());
+    TSnap::SaveTxt(CoordH, Name.CStr(), "Degree centrality (in / out / undirected)", "NodeId", "InDegCentr\tOutDegCentr\tDegCentr");
+    printf(" DONE\n");  
+    
+  }
+
   // Drawing
 
   if (pdf) {

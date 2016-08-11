@@ -57,9 +57,4 @@ mkdir $ROOT/$EXAMPLE
            --cooling:1.5 --shuffle:T --vf:FF0000 --ecalpha:0.1 \
            --vrv:$ROOT/wcentrality/$DATASET.wpgr \
            --vfv:$ROOT/wcommunity/$DATASET.louvain.modularity.HEX
-           
-           --vfcommunity:T -s:1.0 -l:0.7
-
-           --vfv:$ROOT/NIdvfHexH.TIntStrH
-
 ```
