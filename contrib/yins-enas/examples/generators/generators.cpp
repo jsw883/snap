@@ -26,6 +26,8 @@ int main(int argc, char* argv[]) {
 
   PFltWNGraph WGraph, WRGraph;
 
+  TStr Name;
+
   if (InFNm == "") {
 
     // TODO: this needs to be generalized
@@ -41,7 +43,6 @@ int main(int argc, char* argv[]) {
     TSnap::printFltWGraphSummary(WGraph, true, "\nWGraph\n------");
     
     nodes = WGraph->GetNodes();
-    // edges = WGraph->GetEdges();
     TotalW = WGraph->GetTotalW();
 
     TSnap::FitParetoWeights<TFlt, TWNGraph>(WGraph, Scale, Shape);
@@ -85,8 +86,9 @@ int main(int argc, char* argv[]) {
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
-  printf("\nSaving %s-%s.snap...", OutFNm.CStr(), Method.CStr());
-  TSnap::SaveFltWEdgeList(WRGraph, TStr::Fmt("%s-%s.snap", OutFNm.CStr(), Method.CStr()), "");
+  Name = TStr::Fmt("%s-%s.snap", OutFNm.CStr(), Method.CStr());
+  printf("\nSaving %s...", Name.CStr());
+  TSnap::SaveFltWEdgeList(WRGraph, Name.CStr(), "");
   printf(" DONE\n");
 
   Catch

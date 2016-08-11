@@ -38,6 +38,8 @@ int main(int argc, char* argv[]) {
 
   TUInt64V NF;
 
+  TStr Name;
+
   Graph->GetNIdV(NIdV);
 
   // STATISTICS (computations)
@@ -131,26 +133,30 @@ int main(int argc, char* argv[]) {
   printf("AvClustCf: %f\n", AvClustCf);
   printf("AvDirClustCoeff: %f\n", AvDirClustCoeff);
   
-  printf("\nSaving %s.StatsV...", BseFNm.CStr());
-  TSnap::SaveTxt(StatsV, TStr::Fmt("%s.StatsV", OutFNm.CStr()), "Graph statistics summary", "Stat", "Value");
+  Name = TStr::Fmt("%s.StatsV", OutFNm.CStr());
+  printf("\nSaving %s...", Name.CStr());
+  TSnap::SaveTxt(StatsV, Name.CStr(), "Graph statistics summary", "Stat", "Value");
   printf(" DONE\n");
   
-  printf("\nSaving %s.NIdClustCoeffH...", BseFNm.CStr());
-  TSnap::SaveTxt(NIdClustCoeffH, TStr::Fmt("%s.NIdClustCoeffH", OutFNm.CStr()), "Weighted local clustering coefficients", "NId", "WDirLocalClustCoeff");
+  Name = TStr::Fmt("%s.NIdClustCoeffH", OutFNm.CStr());
+  printf("\nSaving %s...", Name.CStr());
+  TSnap::SaveTxt(NIdClustCoeffH, Name.CStr(), "Weighted local clustering coefficients", "NId", "WDirLocalClustCoeff");
   printf(" DONE\n");
   
   if (exact) {
     
-    printf("\nSaving %s.NF...", BseFNm.CStr());
-    TSnap::SaveTxt(NF, TStr::Fmt("%s.NF", OutFNm.CStr()), "Exact neighbourhood function / shortest path cumulative density (hop)");
+    Name = TStr::Fmt("%s.NF", OutFNm.CStr());
+    printf("\nSaving %s...", Name.CStr());
+    TSnap::SaveTxt(NF, Name.CStr(), "Exact neighbourhood function / shortest path cumulative density (hop)");
     printf(" DONE\n");
     
     TSnap::printDataV(NF, true, "\nNF\n--");
     
   } else {
   
-    printf("\nSaving %s.ANF...", BseFNm.CStr());
-    TSnap::SaveTxtTIntFltKdV(ANF, TStr::Fmt("%s.ANF", OutFNm.CStr()), "Approximate neighbourhood function / shortest path cumulative density (hop)");
+    Name = TStr::Fmt("%s.ANF", OutFNm.CStr());
+    printf("\nSaving %s...", Name.CStr());
+    TSnap::SaveTxtTIntFltKdV(ANF, Name.CStr(), "Approximate neighbourhood function / shortest path cumulative density (hop)");
     printf(" DONE\n");
     
     TSnap::printDataV(NF, true, "\nANF\n---");  

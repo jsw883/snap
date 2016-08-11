@@ -41,6 +41,8 @@ int main(int argc, char* argv[]) {
   TFltWNGraph::TNodeI NI;
   TFltV::TIter VI;
   
+  TStr Name;
+
   // Initialize exogenous source of centrality
   if (ExoFNm.Empty()) { // might need to check if length == 1 instead
     for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
@@ -147,9 +149,9 @@ int main(int argc, char* argv[]) {
   
   if (collate) {
     
-    printf("\nSaving %s.wcentr.combined...", BseFNm.CStr());
-    const TStr CombinedFNm = TStr::Fmt("%s.wcentr.combined", OutFNm.CStr());
-    FILE *F = fopen(CombinedFNm.CStr(), "wt");
+    Name = TStr::Fmt("%s.WCentrCombined", OutFNm.CStr());
+    printf("\nSaving %s...", Name.CStr());
+    FILE *F = fopen(Name.CStr(), "wt");
     fprintf(F, "# Node centrality distributions on the directed / undirected graph (as applicable)\n");
     fprintf(F, "# Nodes: %d\tEdges: %d\n", WGraph->GetNodes(), WGraph->GetEdges());
     fprintf(F, "# NodeId\tWInDegCentr\tWOutDegCentr\tWDegCentr\tWInEigCentr\tWOutEigCentr\tWEigCentr\tWInAlphaCentr\tWOutAlphaCentr\tWAlphaCentr\tWPgRCentr\n");
@@ -168,38 +170,46 @@ int main(int argc, char* argv[]) {
     
   } else {
     
-    printf("\nSaving %s.wdeg.centr...", BseFNm.CStr());
-    TSnap::SaveTxt(WDegCentrVH, TStr::Fmt("%s.wdeg.centr", OutFNm.CStr()), "Weighted degree centrality (in / out / undirected)", "NodeId", "WInDegCentr\tWOutDegCentr\tWDegCentr");
+    Name = TStr::Fmt("%s.WDegCentrVH", OutFNm.CStr());
+    printf("\nSaving %s...", Name.CStr());
+    TSnap::SaveTxt(WDegCentrVH, Name.CStr(), "Weighted degree centrality (in / out / undirected)", "NodeId", "WInDegCentr\tWOutDegCentr\tWDegCentr");
     printf(" DONE\n");
     
-    printf("Saving %s.weig...", BseFNm.CStr());
-    TSnap::SaveTxt(WEigCentrVH, TStr::Fmt("%s.weig", OutFNm.CStr()), "Weighted eigenvector centrality (in / out / undirected)", "NodeId", "WInEigCentr\tWOutEigCentr\tWEigCentr");
+    Name = TStr::Fmt("%s.WEigCentrVH", OutFNm.CStr());
+    printf("Saving %s...", Name.CStr());
+    TSnap::SaveTxt(WEigCentrVH, Name.CStr(), "Weighted eigenvector centrality (in / out / undirected)", "NodeId", "WInEigCentr\tWOutEigCentr\tWEigCentr");
     printf(" DONE\n");
     
-    printf("Saving %s.alpha.wcentrality...", BseFNm.CStr());
-    TSnap::SaveTxt(WAlphaCentrVH, TStr::Fmt("%s.alpha.wcentrality", OutFNm.CStr()), TStr::Fmt("Weighted alpha centrality (in / out / undirected) with r = %f,  a = (%e, %e, %e)", r, AlphaV[0], AlphaV[1], AlphaV[2]), "NodeId", "WInAlphaCentr\tWOutAlphaCentr\tWAlphaCentr");
+    Name = TStr::Fmt("%s.WAlphaCentrVH", OutFNm.CStr());
+    printf("Saving %s...", Name.CStr());
+    TSnap::SaveTxt(WAlphaCentrVH, Name.CStr(), TStr::Fmt("Weighted alpha centrality (in / out / undirected) with r = %f,  a = (%e, %e, %e)", r, AlphaV[0], AlphaV[1], AlphaV[2]), "NodeId", "WInAlphaCentr\tWOutAlphaCentr\tWAlphaCentr");
     printf(" DONE\n");
     
-    printf("Saving %s.wpgr...", BseFNm.CStr());
-    TSnap::SaveTxt(WPgRH, TStr::Fmt("%s.wpgr", OutFNm.CStr()), "Weighted PageRank centrality (wpgr)", "NodeId", "WPageRank");
+    Name = TStr::Fmt("%s.WPgRH", OutFNm.CStr());
+    printf("Saving %s...", Name.CStr());
+    TSnap::SaveTxt(WPgRH, Name.CStr(), "Weighted PageRank centrality (wpgr)", "NodeId", "WPageRank");
     printf(" DONE\n");
     
   }
   
-  printf("Saving %s.wdeg...", BseFNm.CStr());
-  TSnap::SaveTxt(FirstWDegVH, TStr::Fmt("%s.wdeg", OutFNm.CStr()), "Weighted degree distributions (in / out / undirected)", "NodeId", "WInDeg\tWOutDeg\tWDeg");
+  Name = TStr::Fmt("%s.FirstWDegVH", OutFNm.CStr());
+  printf("Saving %s...", Name.CStr());
+  TSnap::SaveTxt(FirstWDegVH, Name.CStr(), "Weighted degree distributions (in / out / undirected)", "NodeId", "WInDeg\tWOutDeg\tWDeg");
   printf(" DONE\n");
   
-  printf("Saving %s.kwdeg.IN...", BseFNm.CStr());
-  TSnap::SaveTxt(kWInDegVH, TStr::Fmt("%s.kwdeg.IN", OutFNm.CStr()), TStr::Fmt("1 to %d weighted in degree distributions (kdeg.IN)", k), "NodeId", "kWInDegH");
+  Name = TStr::Fmt("%s.kWInDegVH", OutFNm.CStr());
+  printf("Saving %s...", Name.CStr());
+  TSnap::SaveTxt(kWInDegVH, Name.CStr(), TStr::Fmt("1 to %d weighted in degree distributions (kdeg.IN)", k), "NodeId", "kWInDegH");
   printf(" DONE\n");
   
-  printf("Saving %s.kwdeg.OUT...", BseFNm.CStr());
-  TSnap::SaveTxt(kWOutDegVH, TStr::Fmt("%s.kwdeg.OUT", OutFNm.CStr()), TStr::Fmt("1 to %d weighted out degree distributions (kdeg.OUT)", k), "NodeId", "kWOutDegH");
+  Name = TStr::Fmt("%s.kWOutDegVH", OutFNm.CStr());
+  printf("Saving %s...", Name.CStr());
+  TSnap::SaveTxt(kWOutDegVH, Name.CStr(), TStr::Fmt("1 to %d weighted out degree distributions (kdeg.OUT)", k), "NodeId", "kWOutDegH");
   printf(" DONE\n");
   
-  printf("Saving %s.kwdeg...", BseFNm.CStr());
-  TSnap::SaveTxt(kWDegVH, TStr::Fmt("%s.kwdeg", OutFNm.CStr()), TStr::Fmt("1 to %d weighted degree distributions (kdeg)", k), "NodeId", "kWDegH");
+  Name = TStr::Fmt("%s.kWDegVH", OutFNm.CStr());
+  printf("Saving %s...", Name.CStr());
+  TSnap::SaveTxt(kWDegVH, Name.CStr(), TStr::Fmt("1 to %d weighted degree distributions (kdeg)", k), "NodeId", "kWDegH");
   printf(" DONE\n");
   
   Catch

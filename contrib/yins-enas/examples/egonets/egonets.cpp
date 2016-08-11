@@ -26,11 +26,13 @@ int main(int argc, char* argv[]) {
   TSnap::printFltWGraphSummary(WGraph, true, "\nWGraph\n------");
   
   // Declare variables
-  
+
   TIntIntH NodesH, EdgesH;
   TIntFltH TotalWH, DensityH, GiniH;
   TFltWNGraph::TNodeI NI;
   
+  TStr Name;
+
   // EGONETS
    
   // Loop over egonets (node iterator)
@@ -70,9 +72,9 @@ int main(int argc, char* argv[]) {
   
   if (collate) {
     
-    printf("\nSaving %s.egonets...", BseFNm.CStr());
-    const TStr AggFNm = TStr::Fmt("%s.egonets", OutFNm.CStr());
-    FILE *F = fopen(AggFNm.CStr(), "wt");
+    Name = TStr::Fmt("%s.EgoCombined", OutFNm.CStr());
+    printf("\nSaving %s...", Name.CStr());
+    FILE *F = fopen(Name.CStr(), "wt");
     fprintf(F,"# Egonet properties on the weighted / unweighted graph with k = %d\n", k);
     fprintf(F,"# Nodes: %d\tEdges: %d\n", WGraph->GetNodes(), WGraph->GetEdges());
     fprintf(F,"# NodeId\tNodes\tEdges\tDensity\tGini\tWeights\n");
@@ -89,24 +91,29 @@ int main(int argc, char* argv[]) {
     
   } else {
     
-    printf("\nSaving %s.ego.nodes...", BseFNm.CStr());
-    TSnap::SaveTxt(NodesH, TStr::Fmt("%s.ego.nodes", OutFNm.CStr()), TStr::Fmt("Number of nodes in node egonet with k = %d and d = %d", k, d));
+    Name = TStr::Fmt("%s.NodesH", OutFNm.CStr());
+    printf("\nSaving %s...", Name.CStr());
+    TSnap::SaveTxt(NodesH, Name.CStr(), TStr::Fmt("Number of nodes in node egonet with k = %d and d = %d", k, d));
     printf(" DONE\n");
     
-    printf("Saving %s.ego.edges...", BseFNm.CStr());
-    TSnap::SaveTxt(EdgesH, TStr::Fmt("%s.ego.edges", OutFNm.CStr()), TStr::Fmt("Number of edges in node egonet with k = %d and d = %d", k, d));
+    Name = TStr::Fmt("%s.EdgesH", OutFNm.CStr());
+    printf("Saving %s...", Name.CStr());
+    TSnap::SaveTxt(EdgesH, Name.CStr(), TStr::Fmt("Number of edges in node egonet with k = %d and d = %d", k, d));
     printf(" DONE\n");
     
-    printf("Saving %s.ego.density...", BseFNm.CStr());
-    TSnap::SaveTxt(DensityH, TStr::Fmt("%s.ego.density", OutFNm.CStr()), TStr::Fmt("Edge density in node egonet with k = %d and d = %d", k, d));
+    Name = TStr::Fmt("%s.DensityH", OutFNm.CStr());
+    printf("Saving %s...", Name.CStr());
+    TSnap::SaveTxt(DensityH, Name.CStr(), TStr::Fmt("Edge density in node egonet with k = %d and d = %d", k, d));
     printf(" DONE\n");
     
-    printf("Saving %s.ego.weights...", BseFNm.CStr());
-    TSnap::SaveTxt(TotalWH, TStr::Fmt("%s.ego.weights", OutFNm.CStr()), TStr::Fmt("Total weight with k = %d and d = %d", k, d));
+    Name = TStr::Fmt("%s.TotalWH", OutFNm.CStr());
+    printf("Saving %s...", Name.CStr());
+    TSnap::SaveTxt(TotalWH, Name.CStr(), TStr::Fmt("Total weight with k = %d and d = %d", k, d));
     printf(" DONE\n");
     
-    printf("Saving %s.ego.gini...", BseFNm.CStr());
-    TSnap::SaveTxt(GiniH, TStr::Fmt("%s.ego.gini", OutFNm.CStr()), TStr::Fmt("Egonet GINI coefficient with k = %d and d = %d (edges into and out of the egonet are NOT considered)", k, d));
+    Name = TStr::Fmt("%s.GiniH", OutFNm.CStr());
+    printf("Saving %s...", Name.CStr());
+    TSnap::SaveTxt(GiniH, Name.CStr(), TStr::Fmt("Egonet GINI coefficient with k = %d and d = %d (edges into and out of the egonet are NOT considered)", k, d));
     printf(" DONE\n");
     
   }

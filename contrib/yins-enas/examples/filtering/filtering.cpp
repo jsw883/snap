@@ -47,9 +47,8 @@ int main(int argc, char* argv[]) {
   for (VI = AlphaV.BegI(); VI < AlphaV.EndI(); VI++) {
     const double& alpha = VI->Val;
     
-    printf("Computing Vespignani method (alpha: %e)", alpha);
-    printf("\n");
-	
+    printf("Computing Vespignani method (alpha: %e)\n\n", alpha);
+    
     *WGraphCopy = *WGraph;
     
     TSnap::FilterEdgesVespignani<TFlt, TWNGraph>(WGraphCopy, alpha);

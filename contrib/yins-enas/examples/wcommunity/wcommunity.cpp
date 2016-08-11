@@ -33,6 +33,10 @@ int main(int argc, char* argv[]) {
   int NCmty;
   double LouvainQ;
 
+  TStr Name;
+
+  TStr method = "louvain";
+
   // COMMUNITY
   
   // Louvain method (modularity objective)
@@ -51,18 +55,26 @@ int main(int argc, char* argv[]) {
   for (HI = NIdCmtyVH.BegI(); HI < NIdCmtyVH.EndI(); HI++) {
     NIdRGBH.AddDat(HI.GetKey(), RGBH.GetDat(HI.GetDat().Last()));
   }
-  printf("Saving %s.louvain.modularity.RGB...", BseFNm.CStr());
-  TSnap::SaveTxt(NIdRGBH, TStr::Fmt("%s.louvain.modularity.RGB", OutFNm.CStr()), "Louvain modularity final community hierarchy coloring (weighted)", "NodeId", "Col");
-  printf(" DONE\n");
-  ConvertRGBToHex(NIdRGBH, NIdHexH);
-  printf("Saving %s.louvain.modularity.HEX...", BseFNm.CStr());
-  TSnap::SaveTxt(NIdHexH, TStr::Fmt("%s.louvain.modularity.HEX", OutFNm.CStr()), "Louvain modularity final community hierarchy coloring (weighted)", "NodeId", "Col");
-  printf(" DONE\n");
-  
+
+  // OUTPUTTING
+
   TSnap::CmtyHierarchySummary(NIdCmtyVH, 1, -1, "\nLouvain hierarchy\n-----------------");
   
-  printf("Saving %s.louvain.modularity...", BseFNm.CStr());
-  TSnap::SaveTxt(NIdCmtyVH, TStr::Fmt("%s.louvain.modularity", OutFNm.CStr()), "Louvain modularity community hierarchy (weighted)", "NodeId", "CmtyV");
+  Name = TStr::Fmt("%s.%s.NIdCmtyVH", OutFNm.CStr(), method.CStr());
+  printf("Saving %s...", Name.CStr());
+  TSnap::SaveTxt(NIdCmtyVH, Name.CStr(), "Louvain modularity community hierarchy (weighted)", "NodeId", "CmtyV");
+  printf(" DONE\n");
+  
+  Name = TStr::Fmt("%s.%s.NIdRGBH", OutFNm.CStr(), method.CStr());
+  printf("Saving %s...", Name.CStr());
+  TSnap::SaveTxt(NIdRGBH, Name.CStr(), "Louvain modularity final community hierarchy coloring (weighted)", "NodeId", "Col");
+  printf(" DONE\n");
+  
+  ConvertRGBToHex(NIdRGBH, NIdHexH);
+  
+  Name = TStr::Fmt("%s.%s.NIdHexH", OutFNm.CStr(), method.CStr());
+  printf("Saving %s...", Name.CStr());
+  TSnap::SaveTxt(NIdHexH, Name.CStr(), "Louvain modularity final community hierarchy coloring (weighted)", "NodeId", "Col");
   printf(" DONE\n");
   
   Catch

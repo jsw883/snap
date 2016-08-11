@@ -36,5 +36,5 @@ ROOT=../../datasets/$DATASET
 rm -rf $ROOT/$EXAMPLE
 mkdir $ROOT/$EXAMPLE
 ./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
-           -o:$ROOT/$EXAMPLE/$DATASET \
+           -o:$ROOT/$EXAMPLE/$DATASET
 ```

@@ -10,6 +10,8 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
   TIntFltH RadiusH; // Radius is "median path length"
   TIntV::TIter VI;
   
+  TStr Name;
+
   // SUBSET NEIGHBORHOOD FUNCTION
   
   printf("\nComputing %s subset diameter, node counts, and exact shortest paths...", SrcNm.CStr());
@@ -31,21 +33,23 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
-  printf("\nSaving %s.%s.INFH...", BseFNm.CStr(), SrcNm.CStr());
-  TSnap::SaveTxt(INFH, TStr::Fmt("%s.%s.INFH", OutFNm.CStr(), SrcNm.CStr()), TStr::Fmt("Exact individual neighborhood function (dir: %d)", dir), "Node", "INFVH");
-  printf(" DONE\n");   
+  Name = TStr::Fmt("%s.%s.INFH", OutFNm.CStr(), SrcNm.CStr());
+  printf("\nSaving %s...", Name.CStr());
+  TSnap::SaveTxt(INFH, Name.CStr(), TStr::Fmt("Exact individual neighborhood function (dir: %d)", dir), "Node", "INFVH");
+  printf(" DONE\n");
   
-  printf("\nSaving %s.%s.hop.NF...", BseFNm.CStr(), SrcNm.CStr());
-  TSnap::SaveTxt(NF, TStr::Fmt("%s.%s.hop.NF", OutFNm.CStr(), SrcNm.CStr()), "Exact subset neighbourhood function / shortest path cumulative density (hop)");
+  Name = TStr::Fmt("%s.%s.NF", OutFNm.CStr(), SrcNm.CStr());
+  printf("\nSaving %s...", Name.CStr());
+  TSnap::SaveTxt(NF, Name.CStr(), "Exact subset neighbourhood function / shortest path cumulative density (hop)");
   printf(" DONE\n");
   
   TSnap::printDataV(NF, true, "\nNF\n--");
   
   TIntIntVH::TIter HI;
   
-  printf("\nSaving %s.%s.%s.ShortestPathVH...", BseFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
-  const TStr ShortestPathVHFNm = TStr::Fmt("%s.%s.%s.ShortestPathVH", OutFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
-  FILE *F = fopen(ShortestPathVHFNm.CStr(), "wt");  
+  Name = TStr::Fmt("%s.%s.%s.ShortestPathVH", OutFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
+  printf("\nSaving %s...", Name.CStr());
+  FILE *F = fopen(Name.CStr(), "wt");  
   fprintf(F, "# Exact shortest paths to another subset of the graph (possibly exhaustive)\n");
   fprintf(F, "# SrcNIdV.Len(): %d\tDstNIdV.Len(): %d\t\n", SrcNIdV.Len(), DstNIdV.Len());
   fprintf(F, "# SrcNId\tDstNId\tShortestPathLength\n");
@@ -65,9 +69,9 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
   
   if (collate) {
     
-    printf("\nSaving %s.%s.diameters.summary...", BseFNm.CStr(), SrcNm.CStr());
-    const TStr CombinedFNm = TStr::Fmt("%s.%s.diameters.summary", OutFNm.CStr(), SrcNm.CStr());
-    FILE *F = fopen(CombinedFNm.CStr(), "wt");
+    Name = TStr::Fmt("%s.%s.SubsetsCombined", OutFNm.CStr(), SrcNm.CStr());
+    printf("\nSaving %s...", Name.CStr());
+    FILE *F = fopen(Name.CStr(), "wt");
     fprintf(F, "# Subset node counts, radius (median path length), and diameter (dir: %d)\n", dir);
     fprintf(F, "# Nodes: %d\tEdges: %d\t Subset size: %d\n", Graph->GetNodes(), Graph->GetEdges(), SrcNIdV.Len());
     fprintf(F, "# SubsetNodeId\tNodes\tRadius\tDiameter\n");
@@ -80,16 +84,19 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
     
   } else {
     
-    printf("\nSaving %s.%s.nodes...", BseFNm.CStr(), SrcNm.CStr());
-    TSnap::SaveTxt(NodesH, TStr::Fmt("%s.%s.nodes", OutFNm.CStr(), SrcNm.CStr()), TStr::Fmt("Node counts (dir: %d)", dir), "Node", "Nodes");
+    Name = TStr::Fmt("%s.%s.NodesH", OutFNm.CStr(), SrcNm.CStr());
+    printf("\nSaving %s...", Name.CStr());
+    TSnap::SaveTxt(NodesH, Name.CStr(), TStr::Fmt("Node counts (dir: %d)", dir), "Node", "Nodes");
     printf(" DONE");
    
-    printf("\nSaving %s.%s.diameter...", BseFNm.CStr(), SrcNm.CStr());
-    TSnap::SaveTxt(DiameterH, TStr::Fmt("%s.%s.diameter", OutFNm.CStr(), SrcNm.CStr()), TStr::Fmt("Diameter of neighborhood (dir: %d)", dir), "Node", "Diameter");
+    Name = TStr::Fmt("%s.%s.DiameterH", OutFNm.CStr(), SrcNm.CStr());
+    printf("\nSaving %s...", Name.CStr());
+    TSnap::SaveTxt(DiameterH, Name.CStr(), TStr::Fmt("Diameter of neighborhood (dir: %d)", dir), "Node", "Diameter");
     printf(" DONE\n");
  
-    printf("\nSaving %s.%s.radius...", BseFNm.CStr(), SrcNm.CStr());
-    TSnap::SaveTxt(RadiusH, TStr::Fmt("%s.%s.radius", OutFNm.CStr(), SrcNm.CStr()), TStr::Fmt("Radius (median path length) of neighborhood (dir: %d)", dir), "Node", "Radius");
+    Name = TStr::Fmt("%s.%s.RadiusH", OutFNm.CStr(), SrcNm.CStr());
+    printf("\nSaving %s...", Name.CStr());
+    TSnap::SaveTxt(RadiusH, Name.CStr(), TStr::Fmt("Radius (median path length) of neighborhood (dir: %d)", dir), "Node", "Radius");
     printf(" DONE\n");
  
   }

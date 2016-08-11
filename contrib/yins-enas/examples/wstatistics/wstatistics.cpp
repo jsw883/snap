@@ -33,6 +33,8 @@ int main(int argc, char* argv[]) {
   TIntV NIdV;
   TIntFltH NIdWClustCoeffH;
   
+  TStr Name;
+
   WGraph->GetNIdV(NIdV);
   
   // WEIGHTED STATISTICS (computations)
@@ -83,12 +85,14 @@ int main(int argc, char* argv[]) {
   printf("MxWDeg: %e\n", MxWDeg);
   printf("WAvDirClustCoeff: %f\n", WAvDirClustCoeff);
   
-  printf("\nSaving %s.WStatsV...", BseFNm.CStr());
-  TSnap::SaveTxt(WStatsV, TStr::Fmt("%s.WStatsV", OutFNm.CStr()), "Weighted graph statistics summary", "Stat", "Value");
+  Name = TStr::Fmt("%s.WStatsV", OutFNm.CStr());
+  printf("\nSaving %s...", Name.CStr());
+  TSnap::SaveTxt(WStatsV, Name.CStr(), "Weighted graph statistics summary", "Stat", "Value");
   printf(" DONE\n");
   
-  printf("\nSaving %s.NIdWClustCoeffH...", BseFNm.CStr());
-  TSnap::SaveTxt(NIdWClustCoeffH, TStr::Fmt("%s.NIdWClustCoeffH", OutFNm.CStr()), "Weighted local clustering coefficients", "NId", "WDirLocalClustCoeff");
+  Name = TStr::Fmt("%s.NIdWClustCoeffH", OutFNm.CStr());
+  printf("\nSaving %s...", Name.CStr());
+  TSnap::SaveTxt(NIdWClustCoeffH, Name.CStr(), "Weighted local clustering coefficients", "NId", "WDirLocalClustCoeff");
   printf(" DONE\n");
   
   Catch
