@@ -32,9 +32,29 @@ Options:
     --vc            vertex border color (default: FFFFFF)
     --vfalpha       vertex fill alpha (default: 1)
     --vcalpha       vertex color alpha (default: --vfalpha)
+    --vrv           vertex radius mapping relative to vertex radius
+                        (overrides --vr)
+    --vwv           vertex border width mapping (overrides --vw)
+    --vfv           vertex fill mapping (overrides --vf)
+    --vcv           vertex border color mapping (overrides -- vcstr)
+    --vfcommunity   color vertices by community (overrides --vf and --vfv)
+                        (default: F)
+    --eps           minimum quality improvement threshold
+    --moves         minimum number of moves (relative)
+    --iters         maximum number of iterations
+    -s              community vertex color saturation value (0.0 - 1.0)
+    -l              community vertex lightness value (0.0 - 1.0)
     --ew            edge width (default: 1)
     --ec            edge color (default: black)
+    --ecs           source edge color for gradient and duotone coloring
+                        (default: red)
+    --ecd           destination edge color for gradient and duotone coloring
+                        (default: blue)
     --ecalpha       edge color alpha (default: 0.5)
+    --direction     how to show directionality (arrow / gradient / duotone)
+                        (default: none)
+    --as            arrow size relative to minimum axis
+                        (default: 0.05*sqrt(nodes))
 ```
 
 ### Example ###

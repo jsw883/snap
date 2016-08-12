@@ -104,11 +104,11 @@ void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<S
     if (direction == "arrow") {
       double xdiff = DstCoord.Val1 - SrcCoord.Val1;
       double ydiff = DstCoord.Val2 - SrcCoord.Val2;
-      double ratio = (ew / 2 + s * NIdvrH.GetDat(EI.GetDstNId())) / sqrt(xdiff * xdiff + ydiff * ydiff);
+      double ratio = (NIdvwH.GetDat(EI.GetDstNId()) / 2 + s * NIdvrH.GetDat(EI.GetDstNId())) / sqrt(xdiff * xdiff + ydiff * ydiff);
       TFltPr NewDstCoord(DstCoord.Val1 - ratio * xdiff, DstCoord.Val2 - ratio * ydiff);
       TFltPr ACoord;
       TFltPr BCoord;
-      arrowCoords(SrcCoord, NewDstCoord, ACoord, BCoord, as);
+      arrowCoords(SrcCoord, NewDstCoord, ACoord, BCoord, s *  as);
       cr->line_to((ACoord.Val1 + BCoord.Val1) / 2, (ACoord.Val2 + BCoord.Val2) / 2);
       cr->stroke();
       cr->move_to(NewDstCoord.Val1, NewDstCoord.Val2);
@@ -246,7 +246,7 @@ int main(int argc, char* argv[]) {
   double vfAlpha = Env.GetIfArgPrefixFlt("--vfalpha:", 1.0, "vertex fill alpha");
   double vcAlpha = Env.GetIfArgPrefixFlt("--vcalpha:", -1.0, "vertex color alpha (default: --vfalpha)");
   
-  const TStr NIdvrHFNm = Env.GetIfArgPrefixStr("--vrv:", "", "vertex radius mapping relative to vertex radius (--vr)");
+  const TStr NIdvrHFNm = Env.GetIfArgPrefixStr("--vrv:", "", "vertex radius mapping relative to vertex radius (overrides --vr)");
   const TStr NIdvwHFNm = Env.GetIfArgPrefixStr("--vwv:", "", "vertex border width mapping (overrides --vw)");
   const TStr NIdvfHFNm = Env.GetIfArgPrefixStr("--vfv:", "", "vertex fill mapping (overrides --vf)");
   const TStr NIdvcHFNm = Env.GetIfArgPrefixStr("--vcv:", "", "vertex border color mapping (overrides --vcstr)");
@@ -278,7 +278,7 @@ int main(int argc, char* argv[]) {
   double ecAlpha = Env.GetIfArgPrefixFlt("--ecalpha:", 0.25, "edge color alpha");
   
   const TStr direction = Env.GetIfArgPrefixStr("--direction:", "", "how to show directionality (arrow / gradient / duotone)");
-  double as = Env.GetIfArgPrefixFlt("--as:", 3.0, "arrow size relative to minimum axis (default: 0.05*sqrt(nodes))");
+  double as = Env.GetIfArgPrefixFlt("--as:", 0.0, "arrow size relative to minimum axis (default: 0.05*sqrt(nodes))");
 
   TFltTr ecsRGB, ecdRGB;
   
@@ -308,6 +308,7 @@ int main(int argc, char* argv[]) {
   // Node appearance
   
   if (vr == 0.0) vr = std::min(0.01, 0.1 / sqrt(WGraph->GetNodes()));
+  if (as == 0.0) as = std::min(0.01, 0.05 / sqrt(WGraph->GetNodes()));
   
   TIntFltH NIdvrH, NIdvwH;
   TIntV NIdV;
