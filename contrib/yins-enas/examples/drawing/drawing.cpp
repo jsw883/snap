@@ -1,7 +1,33 @@
 #include "stdafx.h"
 
+template<class T>
+std::string toString(const T& value) {
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
+}
+
+template <class T>
+int numDigits(T i) {
+    int d = 0;
+    if (i < 0) d = 1;
+    while (i) {
+        i /= 10;
+        d++;
+    }
+    return d;
+}
+
+void arrowCoords(const TFltPr& SrcCoord, const TFltPr& DstCoord, TFltPr& ACoord, TFltPr& BCoord, const double& arrowSize, const double& arrowAngle = PI * 45.0 / 180) {
+    double angle = atan2 (DstCoord.Val2 - SrcCoord.Val2, DstCoord.Val1 - SrcCoord.Val1) + PI;
+    ACoord.Val1 = DstCoord.Val1 + arrowSize * cos(angle - arrowAngle);
+    ACoord.Val2 = DstCoord.Val2 + arrowSize * sin(angle - arrowAngle);
+    BCoord.Val1 = DstCoord.Val1 + arrowSize * cos(angle + arrowAngle);
+    BCoord.Val2 = DstCoord.Val2 + arrowSize * sin(angle + arrowAngle);
+}
+
 template <class Surface>
-void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<Surface> surface, const double& w, const double& h, const TIntFltH& NIdvrH, const TIntFltH& NIdvwH, const TIntFltTrH& NIdvfRGBH, const double& vfAlpha, const TIntFltTrH& NIdvcRGBH, const double& vcAlpha, const double& ew, const TFltTr& ecRGB, const double& ecAlpha) {
+void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<Surface> surface, const double& w, const double& h, const TIntFltH& NIdvrH, const TIntFltH& NIdvwH, const TIntFltTrH& NIdvfRGBH, const double& vfAlpha, const TIntFltTrH& NIdvcRGBH, const double& vcAlpha, const TStr& direction, const double& as, const double& ew, const TFltTr& ecsRGB, const TFltTr& ecdRGB, const double& ecAlpha) {
   
   // Variables
   
@@ -16,55 +42,127 @@ void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<S
   
   // printf("Transformed\n");
   // printf("-----------\n");
-  // for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
+  // for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {a
   //   TFltPr& UCoord = CoordH.GetDat(VI->Val);
   //   printf("%d: (%f, %f)\n", VI->Val, (double) UCoord.Val1, (double) UCoord.Val2);
   // }
   
   // Config
+
+  // const Cairo::Matrix matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
   
+  Cairo::RefPtr<Cairo::ToyFontFace> font = Cairo::ToyFontFace::create("", Cairo::FONT_SLANT_ITALIC, Cairo::FONT_WEIGHT_BOLD);
+  cr->set_font_face(font);
+
+  Cairo::TextExtents extents;
+
   // Background
   
   cr->save();
+
   cr->set_source_rgb(1.00, 1.00, 1.00);
   cr->paint();
+
   cr->restore();
   
   // Edges
   
+  cr->save();
+
+  cr->set_line_cap(Cairo::LINE_CAP_BUTT);
   cr->set_line_width(ew);
-  cr->set_source_rgba(ecRGB.Val1, ecRGB.Val2, ecRGB.Val3, ecAlpha);
+  
+  if (direction != "gradient" || direction != "duotone") {
+    cr->set_source_rgba(ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ecAlpha);
+  }
   
   for (EI = WGraph->BegEI(); EI < WGraph->EndEI(); EI++) {
     
     const TFltPr& SrcCoord = CoordH.GetDat(EI.GetSrcNId());
     const TFltPr& DstCoord = CoordH.GetDat(EI.GetDstNId());
 
+    if (direction == "gradient") {
+      Cairo::RefPtr<Cairo::LinearGradient> grad = Cairo::LinearGradient::create(SrcCoord.Val1, SrcCoord.Val2, DstCoord.Val1, DstCoord.Val2);
+      grad->add_color_stop_rgba(0.0, ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ecAlpha); grad->add_color_stop_rgba(1.0 / 3, ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ecAlpha);
+      grad->add_color_stop_rgba(2.0 / 3, ecdRGB.Val1, ecdRGB.Val2, ecdRGB.Val3, ecAlpha); grad->add_color_stop_rgba(1.0, ecdRGB.Val1, ecdRGB.Val2, ecdRGB.Val3, ecAlpha);
+      cr->set_source(grad);
+      cr->line_to(DstCoord.Val1, DstCoord.Val2);
+      cr->stroke();
+    }
+
     cr->move_to(SrcCoord.Val1, SrcCoord.Val2);
-    cr->line_to(DstCoord.Val1, DstCoord.Val2);
-    cr->stroke();
+
+    if (direction == "duotone") {
+      cr->set_source_rgba(ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ecAlpha);
+      cr->line_to((SrcCoord.Val1 + DstCoord.Val1) / 2, (SrcCoord.Val2 + DstCoord.Val2) / 2);
+      cr->stroke_preserve();
+      cr->set_source_rgba(ecdRGB.Val1, ecdRGB.Val2, ecdRGB.Val3, ecAlpha);
+      cr->line_to(DstCoord.Val1, DstCoord.Val2);
+      cr->stroke();
+    }
+
+    if (direction == "arrow") {
+      double xdiff = DstCoord.Val1 - SrcCoord.Val1;
+      double ydiff = DstCoord.Val2 - SrcCoord.Val2;
+      double ratio = (ew / 2 + s * NIdvrH.GetDat(EI.GetDstNId())) / sqrt(xdiff * xdiff + ydiff * ydiff);
+      TFltPr NewDstCoord(DstCoord.Val1 - ratio * xdiff, DstCoord.Val2 - ratio * ydiff);
+      TFltPr ACoord;
+      TFltPr BCoord;
+      arrowCoords(SrcCoord, NewDstCoord, ACoord, BCoord, as);
+      cr->line_to((ACoord.Val1 + BCoord.Val1) / 2, (ACoord.Val2 + BCoord.Val2) / 2);
+      cr->stroke();
+      cr->move_to(NewDstCoord.Val1, NewDstCoord.Val2);
+      cr->line_to(ACoord.Val1, ACoord.Val2);
+      cr->line_to(BCoord.Val1, BCoord.Val2);
+      cr->close_path();
+      cr->fill();
+    }
+
+    if (direction != "gradient" || direction != "duotone" || direction != "arrow") {
+      cr->line_to(DstCoord.Val1, DstCoord.Val2);
+      cr->stroke();
+    }
 
   }
+
+  cr->restore();
   
   // Nodes
-  
+
+  double scale = 2.0 / numDigits(WGraph->GetMxNId());
+
   for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
     
-    const int& NId = NI.GetId(); 
+    cr->save();
+
+    const int& NId = NI.GetId();
     const TFltPr& Coord = CoordH.GetDat(NId);
     const TFltTr& vfRGB = NIdvfRGBH.GetDat(NId);
     const TFltTr& vcRGB = NIdvcRGBH.GetDat(NId);
     
+    std::string text = toString(NId);
+
+    cr->translate(Coord.Val1, Coord.Val2);
     cr->set_line_width(NIdvwH.GetDat(NId));
-    
-    cr->arc(Coord.Val1, Coord.Val2, s*NIdvrH.GetDat(NId), 0, 2.0 * PI);
+
+    cr->begin_new_path();
+    cr->arc(0.0, 0.0, s * NIdvrH.GetDat(NId), 0, 2.0 * PI);
+
     cr->set_source_rgba(vfRGB.Val1, vfRGB.Val2, vfRGB.Val3, vfAlpha);
     cr->fill_preserve();
     cr->set_source_rgba(vcRGB.Val1, vcRGB.Val2, vcRGB.Val3, vcAlpha);
     cr->stroke();
     
+    cr->set_font_size(scale * s * NIdvrH.GetDat(NId));
+    cr->get_text_extents(text, extents);
+    cr->translate(- extents.x_bearing - 0.5 * extents.width, - extents.y_bearing - 0.5 * extents.height);
+    
+    cr->show_text(text);
+
+    cr->restore();
+
   }
-  
+
   cr->show_page();
 
 }
@@ -172,12 +270,28 @@ int main(int argc, char* argv[]) {
   // Edge appearance
   
   double ew = Env.GetIfArgPrefixFlt("--ew:", 1.0, "edge width");
+  
   const TStr ec = Env.GetIfArgPrefixStr("--ec:", "000000", "edge color (default: black)");
+  TStr ecs = Env.GetIfArgPrefixStr("--ecs:", "FF0000", "source edge color (default: red)");
+  TStr ecd = Env.GetIfArgPrefixStr("--ecd:", "0000FF", "destination edge color (default: blue)");
+
   double ecAlpha = Env.GetIfArgPrefixFlt("--ecalpha:", 0.25, "edge color alpha");
   
-  TFltTr ecRGB;
+  const TStr direction = Env.GetIfArgPrefixStr("--direction:", "", "how to show directionality (arrow / gradient / duotone)");
+  double as = Env.GetIfArgPrefixFlt("--as:", 3.0, "arrow size relative to minimum axis (default: 0.05*sqrt(nodes))");
+
+  TFltTr ecsRGB, ecdRGB;
   
-  ConvertHexToRGB(ec, ecRGB);
+  if (direction != "gradient" || direction != "duotone") {
+    ecs = ec;
+    ecd = ec;
+  }
+
+  ConvertHexToRGB(ecs, ecsRGB);
+  ConvertHexToRGB(ecd, ecdRGB);
+
+  printf("ecsRGB: (%f, %f, %f)\n", (double) ecsRGB.Val1, (double) ecsRGB.Val2, (double) ecsRGB.Val3);
+  printf("ecdRGB: (%f, %f, %f)\n", (double) ecdRGB.Val1, (double) ecdRGB.Val2, (double) ecdRGB.Val3);
 
   // Variables
   
@@ -289,11 +403,11 @@ int main(int argc, char* argv[]) {
     
     #ifdef CAIRO_HAS_PDF_SURFACE
     
-      Name = TStr::Fmt("%s.%s.PDF", OutFNm.CStr(), layout.CStr());
+      Name = TStr::Fmt("%s.%s.%dx%d.PDF", OutFNm.CStr(), layout.CStr(), w, h);
       printf("\nDrawing %s...", Name.CStr());
       Cairo::RefPtr<Cairo::PdfSurface> surface = Cairo::PdfSurface::create(Name.CStr(), w, h);
       
-      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, ew, ecRGB, ecAlpha);
+      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, direction, as, ew, ecsRGB, ecdRGB, ecAlpha);
       
       printf("DONE\n");
       
@@ -311,11 +425,11 @@ int main(int argc, char* argv[]) {
   
     #ifdef CAIRO_HAS_PNG_FUNCTIONS
 
-      Name = TStr::Fmt("%s.%s.PNG", OutFNm.CStr(), layout.CStr());
+      Name = TStr::Fmt("%s.%s.%dx%d.PNG", OutFNm.CStr(), layout.CStr(), w, h);
       printf("\nDrawing %s...", Name.CStr());
       Cairo::RefPtr<Cairo::ImageSurface> surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h);
       
-      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, ew, ecRGB, ecAlpha);
+      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, direction, as, ew, ecsRGB, ecdRGB, ecAlpha);
 
       surface->write_to_png(Name.CStr());
       

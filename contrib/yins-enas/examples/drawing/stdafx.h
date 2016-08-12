@@ -18,6 +18,7 @@ const double PI = 3.141592653589793238463;
 
 // Cairo
 
+#include <sstream>
 #include <string>
 #include <iostream>
 #include <cmath>

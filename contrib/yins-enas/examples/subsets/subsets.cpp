@@ -46,7 +46,11 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
   TSnap::printDataV(NF, true, "\nNF\n--");
   
   TIntIntVH::TIter HI;
-  
+
+  // printf("\nSaving %s.%s.%s.ShortestPathVH...", BseFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
+  // TSnap::SaveTxt(ShortestPathVH, TStr::Fmt("%s.%s.%s.ShortestPathVH", OutFNm.CStr(), SrcNm.CStr(),  DstNm.CStr()), "Exact shortest paths to another subset of the graph (possibly exhaustive)");
+  // printf(" DONE\n");
+    
   Name = TStr::Fmt("%s.%s.%s.ShortestPathVH", OutFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
   printf("\nSaving %s...", Name.CStr());
   FILE *F = fopen(Name.CStr(), "wt");  
@@ -63,10 +67,6 @@ void ComputeINFH(const PNGraph& Graph, const TIntV& SrcNIdV, const TIntV& DstNId
   }
   printf(" DONE\n");
 
-  // printf("\nSaving %s.%s.%s.ShortestPathVH...", BseFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
-  // TSnap::SaveTxt(ShortestPathVH, TStr::Fmt("%s.%s.%s.ShortestPathVH", OutFNm.CStr(), SrcNm.CStr(),  DstNm.CStr()), "Exact shortest paths to another subset of the graph (possibly exhaustive)");
-  // printf(" DONE\n");
-  
   if (collate) {
     
     Name = TStr::Fmt("%s.%s.SubsetsCombined", OutFNm.CStr(), SrcNm.CStr());
