@@ -228,15 +228,23 @@ int main(int argc, char* argv[]) {
   
   // Layout method
   
-  const TStr layout = Env.GetIfArgPrefixStr("--layout:", "circular", "layout algorithm (random / circular / reingold / precomputed)");
+  const TStr layout = Env.GetIfArgPrefixStr("--layout:", "circular", "layout algorithm (random / circular / reingold / atlas / precomputed)");
   const TStr precomputed = Env.GetIfArgPrefixStr("--precomputed:", "", "precomputed layout (*.CoordH)");
 
   // Reingold
   
-  const int iterations = Env.GetIfArgPrefixInt("--iterations:", 1500, "number of iterations for reingold");
-  const double cooling = Env.GetIfArgPrefixFlt("--cooling:", 1.5, "cooling coefficient for reingold");
-  const bool shuffle = Env.GetIfArgPrefixBool("--shuffle:", false, "shuffle vertex order for circular layout (and reingold)");
+  const int iterations = Env.GetIfArgPrefixInt("--iterations:", 1500, "number of iterations for force directed");
+  const double cooling = Env.GetIfArgPrefixFlt("--cooling:", 1.5, "cooling coefficient for force directed");
+  const bool shuffle = Env.GetIfArgPrefixBool("--shuffle:", false, "shuffle vertex order for circular, reingold, and atlas layouts");
   
+  // Atlas
+
+  const double scaling = Env.GetIfArgPrefixFlt("--scaling:", 1, "repulsion scaling for force directed");
+  const double gravity = Env.GetIfArgPrefixFlt("--gravity:", 1, "gravity for force directed");
+  const double weights = Env.GetIfArgPrefixFlt("--weights:", 0, "weight influence exponent for force directed");
+  const bool nohubs = Env.GetIfArgPrefixBool("--nohubs:", false, "dissuade hubs for force directed");
+  const bool linlog = Env.GetIfArgPrefixBool("--linlog:", false, "switch linlog mode for force directed");
+
   // Node appearance
   
   double vr = Env.GetIfArgPrefixFlt("--vr:", 0.0, "vertex radius relative to minimum axis (default: 0.1*sqrt(nodes))");
@@ -371,6 +379,10 @@ int main(int argc, char* argv[]) {
 
     TSnap::ReingoldLayout(WGraph, NIdV, CoordH, iterations, cooling);
 
+  } else if (layout == "atlas") {
+
+    TSnap::AtlasLayout(WGraph, NIdV, CoordH, iterations, cooling, scaling, gravity, weights, nohubs, linlog);
+
   } else if (layout == "precomputed") {
 
     if (precomputed.Empty()) {
@@ -380,7 +392,7 @@ int main(int argc, char* argv[]) {
 
   } else {
 
-    IAssertR(false, "Layout must be one of \"random\", \"circular\", \"reingold\", or \"precomputed\".");
+    IAssertR(false, "Layout must be one of \"random\", \"circular\", \"reingold\", \"atlas\", or \"precomputed\".");
 
   }
   TSnap::TransformLayout(CoordH, TFltPr(b, w - b), TFltPr(b, h - b), true);
@@ -393,7 +405,7 @@ int main(int argc, char* argv[]) {
 
     Name = TStr::Fmt("%s.%s.CoordH", OutFNm.CStr(), layout.CStr());
     printf("\nSaving %s...", Name.CStr());
-    TSnap::SaveTxt(CoordH, Name.CStr(), "Degree centrality (in / out / undirected)", "NodeId", "InDegCentr\tOutDegCentr\tDegCentr");
+    TSnap::SaveTxt(CoordH, Name.CStr(), TStr::Fmt("Layout coordinates for %s method", layout.CStr()), "NodeId", "x\ty");
     printf(" DONE\n");  
     
   }
