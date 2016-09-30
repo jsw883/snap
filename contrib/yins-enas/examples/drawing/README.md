@@ -32,6 +32,7 @@ Options:
     --vc            vertex border color (default: FFFFFF)
     --vfalpha       vertex fill alpha (default: 1)
     --vcalpha       vertex color alpha (default: --vfalpha)
+    --label         label vertices by NId (default: F)
     --vrv           vertex radius mapping relative to vertex radius
                         (overrides --vr)
     --vwv           vertex border width mapping (overrides --vw)
@@ -75,6 +76,7 @@ mkdir $ROOT/$EXAMPLE
            -o:$ROOT/$EXAMPLE/$DATASET \
            -w:2500 -h:2500 -b:50 --layout:reingold --iterations:1500 \
            --cooling:1.5 --shuffle:T --vf:FF0000 --ecalpha:0.1 \
+           --label:T \
            --vrv:$ROOT/wcentrality/$DATASET.WPgRH \
            --vfv:$ROOT/wcommunity/$DATASET.louvain.NIdHEXH
 ```

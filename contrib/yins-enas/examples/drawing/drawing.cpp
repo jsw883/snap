@@ -2,32 +2,45 @@
 
 template<class T>
 std::string toString(const T& value) {
-    std::ostringstream oss;
-    oss << value;
-    return oss.str();
+  std::ostringstream oss;
+  oss << value;
+  return oss.str();
 }
 
 template <class T>
 int numDigits(T i) {
-    int d = 0;
-    if (i < 0) d = 1;
-    while (i) {
-        i /= 10;
-        d++;
-    }
-    return d;
+  int d = 0;
+  if (i < 0) d = 1;
+  while (i) {
+    i /= 10;
+    d++;
+  }
+  return d;
 }
 
-void arrowCoords(const TFltPr& SrcCoord, const TFltPr& DstCoord, TFltPr& ACoord, TFltPr& BCoord, const double& arrowSize, const double& arrowAngle = PI * 45.0 / 180) {
-    double angle = atan2 (DstCoord.Val2 - SrcCoord.Val2, DstCoord.Val1 - SrcCoord.Val1) + PI;
-    ACoord.Val1 = DstCoord.Val1 + arrowSize * cos(angle - arrowAngle);
-    ACoord.Val2 = DstCoord.Val2 + arrowSize * sin(angle - arrowAngle);
-    BCoord.Val1 = DstCoord.Val1 + arrowSize * cos(angle + arrowAngle);
-    BCoord.Val2 = DstCoord.Val2 + arrowSize * sin(angle + arrowAngle);
+void arrowCoords(
+    const TFltPr& SrcCoord, const TFltPr& DstCoord,
+    TFltPr& ACoord, TFltPr& BCoord,
+    const double& arrowSize, const double& arrowAngle = PI * 45.0 / 180) {
+  double angle = atan2 (
+    DstCoord.Val2 - SrcCoord.Val2, DstCoord.Val1 - SrcCoord.Val1) + PI;
+  ACoord.Val1 = DstCoord.Val1 + arrowSize * cos(angle - arrowAngle);
+  ACoord.Val2 = DstCoord.Val2 + arrowSize * sin(angle - arrowAngle);
+  BCoord.Val1 = DstCoord.Val1 + arrowSize * cos(angle + arrowAngle);
+  BCoord.Val2 = DstCoord.Val2 + arrowSize * sin(angle + arrowAngle);
 }
 
 template <class Surface>
-void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<Surface> surface, const double& w, const double& h, const TIntFltH& NIdvrH, const TIntFltH& NIdvwH, const TIntFltTrH& NIdvfRGBH, const double& vfAlpha, const TIntFltTrH& NIdvcRGBH, const double& vcAlpha, const TStr& direction, const double& as, const double& ew, const TFltTr& ecsRGB, const TFltTr& ecdRGB, const double& ecAlpha) {
+void render(
+    const PFltWNGraph& WGraph, const TIntFltPrH& CoordH,
+    Cairo::RefPtr<Surface> surface, const double& w, const double& h,
+    const TIntFltH& NIdvrH, const TIntFltH& NIdvwH,
+    const TIntFltTrH& NIdvfRGBH, const double& vfAlpha,
+    const TIntFltTrH& NIdvcRGBH, const double& vcAlpha,
+    const bool& label,
+    const TStr& direction, const double& as, const double& ew,
+    const TFltTr& ecsRGB, const TFltTr& ecdRGB,
+    const double& ecAlpha) {
   
   // Variables
   
@@ -51,7 +64,8 @@ void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<S
 
   // const Cairo::Matrix matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
   
-  Cairo::RefPtr<Cairo::ToyFontFace> font = Cairo::ToyFontFace::create("", Cairo::FONT_SLANT_ITALIC, Cairo::FONT_WEIGHT_BOLD);
+  Cairo::RefPtr<Cairo::ToyFontFace> font = Cairo::ToyFontFace::create(
+    "", Cairo::FONT_SLANT_ITALIC, Cairo::FONT_WEIGHT_BOLD);
   cr->set_font_face(font);
 
   Cairo::TextExtents extents;
@@ -83,8 +97,10 @@ void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<S
 
     if (direction == "gradient") {
       Cairo::RefPtr<Cairo::LinearGradient> grad = Cairo::LinearGradient::create(SrcCoord.Val1, SrcCoord.Val2, DstCoord.Val1, DstCoord.Val2);
-      grad->add_color_stop_rgba(0.0, ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ecAlpha); grad->add_color_stop_rgba(1.0 / 3, ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ecAlpha);
-      grad->add_color_stop_rgba(2.0 / 3, ecdRGB.Val1, ecdRGB.Val2, ecdRGB.Val3, ecAlpha); grad->add_color_stop_rgba(1.0, ecdRGB.Val1, ecdRGB.Val2, ecdRGB.Val3, ecAlpha);
+      grad->add_color_stop_rgba(0.0, ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ecAlpha);
+      grad->add_color_stop_rgba(1.0 / 3, ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ecAlpha);
+      grad->add_color_stop_rgba(2.0 / 3, ecdRGB.Val1, ecdRGB.Val2, ecdRGB.Val3, ecAlpha);
+      grad->add_color_stop_rgba(1.0, ecdRGB.Val1, ecdRGB.Val2, ecdRGB.Val3, ecAlpha);
       cr->set_source(grad);
       cr->line_to(DstCoord.Val1, DstCoord.Val2);
       cr->stroke();
@@ -152,12 +168,18 @@ void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<S
     cr->fill_preserve();
     cr->set_source_rgba(vcRGB.Val1, vcRGB.Val2, vcRGB.Val3, vcAlpha);
     cr->stroke();
+
+    if (label) {
     
-    cr->set_font_size(scale * s * NIdvrH.GetDat(NId));
-    cr->get_text_extents(text, extents);
-    cr->translate(- extents.x_bearing - 0.5 * extents.width, - extents.y_bearing - 0.5 * extents.height);
-    
-    cr->show_text(text);
+      cr->set_font_size(scale * s * NIdvrH.GetDat(NId));
+      cr->get_text_extents(text, extents);
+      cr->translate(
+        - extents.x_bearing - 0.5 * extents.width,
+        - extents.y_bearing - 0.5 * extents.height);
+      
+      cr->show_text(text);
+
+    }
 
     cr->restore();
 
@@ -168,7 +190,8 @@ void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<S
 }
 
 template <class TKey, class TVal>
-void ScaleH(THash<TKey, TVal>& GenH, const double& minVal, const double& maxVal) {
+void ScaleH(
+    THash<TKey, TVal>& GenH, const double& minVal, const double& maxVal) {
   typename THash<TKey, TVal>::TIter HI;
   double minActual = GenH[0], maxActual = GenH[0];
   for (HI = GenH.BegI(); HI < GenH.EndI(); HI++) {
@@ -183,7 +206,9 @@ void ScaleH(THash<TKey, TVal>& GenH, const double& minVal, const double& maxVal)
   }
 }
 
-void GetNIdValH(const TStr& FNm, TIntFltH& NIdValH, const TIntV& NIdV, const TFlt DefaultVal) {
+void GetNIdValH(
+    const TStr& FNm, TIntFltH& NIdValH, const TIntV& NIdV,
+    const TFlt DefaultVal) {
   if (!FNm.Empty()) {
     NIdValH = TSnap::LoadTxtIntFltH(FNm);
     ScaleH(NIdValH, DefaultVal, 3*DefaultVal);
@@ -194,7 +219,9 @@ void GetNIdValH(const TStr& FNm, TIntFltH& NIdValH, const TIntV& NIdV, const TFl
   }
 }
 
-void GetNIdColH(const TStr& FNm, TIntStrH& NIdColH, const TIntV& NIdV, const TStr DefaultCol) {
+void GetNIdColH(
+    const TStr& FNm, TIntStrH& NIdColH, const TIntV& NIdV,
+    const TStr DefaultCol) {
   if (!FNm.Empty()) {
     NIdColH = TSnap::LoadTxtIntStrH(FNm);
   } else {
@@ -247,6 +274,8 @@ int main(int argc, char* argv[]) {
 
   // Node appearance
   
+  const bool label = Env.GetIfArgPrefixBool("--label:", false, "label vertices by NId (default: F)");
+
   double vr = Env.GetIfArgPrefixFlt("--vr:", 0.0, "vertex radius relative to minimum axis (default: 0.1*sqrt(nodes))");
   double vw = Env.GetIfArgPrefixFlt("--vw:", 1.0, "vertex border width");
   const TStr vf = Env.GetIfArgPrefixStr("--vf:", "000000", "vertex fill (default: black)");
@@ -420,7 +449,7 @@ int main(int argc, char* argv[]) {
       printf("\nDrawing %s...", Name.CStr());
       Cairo::RefPtr<Cairo::PdfSurface> surface = Cairo::PdfSurface::create(Name.CStr(), w, h);
       
-      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, direction, as, ew, ecsRGB, ecdRGB, ecAlpha);
+      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, label, direction, as, ew, ecsRGB, ecdRGB, ecAlpha);
       
       printf("DONE\n");
       
@@ -442,7 +471,7 @@ int main(int argc, char* argv[]) {
       printf("\nDrawing %s...", Name.CStr());
       Cairo::RefPtr<Cairo::ImageSurface> surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h);
       
-      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, direction, as, ew, ecsRGB, ecdRGB, ecAlpha);
+      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, label, direction, as, ew, ecsRGB, ecdRGB, ecAlpha);
 
       surface->write_to_png(Name.CStr());
       
