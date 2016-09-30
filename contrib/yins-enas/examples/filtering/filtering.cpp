@@ -42,6 +42,7 @@ int main(int argc, char* argv[]) {
     AlphaV = TSnap::LoadTxtFltV(AlphaVFNm);
   } else {
     if (bootstrap) {
+      printf("\n");
       alpha = TSnap::FindVespignaniThreshold<TFlt, TWNGraph>(WGraph, ratio, tol, lowerBound, upperBound);
       AlphaV.Add(alpha / spread);
       AlphaV.Add(alpha);
