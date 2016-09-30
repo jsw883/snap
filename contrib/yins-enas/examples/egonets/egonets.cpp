@@ -14,8 +14,8 @@ int main(int argc, char* argv[]) {
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network (tab separated list of edges with edge weights)");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
-  const TEdgeDir d = (TEdgeDir) Env.GetIfArgPrefixInt("-d:", 3, "direction of ego traversal: in = 1, out = 2, undirected = 3");
   const int k = Env.GetIfArgPrefixInt("-k:", 1, "depth of ego traversal");
+  const TEdgeDir d = (TEdgeDir) Env.GetIfArgPrefixInt("-d:", 3, "direction of ego traversal: in = 1, out = 2, undirected = 3");
   const bool collate = Env.GetIfArgPrefixBool("--collate:", false, "collate properties into matrix: T / F");
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)

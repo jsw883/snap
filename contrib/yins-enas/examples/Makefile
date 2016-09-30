@@ -10,7 +10,7 @@ make-examples:
 	$(MAKE) -C drawing
 	$(MAKE) -C egonets
 	$(MAKE) -C filtering
-	$(MAKE) -C nullmodels
+	$(MAKE) -C generators
 	$(MAKE) -C statistics
 	$(MAKE) -C structures
 	$(MAKE) -C subsets
@@ -25,7 +25,7 @@ clean:
 	$(MAKE) clean -C drawing
 	$(MAKE) clean -C egonets
 	$(MAKE) clean -C filtering
-	$(MAKE) clean -C nullmodels
+	$(MAKE) clean -C generators
 	$(MAKE) clean -C statistics
 	$(MAKE) clean -C structures
 	$(MAKE) clean -C subsets

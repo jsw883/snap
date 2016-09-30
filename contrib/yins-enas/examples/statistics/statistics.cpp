@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
   
   Try
   
-  const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", " input network (tab separated list of edges with edge weights)");
+  const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network (tab separated list of edges with edge weights)");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
   const bool exact = Env.GetIfArgPrefixBool("--exact:", true, "compute exact neighborhood function (exhaustive BFS): T / F");
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
   nodes = Graph->GetNodes();
   edges = Graph->GetEdges();
   AvDeg = 2*double(edges)/double(nodes);
-  density = double(edges)/(pow(double(nodes), 2) - 1);
+  density = double(edges)/(double(nodes) * (double(nodes) - 1));
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   StatsV.AddDat("nodes", nodes);
