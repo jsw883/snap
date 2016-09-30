@@ -64,22 +64,26 @@ int main(int argc, char* argv[]) {
   
   // 1:k degree distributions
   
-  printf("\nComputing egonet degrees for k = 1 to %d (in / out / undirected)\n", k);
-  TSnap::TFixedMemorykDeg<PNGraph> FixedMemorykDeg(Graph, k);
-  printf("  ...");
-  FixedMemorykDeg.GetkInDegH(kInDegVH);
-  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  printf("  ...");
-  FixedMemorykDeg.GetkOutDegH(kOutDegVH);
-  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  printf("  ...");
-  FixedMemorykDeg.GetkDegH(kDegVH);
-  printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-  
-  TSnap::printCategoryVHSummary(kInDegVH, "\nkInDegVH\n--------");
-  TSnap::printCategoryVHSummary(kOutDegVH, "\nkOutDegVH\n---------");
-  TSnap::printCategoryVHSummary(kDegVH, "\nkDegVH\n------");
-  
+  if (k > 1) {
+
+    printf("\nComputing egonet degrees for k = 1 to %d (in / out / undirected)\n", k);
+    TSnap::TFixedMemorykDeg<PNGraph> FixedMemorykDeg(Graph, k);
+    printf("  ...");
+    FixedMemorykDeg.GetkInDegH(kInDegVH);
+    printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+    printf("  ...");
+    FixedMemorykDeg.GetkOutDegH(kOutDegVH);
+    printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+    printf("  ...");
+    FixedMemorykDeg.GetkDegH(kDegVH);
+    printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
+    
+    TSnap::printCategoryVHSummary(kInDegVH, "\nkInDegVH\n--------");
+    TSnap::printCategoryVHSummary(kOutDegVH, "\nkOutDegVH\n---------");
+    TSnap::printCategoryVHSummary(kDegVH, "\nkDegVH\n------");
+    
+  }
+
   // Degree centrality
   
   printf("\nComputing degree centrality...");
@@ -197,20 +201,24 @@ int main(int argc, char* argv[]) {
   TSnap::SaveTxt(FirstDegVH, Name.CStr(), "First degree distributions (in / out / undirected)", "NodeId", "InDeg\tOutDeg\tDeg");
   printf(" DONE\n");
   
-  Name = TStr::Fmt("%s.kInDegVH", OutFNm.CStr());
-  printf("Saving %s...", Name.CStr());
-  TSnap::SaveTxt(kInDegVH, Name.CStr(), TStr::Fmt("1 to %d in degree distributions (kdeg.IN)", k), "NodeId", "kInDegVH");
-  printf(" DONE\n");
-  
-  Name = TStr::Fmt("%s.kOutDegVH", OutFNm.CStr());
-  printf("Saving %s...", Name.CStr());
-  TSnap::SaveTxt(kOutDegVH, Name.CStr(), TStr::Fmt("1 to %d out degree distributions (kdeg.OUT)", k), "NodeId", "kOutDegVH");
-  printf(" DONE\n");
-  
-  Name = TStr::Fmt("%s.kDegVH", OutFNm.CStr());
-  printf("Saving %s...", Name.CStr());
-  TSnap::SaveTxt(kDegVH, Name.CStr(), TStr::Fmt("1 to %d degree distributions (kdeg)", k), "NodeId", "kOutDegVH");
-  printf(" DONE\n");
+  if (k > 1) {
+
+    Name = TStr::Fmt("%s.kInDegVH", OutFNm.CStr());
+    printf("Saving %s...", Name.CStr());
+    TSnap::SaveTxt(kInDegVH, Name.CStr(), TStr::Fmt("1 to %d in degree distributions (kdeg.IN)", k), "NodeId", "kInDegVH");
+    printf(" DONE\n");
+
+    Name = TStr::Fmt("%s.kOutDegVH", OutFNm.CStr());
+    printf("Saving %s...", Name.CStr());
+    TSnap::SaveTxt(kOutDegVH, Name.CStr(), TStr::Fmt("1 to %d out degree distributions (kdeg.OUT)", k), "NodeId", "kOutDegVH");
+    printf(" DONE\n");
+
+    Name = TStr::Fmt("%s.kDegVH", OutFNm.CStr());
+    printf("Saving %s...", Name.CStr());
+    TSnap::SaveTxt(kDegVH, Name.CStr(), TStr::Fmt("1 to %d degree distributions (kdeg)", k), "NodeId", "kOutDegVH");
+    printf(" DONE\n");
+    
+  }
   
   Catch
   
