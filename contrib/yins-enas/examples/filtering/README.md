@@ -33,12 +33,19 @@ mkdir ../../datasets/USairport2010/filtering
 ```
 Usage: ./filtering -i:<input network> -o:<output prefix> [Options]
 Options:
-    -i          input network (tab separated list of edges with edge weights)
-    -o          output prefix (filename extensions added)
-    -a          alpha significance level threshold (default: 0.01)
-    --alphav    vector of alpha significance level threshold (overrides -a)
-    --verbose   verbose output for each step of the Vespignani method
-                    (default: true)
+    -i            input network (tab separated list of edges with edge weights)
+    -o            output prefix (filename extensions added)
+    -a            alpha significance level threshold (default: 0.01)
+    --alphav      vector of alpha significance level threshold (overrides -a)
+    --verbose     verbose output for each step of the Vespignani method
+                      (default: true)
+    --bootstrap   bootstrap to retain --ratio of total weight W
+    --ratio       bootstrap target ratio of total weight W
+    --lowerbound  lower bound for alpha (binary search)
+    --upperbound  upper bound for alpha (binary search)
+    --tolerance   tolerance for alpha (binary search)
+    --spread      spread for bootstrapped alpha benchmark (binary search)
+
 ```
 
 ### Example ###
@@ -55,6 +62,6 @@ rm -rf $ROOT/$EXAMPLE
 mkdir $ROOT/$EXAMPLE
 ./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
            -o:$ROOT/$EXAMPLE/$DATASET \
-           --alphav:$ROOT/AlphaV.TFltV \
-           --verbose
+           --bootstrap:T --ratio:0.5 --tolerance:1e-4 \
+           --verbose:T
 ```

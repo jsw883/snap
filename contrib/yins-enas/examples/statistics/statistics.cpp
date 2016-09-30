@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
     TSnap::SaveTxtTIntFltKdV(ANF, Name.CStr(), "Approximate neighbourhood function / shortest path cumulative density (hop)");
     printf(" DONE\n");
     
-    TSnap::printDataV(NF, true, "\nANF\n---");  
+    TSnap::printDataV(ANF, true, "\nANF\n---");  
   }
   
   Catch
