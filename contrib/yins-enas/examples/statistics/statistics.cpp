@@ -28,7 +28,8 @@ int main(int argc, char* argv[]) {
   double AvDeg, density;
   int MxInDeg, MxOutDeg, MxDeg;
   TFltV percentiles, pvalues;
-  TIntFltKdV ANF;
+  typename TIntFltKdV::TIter KI;
+  TIntFltKdV IntFltANF;
   double EffDiam, AppDiam, Radius;
   double AvClustCf, GlClustCf, AvDirClustCoeff;
   TStrFltH StatsV;
@@ -36,7 +37,7 @@ int main(int argc, char* argv[]) {
   TIntV NIdV;
   TIntFltH NIdClustCoeffH;
 
-  TUInt64V NF;
+  TUInt64V NF, ANF;
 
   TStr Name;
 
@@ -85,9 +86,13 @@ int main(int argc, char* argv[]) {
     
     // Computes approximate neighborhood function / shortest path cumulative density (hacky)
     printf("Computing approximate neighborhood function...");
-    TSnap::GetAnf(Graph, ANF, -1, false, 128);
+    TSnap::GetAnf(Graph, IntFltANF, -1, false, 128);
     printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
     
+    for (KI = IntFltANF.BegI(); KI < IntFltANF.EndI(); KI++) {
+      ANF.Add((uint64) KI->Dat);
+    }
+
     // Computes diameter (effective / approximate) and median path length approximately (hacky)
     printf("Computing average path length and effective / approximate diameters...");
     percentiles.Add(0.9); percentiles.Add(1.0); percentiles.Add(0.5);
@@ -156,7 +161,7 @@ int main(int argc, char* argv[]) {
   
     Name = TStr::Fmt("%s.ANF", OutFNm.CStr());
     printf("\nSaving %s...", Name.CStr());
-    TSnap::SaveTxtTIntFltKdV(ANF, Name.CStr(), "Approximate neighbourhood function / shortest path cumulative density (hop)");
+    TSnap::SaveTxt(ANF, Name.CStr(), "Approximate neighbourhood function / shortest path cumulative density (hop)");
     printf(" DONE\n");
     
     TSnap::printDataV(ANF, true, "\nANF\n---");  
