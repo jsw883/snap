@@ -19,7 +19,7 @@ Options:
     -b              output border (default: 10)
     --png           output PNG (default: T)
     --pdf           output PDF (default: T)
-    --layout        layout algorithm (random / circular / reingold)
+    --layout        layout algorithm (random / circular / reingold / atlas)
                         (default: circular)
     --iterations    number of iterations for reingold (default: 1500)
     --cooling       cooling coefficient for reingold (default: 1.5)

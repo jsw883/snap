@@ -113,8 +113,11 @@ int main(int argc, char* argv[]) {
   
   // Computes average and global clustering coefficients (need to check this for method)
   printf("Computing global / average clustering coefficients...");
+  printf("\n  GlClustCf = TSnap::GetGlClustCf(Graph)...");
   GlClustCf = TSnap::GetGlClustCf(Graph);
+  printf(" DONE\n  GlClustCf = TSnap::GetAvClustCf(Graph)...");
   AvClustCf = TSnap::GetAvClustCf(Graph);
+  printf(" DONE\n  AvDirClustCoeff = TSnap::GetAvDirLocalClustCoeff(Graph, NIdV, NIdClustCoeffH)...");
   AvDirClustCoeff = TSnap::GetAvDirLocalClustCoeff(Graph, NIdV, NIdClustCoeffH);
   StatsV.AddDat("GlClustCf", GlClustCf);
   StatsV.AddDat("AvClustCf", AvClustCf);
