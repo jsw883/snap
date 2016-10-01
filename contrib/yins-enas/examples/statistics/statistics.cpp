@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
   typename TIntFltKdV::TIter KI;
   TIntFltKdV IntFltANF;
   double EffDiam, AppDiam, Radius;
-  double AvClustCf, GlClustCf, AvDirClustCoeff;
+  double AvDirClustCoeff;  // AvClustCf, GlClustCf, 
   TStrFltH StatsV;
   TIntIntH DegH;
   TIntV NIdV;
@@ -113,14 +113,11 @@ int main(int argc, char* argv[]) {
   
   // Computes average and global clustering coefficients (need to check this for method)
   printf("Computing global / average clustering coefficients...");
-  printf("\n  GlClustCf = TSnap::GetGlClustCf(Graph)...");
-  GlClustCf = TSnap::GetGlClustCf(Graph);
-  printf(" DONE\n  GlClustCf = TSnap::GetAvClustCf(Graph)...");
-  AvClustCf = TSnap::GetAvClustCf(Graph);
-  printf(" DONE\n  AvDirClustCoeff = TSnap::GetAvDirLocalClustCoeff(Graph, NIdV, NIdClustCoeffH)...");
+  // GlClustCf = TSnap::GetGlClustCf(Graph);
+  // AvClustCf = TSnap::GetAvClustCf(Graph);
   AvDirClustCoeff = TSnap::GetAvDirLocalClustCoeff(Graph, NIdV, NIdClustCoeffH);
-  StatsV.AddDat("GlClustCf", GlClustCf);
-  StatsV.AddDat("AvClustCf", AvClustCf);
+  // StatsV.AddDat("GlClustCf", GlClustCf);
+  // StatsV.AddDat("AvClustCf", AvClustCf);
   StatsV.AddDat("AvDirClustCoeff", AvDirClustCoeff);
   printf(" DONE (time elapsed: %s (%s))\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
@@ -137,8 +134,8 @@ int main(int argc, char* argv[]) {
   printf("EffDiam: %f\n", EffDiam);
   printf("AppDiam: %f\n", AppDiam);
   printf("Radius: %f\n", Radius);
-  printf("GlClustCf: %f\n", GlClustCf);
-  printf("AvClustCf: %f\n", AvClustCf);
+  // printf("GlClustCf: %f\n", GlClustCf);
+  // printf("AvClustCf: %f\n", AvClustCf);
   printf("AvDirClustCoeff: %f\n", AvDirClustCoeff);
   
   Name = TStr::Fmt("%s.StatsV", OutFNm.CStr());
