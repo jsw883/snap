@@ -63,6 +63,9 @@ void TFixedMemoryWD<PGraph>::SetGraph(const PGraph& Graph) {
 
 template <class PGraph> // class template still needs to be declared
 void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir, const TIntSet& SkipNIdS) { // ONLY DEFINED FOR A SINGLE NID FOR NOW
+  
+  printf("BFS START\n");
+
   // Clear memory
   Clr(false);
   // Variables
@@ -75,6 +78,11 @@ void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir, const T
   PSetH.AddDat(path, IS);
   temp++;
   Queue.Push(TQueueQuad(NId, depth, path, WD)); // NO IN-WEIGHT, SOURCE
+
+  printf("BFS WHILE\n\n");
+
+  int i = 0;
+
   while (!Queue.Empty()) {
     const TQueueQuad& Top = Queue.Top();
     U = Top.Val1; depth = Top.Val2; path = Top.Val3; WD = Top.Val4;
@@ -82,38 +90,89 @@ void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir, const T
     Deg = UI.GetDeg(dir);
     edge = 0;
     Queue.Pop(); // deletes memory
+
+    printf("%d: (U: %d, deg: %d, depth: %d, path: %d, WD: %f)\n", i, U, Deg, depth, path, WD);
+
     while (edge != Deg) {
       V = UI.GetNbrNId(edge, dir);
+
+      printf(" -> %d: %d(", edge, V);
+
       if (!SkipNIdS.IsKey(V) && !PSetH.GetDat(path).IsKey(V)) {
         
         // WEIGHTED DISTANCE
         if (WD == 0) {
+
+          printf("WD: ");
+          
           VWD = UI.GetNbrEW(edge, dir);
+
+          printf("%f, ", VWD);
+          
           if (!preNormalized) { VWD /= UI.GetWDeg(dir); }
         } else {
+          
+          printf("WD: ");
+          
           VWD = WD * UI.GetNbrEW(edge, dir);
           if (!preNormalized) { VWD /= UI.GetWDeg(dir); }
+
+          printf("%f, ", VWD);
+          
         }
         // STORE
+
+        printf("store: ");
+        
         if (NIdVWDH.IsKey(V) && VWD > tol) {
           NIdVWDH.GetDat(V) += VWD;
+          
+          printf("stored, ");
+          
+        } else {
+
+          printf("ignored, ");
+          
         }
         
         // CONTINUE
+
+        printf("continue: ");
+          
         if (depth + 1 < k && VWD > tol) {
           temp++;
+
+          printf("yes, path: ");
+
           const TIntSet PSCopy = PSetH.GetDat(path); // Must copy
           TIntSet& PS = PSetH.AddDat(temp, PSCopy);
           PS.AddKey(V);
+
+          printf("updated, queue: ");
+
           Queue.Push(TQueueQuad(V, depth + 1, temp, VWD));
+
+          printf("updated,  ");
+
+        } else {
+
+          printf("no");
+
         }
-        
+      
+        printf(")\n");
+
       }
+
+      printf("\n");
 
       ++edge;
     }
     PSetH.DelKey(path);
   }
+
+  printf("BFS END\n");
+
 }
 
 

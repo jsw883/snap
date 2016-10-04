@@ -54,8 +54,8 @@ This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
 which is included in this repository. 
 
 ```bash
-DATASET=USairport2010
-EXT=snap
+DATASET=amazon0302
+EXT=snap.FltW
 EXAMPLE=filtering
 ROOT=../../datasets/$DATASET
 rm -rf $ROOT/$EXAMPLE
