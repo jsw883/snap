@@ -84,19 +84,32 @@ void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir, const T
   int i = 0;
 
   while (!Queue.Empty()) {
+    
+    printf("%d: ", i);
+
     const TQueueQuad& Top = Queue.Top();
+
+    printf("(");
+
     U = Top.Val1; depth = Top.Val2; path = Top.Val3; WD = Top.Val4;
+
+    printf("U: %d, depth: %d, path: %d, WD: %f", U, depth, path, WD);
+    printf("IsNode: %d", Graph->IsNode(U));
+
     UI = Graph->GetNI(U);
     Deg = UI.GetDeg(dir);
+
+    printf("Deg: %d", Deg);
+
     edge = 0;
     Queue.Pop(); // deletes memory
 
-    printf("%d: (U: %d, deg: %d, depth: %d, path: %d, WD: %f)\n", i, U, Deg, depth, path, WD);
+    printf(")\n");
 
     while (edge != Deg) {
       V = UI.GetNbrNId(edge, dir);
 
-      printf(" -> %d: %d(", edge, V);
+      printf(" -> %d: (V: %d", edge, V);
 
       if (!SkipNIdS.IsKey(V) && !PSetH.GetDat(path).IsKey(V)) {
         
