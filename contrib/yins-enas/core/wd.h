@@ -64,7 +64,7 @@ void TFixedMemoryWD<PGraph>::SetGraph(const PGraph& Graph) {
 template <class PGraph> // class template still needs to be declared
 void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir, const TIntSet& SkipNIdS) { // ONLY DEFINED FOR A SINGLE NID FOR NOW
   
-  printf("BFS START\n");
+  // printf("BFS START\n");
 
   // Clear memory
   Clr(false);
@@ -79,112 +79,112 @@ void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir, const T
   temp++;
   Queue.Push(TQueueQuad(NId, depth, path, WD)); // NO IN-WEIGHT, SOURCE
 
-  printf("BFS WHILE\n\n");
+  // printf("BFS WHILE\n\n");
 
-  int i = 0;
+  // int i = 0;
 
   while (!Queue.Empty()) {
     
-    printf("%d: ", i);
+    // printf("%d: ", i);
 
     const TQueueQuad& Top = Queue.Top();
 
-    printf("(");
+    // printf("(");
 
     U = Top.Val1; depth = Top.Val2; path = Top.Val3; WD = Top.Val4;
 
-    printf("U: %d, depth: %d, path: %d, WD: %f", U, depth, path, WD);
-    printf("IsNode: %d", Graph->IsNode(U));
+    // printf("U: %d, depth: %d, path: %d, WD: %f", U, depth, path, WD);
+    // printf("IsNode: %d", Graph->IsNode(U));
 
     UI = Graph->GetNI(U);
     Deg = UI.GetDeg(dir);
 
-    printf("Deg: %d", Deg);
+    // printf("Deg: %d", Deg);
 
     edge = 0;
     Queue.Pop(); // deletes memory
 
-    printf(")\n");
+    // printf(")\n");
 
     while (edge != Deg) {
       V = UI.GetNbrNId(edge, dir);
 
-      printf(" -> %d: (V: %d", edge, V);
+      // printf(" -> %d: (V: %d", edge, V);
 
       if (!SkipNIdS.IsKey(V) && !PSetH.GetDat(path).IsKey(V)) {
         
         // WEIGHTED DISTANCE
         if (WD == 0) {
 
-          printf("WD: ");
+          // printf("WD: ");
           
           VWD = UI.GetNbrEW(edge, dir);
 
-          printf("%f, ", VWD);
+          // printf("%f, ", VWD);
           
           if (!preNormalized) { VWD /= UI.GetWDeg(dir); }
         } else {
           
-          printf("WD: ");
+          // printf("WD: ");
           
           VWD = WD * UI.GetNbrEW(edge, dir);
           if (!preNormalized) { VWD /= UI.GetWDeg(dir); }
 
-          printf("%f, ", VWD);
+          // printf("%f, ", VWD);
           
         }
         // STORE
 
-        printf("store: ");
+        // printf("store: ");
         
         if (NIdVWDH.IsKey(V) && VWD > tol) {
           NIdVWDH.GetDat(V) += VWD;
           
-          printf("stored, ");
+          // printf("stored, ");
           
         } else {
 
-          printf("ignored, ");
+          // printf("ignored, ");
           
         }
         
         // CONTINUE
 
-        printf("continue: ");
+        // printf("continue: ");
           
         if (depth + 1 < k && VWD > tol) {
           temp++;
 
-          printf("yes, path: ");
+          // printf("yes, path: ");
 
           const TIntSet PSCopy = PSetH.GetDat(path); // Must copy
           TIntSet& PS = PSetH.AddDat(temp, PSCopy);
           PS.AddKey(V);
 
-          printf("updated, queue: ");
+          // printf("updated, queue: ");
 
           Queue.Push(TQueueQuad(V, depth + 1, temp, VWD));
 
-          printf("updated,  ");
+          // printf("updated,  ");
 
         } else {
 
-          printf("no");
+          // printf("no");
 
         }
       
-        printf(")\n");
+        // printf(")\n");
 
       }
 
-      printf("\n");
+      // printf("\n");
 
       ++edge;
     }
     PSetH.DelKey(path);
   }
 
-  printf("BFS END\n");
+  // printf("BFS END\n");
 
 }
 
