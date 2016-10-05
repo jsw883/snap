@@ -142,6 +142,22 @@ int main(int argc, char* argv[]) {
   SrcNIdV = TSnap::LoadTxtIntV(SrcNIdVFNm);
   DstNIdV = TSnap::LoadTxtIntV(DstNIdVFNm);
   
+  int i = 0;
+  for (TIntV::TIter VI = SrcNIdV.BegI(); VI < SrcNIdV.EndI(); VI++) {
+    if (VI->Val < 0) {
+      printf("invalid: %d\n", VI->Val);
+    }
+    i++;
+  }
+
+  i = 0;
+  for (TIntV::TIter VI = DstNIdV.BegI(); VI < DstNIdV.EndI(); VI++) {
+    if (VI->Val < 0) {
+      printf("invalid: %d\n", VI->Val);
+    }
+    i++;
+  }
+
   if (exclude) {
     SkipNIdS.AddKeyV(SrcNIdV);
   }
