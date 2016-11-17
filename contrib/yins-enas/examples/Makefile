@@ -9,11 +9,11 @@ make-examples:
 	$(MAKE) -C connectivity
 	$(MAKE) -C drawing
 	$(MAKE) -C egonets
-	$(MAKE) -C filtering
 	$(MAKE) -C generators
 	$(MAKE) -C statistics
 	$(MAKE) -C structures
 	$(MAKE) -C subsets
+	$(MAKE) -C vespignani
 	$(MAKE) -C wcentrality
 	$(MAKE) -C wcommunity
 	$(MAKE) -C wdistance
@@ -24,11 +24,11 @@ clean:
 	$(MAKE) clean -C connectivity
 	$(MAKE) clean -C drawing
 	$(MAKE) clean -C egonets
-	$(MAKE) clean -C filtering
 	$(MAKE) clean -C generators
 	$(MAKE) clean -C statistics
 	$(MAKE) clean -C structures
 	$(MAKE) clean -C subsets
+	$(MAKE) clean -C vespignani
 	$(MAKE) clean -C wcentrality
 	$(MAKE) clean -C wcommunity
 	$(MAKE) clean -C wdistance

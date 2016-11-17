@@ -2,7 +2,7 @@
 #	configuration variables for the example
 #
 
-MAIN = filtering
+MAIN = vespignani
 DEPH = \
     $(EXCORE)/wgraph.h \
     $(EXCORE)/wgio.h \

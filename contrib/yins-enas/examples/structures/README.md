@@ -29,17 +29,15 @@ well. For makefiles, compile the code with `make all`.
 ```
 Usage: ./structures -i:<input network> -o:<output prefix> [Options]
 Options:
-    -i              input network (tab separated list of edges)
-    -o              output prefix (filename extensions added)
-    -d              direction of traversal: in = 1, out = 2, undirected = 3
-                        (default: 3)
-    -p              percolation probability (default: -1)
-    --lowerbound    lower bound for percolation threshold (default: 0.0)
-    --upperbound    upper bound for percolation threshold (default: 1.0)
-    --tolerance     tolerance for percolation threshold (default: 1e-4)
-    --smoothing     repetitions for binary search for percolation threshold 
-                        (default: 100)
-    --iters         number of iterations to average results (default: 10)
+    -i                  input network (tab separated list of edges)
+    -o                  output prefix (filename extensions added)
+    -d                  direction of traversal: in = 1, out = 2, undirected = 3
+                            (default: 3)
+    --loweralphabound   lower bound for alpha (default: 0.0)
+    --upperalphabound   upper bound for alpha (default: 1.0)
+    --step              alpha step size (default: 1e-4)
+    --lowersizebound    lower bound for weakly connected component sizes
+    --uppersizebound    upper bound for weakly connected component sizes
 ```
 
 ### Example ###
@@ -56,5 +54,6 @@ rm -rf $ROOT/$EXAMPLE
 mkdir $ROOT/$EXAMPLE
 ./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
            -o:$ROOT/$EXAMPLE/$DATASET \
-           --iters:100
+           --loweralphabound:0.0 --upperalphabound:1.0 --step:0.5 \
+           --lowersizebound:2 --uppersizebound:0
 ```
