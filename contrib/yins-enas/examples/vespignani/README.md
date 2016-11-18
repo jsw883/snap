@@ -54,8 +54,8 @@ This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
 which is included in this repository. 
 
 ```bash
-DATASET=amazon0302
-EXT=snap.FltW
+DATASET=USairport2010
+EXT=snap
 EXAMPLE=vespignani
 ROOT=../../datasets/$DATASET
 rm -rf $ROOT/$EXAMPLE
@@ -63,5 +63,18 @@ mkdir $ROOT/$EXAMPLE
 ./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
            -o:$ROOT/$EXAMPLE/$DATASET \
            --bootstrap:T --ratio:0.5 --tolerance:1e-4 \
+           --verbose:T
+```
+
+```bash
+DATASET=USairport2010
+EXT=snap
+EXAMPLE=vespignani
+ROOT=../../datasets/$DATASET
+rm -rf $ROOT/$EXAMPLE
+mkdir $ROOT/$EXAMPLE
+./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
+           -o:$ROOT/$EXAMPLE/$DATASET \
+           --alphav:$ROOT/AlphaV.TFltV \
            --verbose:T
 ```

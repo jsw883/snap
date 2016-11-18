@@ -25,6 +25,11 @@ Options:
     --cooling       cooling coefficient for reingold (default: 1.5)
 	--shuffle       shuffle vertex order for circular layout (and reingold)
                         (default: F)
+    --scaling       repulsion scaling for force directed (atlas)
+    --gravity       gravity for force directed (atlas)
+    --weights       weight influence exponent for force directed (atlas)
+    --nohubs        dissuade hubs for force directed (atlas)
+    --linlog        switch linlog mode for force directed (atlas)
     --vr            vertex radius relative to minimum axis
                         (default: 0.1*sqrt(nodes))
     --vw            vertex border width (default: 1)
@@ -72,10 +77,28 @@ EXAMPLE=drawing
 ROOT=../../datasets/$DATASET
 rm -rf $ROOT/$EXAMPLE
 mkdir $ROOT/$EXAMPLE
-./$EXAMPLE -i:$ROOT/filtering/$DATASET-3.727594e-04.$EXT \
+./$EXAMPLE -i:$ROOT/vespignani/$DATASET-3.727594e-04.$EXT \
            -o:$ROOT/$EXAMPLE/$DATASET \
            -w:2500 -h:2500 -b:50 --layout:reingold --iterations:1500 \
            --cooling:1.5 --shuffle:T --vf:FF0000 --ecalpha:0.1 \
+           --label:T \
+           --vrv:$ROOT/wcentrality/$DATASET.WPgRH \
+           --vfv:$ROOT/wcommunity/$DATASET.louvain.NIdHEXH
+```
+
+```bash
+DATASET=USairport2010
+EXT=snap
+EXAMPLE=drawing
+ROOT=../../datasets/$DATASET
+rm -rf $ROOT/$EXAMPLE
+mkdir $ROOT/$EXAMPLE
+./$EXAMPLE -i:$ROOT/vespignani/$DATASET-3.727594e-04.$EXT \
+           -o:$ROOT/$EXAMPLE/$DATASET \
+           -w:2500 -h:2500 -b:50 --layout:atlas --iterations:1500 \
+           --cooling:1.5 --shuffle:T \
+           --scaling:1 --gravity:1 --weights:0 --nohubs:F --linlog:F \
+           --vf:FF0000 --ecalpha:0.1 \
            --label:T \
            --vrv:$ROOT/wcentrality/$DATASET.WPgRH \
            --vfv:$ROOT/wcommunity/$DATASET.louvain.NIdHEXH
