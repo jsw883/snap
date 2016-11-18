@@ -66,18 +66,17 @@ int main(int argc, char* argv[]) {
 
   Progress progress(ExeTm, AlphaV.Len(), 5, "Computing Vespignani method");
   progress.start();
-  i = 0, j = 0;
+  i = 0;
   for (VI = AlphaV.BegI(); VI < AlphaV.EndI(); VI++) {
     const double& alpha = VI->Val;
 
     // Compute method and save filtered
 
-    printf("Computing Vespignani method (alpha: %e)\n\n", alpha);
-
     WGraphCopy = TSnap::FilterEdgesVespignani<TFlt, TWNGraph>(WGraph, alpha);
 
      // Get weakly connected components (cluster)
     TSnap::GetWccs(WGraphCopy, WCnComV);
+
     // Counts and giant sizes
     NCnComV.Add(WCnComV.Len());
     GiantSizeV.Add(WCnComV[0].Len());
@@ -94,10 +93,11 @@ int main(int argc, char* argv[]) {
     AvRadiusToSizeRatio = 0;
     AvDiameter = 0;
     AvDiameterToSizeRatio = 0;
+    j = 0;
     for (WCnComI = WCnComV.BegI(); WCnComI < WCnComV.EndI(); WCnComI++) {
       nodes = WCnComI->Len();
       if (nodes < lowerSizeBound || nodes > upperSizeBound) {
-        break;
+        continue;
       }
       // Compute the nodes, radius, and diameter
       FixedMemoryNeighborhood.ComputeSubsetNF(WCnComI->NIdV, d, NF);
@@ -122,11 +122,10 @@ int main(int argc, char* argv[]) {
     fprintf(F, "# Iterative vespignani weakly connected components summary for alpha = %f, d = %d, i = %d\n", alpha, d, i);
     fprintf(F, "# WCnComs: %d\n", WCnComV.Len());
     fprintf(F, "# WCnComId\tNodes\tRadius\tDiameter\n");
-    for (wcncom = 0; wcncom < WCnComV.Len(); wcncom++) {
+    for (wcncom = 0; wcncom < j; wcncom++) {
       fprintf(F, "%d\t%d\t%f\t%f", wcncom, (int) WCnComNodesV[wcncom], (double) WCnComRadiusV[wcncom], (double) WCnComDiameterV[wcncom]);
       fprintf(F, "\n");
     }
-    // printf(" DONE\n");
 
     // Averages
     AvSizeV.Add(AvSize / NCnComV.Last());
@@ -148,7 +147,7 @@ int main(int argc, char* argv[]) {
   fprintf(F, "# Nodes: %d\tEdges: %d\n", WGraph->GetNodes(), WGraph->GetEdges());
   fprintf(F, "# NCnCom\tGiantSize\tGiantSizeRatio\tAvSize\tAvRadius\tAvRadiusToSizeRatio\tAvDiameter\tAvDiameterToSizeRatio\n");
   for (i = 0; i < AlphaV.Len(); i++) {
-    fprintf(F, "%d\t%d\t%f\t%ff\t%f\t%f\t%f\t%f", (int) NCnComV[i], (int) GiantSizeV[i], (double) GiantSizeRatioV[i], (double) AvSizeV[i], (double) AvRadiusV[i], (double) AvRadiusToSizeRatioV[i], (double) AvDiameterV[i], (double) AvDiameterToSizeRatioV[i]);
+    fprintf(F, "%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f", (int) NCnComV[i], (int) GiantSizeV[i], (double) GiantSizeRatioV[i], (double) AvSizeV[i], (double) AvRadiusV[i], (double) AvRadiusToSizeRatioV[i], (double) AvDiameterV[i], (double) AvDiameterToSizeRatioV[i]);
     fprintf(F, "\n");
   }
   printf(" DONE\n");

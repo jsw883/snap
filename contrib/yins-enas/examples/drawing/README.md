@@ -97,7 +97,7 @@ mkdir $ROOT/$EXAMPLE
            -o:$ROOT/$EXAMPLE/$DATASET \
            -w:2500 -h:2500 -b:50 --layout:atlas --iterations:1500 \
            --cooling:1.5 --shuffle:T \
-           --scaling:1 --gravity:1 --weights:0 --nohubs:F --linlog:F \
+           --scaling:5e-3 --gravity:5 --weights:0.5 --nohubs:F --linlog:T \
            --vf:FF0000 --ecalpha:0.1 \
            --label:T \
            --vrv:$ROOT/wcentrality/$DATASET.WPgRH \
