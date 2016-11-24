@@ -37,7 +37,7 @@ Options:
     --upperalphabound   upper bound for alpha (default: 1.0)
     --step              alpha step size (default: 1e-4)
     --lowersizebound    lower bound for weakly connected component sizes
-    --uppersizebound    upper bound for weakly connected component sizes
+    --uppersizeratio    upper bound for weakly connected component sizes
 ```
 
 ### Example ###
@@ -55,5 +55,5 @@ mkdir $ROOT/$EXAMPLE
 ./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
            -o:$ROOT/$EXAMPLE/$DATASET \
            --loweralphabound:0.0 --upperalphabound:1.0 --step:0.5 \
-           --lowersizebound:2 --uppersizebound:0
+           --lowersizebound:3 --uppersizeratio:0.5
 ```

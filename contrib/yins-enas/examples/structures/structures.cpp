@@ -21,8 +21,8 @@ int main(int argc, char* argv[]) {
   const double upperAlphaBound = Env.GetIfArgPrefixFlt("--upperalphabound:", 1.0, "upper bound for alpha (iterative)");
   const double step = Env.GetIfArgPrefixFlt("--step:", 5.0e-2, "alpha step size (iterative)");
 
-  int lowerSizeBound = Env.GetIfArgPrefixInt("--lowersizebound:", 2, "lower bound for weakly connected component sizes");
-  int upperSizeBound = Env.GetIfArgPrefixInt("--uppersizebound:", 0, "upper bound for weakly connected component sizes");
+  const int lowerSizeBound = Env.GetIfArgPrefixInt("--lowersizebound:", 2, "lower bound for weakly connected component sizes");
+  const double upperSizeRatioBound = Env.GetIfArgPrefixFlt("--uppersizeratio:", 0, "upper bound for weakly connected component sizes");
 
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   printf("\nLoading %s...", InFNm.CStr());
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
 
   TCnComV WCnComV;  
   TCnComV::TIter WCnComI;
-  int wcncom, nodes;
+  int wcncom, nodes, upperSizeBound;
   double radius, diameter;
   TIntV WCnComNodesV;
   TFltV WCnComRadiusV, WCnComDiameterV;
@@ -58,10 +58,6 @@ int main(int argc, char* argv[]) {
     AlphaV.Add(alpha);
   }
 
-  if (upperSizeBound == 0) {
-    upperSizeBound = WGraph->GetNodes() / 2.0;
-  }
-
   // VESPIGNANI METHOD
 
   Progress progress(ExeTm, AlphaV.Len(), 5, "Computing Vespignani method");
@@ -75,6 +71,7 @@ int main(int argc, char* argv[]) {
     WGraphCopy = TSnap::FilterEdgesVespignani<TFlt, TWNGraph>(WGraph, alpha);
 
      // Get weakly connected components (cluster)
+    upperSizeBound = upperSizeRatioBound * WGraphCopy->GetNodes();
     TSnap::GetWccs(WGraphCopy, WCnComV);
 
     // Counts and giant sizes
