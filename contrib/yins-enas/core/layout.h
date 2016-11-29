@@ -146,8 +146,6 @@ void AtlasLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, con
   TIntFltH DegH;
   // TIntV NIdV;
   double xdiff, ydiff, d, coeff, temperature;
-
-  TFltPr Coord;
   
   // TFltPrV DispV, CoordV;
   
@@ -164,26 +162,6 @@ void AtlasLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, con
   }
   TSnap::TransformLayout(CoordH, TFltPr(-N/2, N/2), TFltPr(-N/2, N/2), false);
   
-  Coord.Val1 = 0;
-  Coord.Val2 = 0;
-  for (U = 0; U < NIdV.Len(); U++) {
-    Coord.Val1 += CoordH[U].Val1;
-    Coord.Val2 += CoordH[U].Val2;
-  }
-  Coord.Val1 /= N;
-  Coord.Val2 /= N;
-  printf("CenterCoord (%f, %f)\n", (double) Coord.Val1, (double) Coord.Val2);
-  
-  Coord.Val1 = 0;
-  Coord.Val2 = 0;
-  for (U = 0; U < NIdV.Len(); U++) {
-    Coord.Val1 += DispH[U].Val1;
-    Coord.Val2 += DispH[U].Val2;
-  }
-  Coord.Val1 /= N;
-  Coord.Val2 /= N;
-  printf("0 (%f, %f)\n", (double) Coord.Val1, (double) Coord.Val2);
-
   // Method
   double area = pow(N, cooling);
   double k = area / N;
@@ -216,16 +194,6 @@ void AtlasLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, con
       }
     }
     
-    Coord.Val1 = 0;
-    Coord.Val2 = 0;
-    for (U = 0; U < NIdV.Len(); U++) {
-      Coord.Val1 += DispH[U].Val1;
-      Coord.Val2 += DispH[U].Val2;
-    }
-    Coord.Val1 /= N;
-    Coord.Val2 /= N;
-    printf("1 (%f, %f)\n", (double) Coord.Val1, (double) Coord.Val2);
-
     // Center of Gravity
     // x = 0;
     // y = 0;
@@ -246,16 +214,6 @@ void AtlasLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, con
       DispH[U].Val2 -= ydiff * coeff;
     }
 
-    Coord.Val1 = 0;
-    Coord.Val2 = 0;
-    for (U = 0; U < NIdV.Len(); U++) {
-      Coord.Val1 += DispH[U].Val1;
-      Coord.Val2 += DispH[U].Val2;
-    }
-    Coord.Val1 /= N;
-    Coord.Val2 /= N;
-    printf("2 (%f, %f)\n", (double) Coord.Val1, (double) Coord.Val2);
-
     // Attractive
     for (EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
       // Variables
@@ -274,29 +232,12 @@ void AtlasLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, con
       if (nohubs) {
         coeff /= DegH.GetDat(SrcNId) + 1;
       }
-      if (!(coeff == coeff)) {
-        printf("NAN COEFF\n---------\n");
-        printf("SrcNId: %d (%f, %f)\n", SrcNId, (double) CoordH.GetDat(SrcNId).Val1, (double) CoordH.GetDat(SrcNId).Val2);
-        printf("DstNId: %d (%f, %f)\n", DstNId, (double) CoordH.GetDat(DstNId).Val1, (double) CoordH.GetDat(DstNId).Val2);
-        printf("---------\n");
-        exit(1);
-      }
       DispH.GetDat(SrcNId).Val1 += xdiff * coeff * W;
       DispH.GetDat(SrcNId).Val2 += ydiff * coeff * W;
       DispH.GetDat(DstNId).Val1 -= xdiff * coeff * W;
       DispH.GetDat(DstNId).Val2 -= ydiff * coeff * W;
     }
     
-    Coord.Val1 = 0;
-    Coord.Val2 = 0;
-    for (U = 0; U < NIdV.Len(); U++) {
-      Coord.Val1 += DispH[U].Val1;
-      Coord.Val2 += DispH[U].Val2;
-    }
-    Coord.Val1 /= N;
-    Coord.Val2 /= N;
-    printf("3 (%f, %f)\n", (double) Coord.Val1, (double) Coord.Val2);
-
     // Calculate
     for (U = 0; U < NIdV.Len(); U++) {
       // Calculate
@@ -314,40 +255,10 @@ void AtlasLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, con
     
     if (verbose) { progress++; }
     
-    Coord.Val1 = 0;
-    Coord.Val2 = 0;
-    for (U = 0; U < NIdV.Len(); U++) {
-      Coord.Val1 += CoordH[U].Val1;
-      Coord.Val2 += CoordH[U].Val2;
-    }
-    Coord.Val1 /= N;
-    Coord.Val2 /= N;
-    printf("CenterCoord (%f, %f)\n", (double) Coord.Val1, (double) Coord.Val2);
-
-    Coord.Val1 = 0;
-    Coord.Val2 = 0;
-    for (U = 0; U < NIdV.Len(); U++) {
-      Coord.Val1 += DispH[U].Val1;
-      Coord.Val2 += DispH[U].Val2;
-    }
-    Coord.Val1 /= N;
-    Coord.Val2 /= N;
-    printf("0 (%f, %f)\n", (double) Coord.Val1, (double) Coord.Val2);
-
   }
   
   // Transform
   TSnap::TransformLayout(CoordH, TFltPr(0, 1), TFltPr(0, 1), true);
-
-  Coord.Val1 = 0;
-  Coord.Val2 = 0;
-  for (U = 0; U < NIdV.Len(); U++) {
-    Coord.Val1 += CoordH[U].Val1;
-    Coord.Val2 += CoordH[U].Val2;
-  }
-  Coord.Val1 /= N;
-  Coord.Val2 /= N;
-  printf("ScaledCoord (%f, %f)\n", (double) Coord.Val1, (double) Coord.Val2);
 
 }
 
