@@ -146,6 +146,8 @@ void AtlasLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, con
   TIntFltH DegH;
   // TIntV NIdV;
   double xdiff, ydiff, d, coeff, temperature;
+
+  TFltPr CenterCoord;
   
   // TFltPrV DispV, CoordV;
   
@@ -162,6 +164,16 @@ void AtlasLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, con
   }
   TSnap::TransformLayout(CoordH, TFltPr(-N/2, N/2), TFltPr(-N/2, N/2), false);
   
+  CenterCoord.Val1 = 0;
+  CenterCoord.Val2 = 0;
+  for (U = 0; U < NIdV.Len(); U++) {
+    CenterCoord.Val1 += CoordH[U].Val1;
+    CenterCoord.Val2 += CoordH[U].Val2;
+  }
+  CenterCoord.Val1 /= N;
+  CenterCoord.Val2 /= N;
+  printf("CenterCoord (%f, %f)\n", (double) CenterCoord.Val1, (double) CenterCoord.Val2);
+
   // Method
   double area = pow(N, cooling);
   double k = area / N;
@@ -173,7 +185,7 @@ void AtlasLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, con
     progress.start();
   }
   for (int i = 0; i < iterations; i++) {  
-    
+
     // Qudaratic cooling
     temperature = pow(0.5*sqrt(N)*(1 - i / (double) iterations), cooling);
     
@@ -255,11 +267,31 @@ void AtlasLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, con
     
     if (verbose) { progress++; }
     
+    CenterCoord.Val1 = 0;
+    CenterCoord.Val2 = 0;
+    for (U = 0; U < NIdV.Len(); U++) {
+      CenterCoord.Val1 += CoordH[U].Val1;
+      CenterCoord.Val2 += CoordH[U].Val2;
+    }
+    CenterCoord.Val1 /= N;
+    CenterCoord.Val2 /= N;
+    printf("CenterCoord (%f, %f)\n", (double) CenterCoord.Val1, (double) CenterCoord.Val2);
+
   }
   
   // Transform
   TSnap::TransformLayout(CoordH, TFltPr(0, 1), TFltPr(0, 1), true);
-  
+
+  CenterCoord.Val1 = 0;
+  CenterCoord.Val2 = 0;
+  for (U = 0; U < NIdV.Len(); U++) {
+    CenterCoord.Val1 += CoordH[U].Val1;
+    CenterCoord.Val2 += CoordH[U].Val2;
+  }
+  CenterCoord.Val1 /= N;
+  CenterCoord.Val2 /= N;
+  printf("ScaledCoord (%f, %f)\n", (double) CenterCoord.Val1, (double) CenterCoord.Val2);
+
 }
 
 } // namespace TSnap {
