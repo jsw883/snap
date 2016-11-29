@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
   double AvSize, AvRadius, AvDiameter;
   double AvRadiusToSizeRatio, AvDiameterToSizeRatio;
   TUInt64V NF;
-  TIntV NCnComV;
+  TIntV NCnComV, NCnComBoundedV;
   TIntV GiantSizeV;
   TFltV GiantSizeRatioV;
   TFltV AvSizeV, AvRadiusV, AvDiameterV;
@@ -112,6 +112,7 @@ int main(int argc, char* argv[]) {
       AvDiameterToSizeRatio += diameter / nodes;
       j++;
     }
+    NCnComBoundedV.Add(j);
     
     // Save
     const TStr CombinedFNm = TStr::Fmt("%s.step.summary.%9e", OutFNm.CStr(), alpha);
@@ -125,11 +126,11 @@ int main(int argc, char* argv[]) {
     }
 
     // Averages
-    AvSizeV.Add(AvSize / NCnComV.Last());
-    AvRadiusV.Add(AvRadius / NCnComV.Last());
-    AvRadiusToSizeRatioV.Add(AvRadiusToSizeRatio / NCnComV.Last());
-    AvDiameterV.Add(AvDiameter / NCnComV.Last());
-    AvDiameterToSizeRatioV.Add(AvDiameterToSizeRatio / NCnComV.Last());
+    AvSizeV.Add(AvSize / NCnComBoundedV.Last());
+    AvRadiusV.Add(AvRadius / NCnComBoundedV.Last());
+    AvRadiusToSizeRatioV.Add(AvRadiusToSizeRatio / NCnComBoundedV.Last());
+    AvDiameterV.Add(AvDiameter / NCnComBoundedV.Last());
+    AvDiameterToSizeRatioV.Add(AvDiameterToSizeRatio / NCnComBoundedV.Last());
 
     i++;
     progress++;
@@ -142,9 +143,9 @@ int main(int argc, char* argv[]) {
   FILE *F = fopen(CombinedFNm.CStr(), "wt");
   fprintf(F, "# Iterative vespignani structures summary for alpha = %f:%f:%f, d = %d\n", lowerAlphaBound, step, upperAlphaBound, d);
   fprintf(F, "# Nodes: %d\tEdges: %d\n", WGraph->GetNodes(), WGraph->GetEdges());
-  fprintf(F, "# NCnCom\tGiantSize\tGiantSizeRatio\tAvSize\tAvRadius\tAvRadiusToSizeRatio\tAvDiameter\tAvDiameterToSizeRatio\n");
+  fprintf(F, "# Alpha\tNCnCom\tNCnComBounded\tGiantSize\tGiantSizeRatio\tAvSize\tAvRadius\tAvRadiusToSizeRatio\tAvDiameter\tAvDiameterToSizeRatio\n");
   for (i = 0; i < AlphaV.Len(); i++) {
-    fprintf(F, "%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f", (int) NCnComV[i], (int) GiantSizeV[i], (double) GiantSizeRatioV[i], (double) AvSizeV[i], (double) AvRadiusV[i], (double) AvRadiusToSizeRatioV[i], (double) AvDiameterV[i], (double) AvDiameterToSizeRatioV[i]);
+    fprintf(F, "%f\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f", (double) AlphaV[i], (int) NCnComV[i], (int) NCnComBoundedV[i], (int) GiantSizeV[i], (double) GiantSizeRatioV[i], (double) AvSizeV[i], (double) AvRadiusV[i], (double) AvRadiusToSizeRatioV[i], (double) AvDiameterV[i], (double) AvDiameterToSizeRatioV[i]);
     fprintf(F, "\n");
   }
   printf(" DONE\n");
