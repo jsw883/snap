@@ -274,6 +274,13 @@ void AtlasLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, con
       if (nohubs) {
         coeff /= DegH.GetDat(SrcNId) + 1;
       }
+      if (!(coeff == coeff)) {
+        printf("NAN COEFF\n---------\n");
+        printf("SrcNId: %d (%f, %f)\n", SrcNId, (double) CoordH.GetDat(SrcNId).Val1, (double) CoordH.GetDat(SrcNId).Val2);
+        printf("DstNId: %d (%f, %f)\n", DstNId, (double) CoordH.GetDat(DstNId).Val1, (double) CoordH.GetDat(DstNId).Val2);
+        printf("---------\n");
+        exit(1);
+      }
       DispH.GetDat(SrcNId).Val1 += xdiff * coeff * W;
       DispH.GetDat(SrcNId).Val2 += ydiff * coeff * W;
       DispH.GetDat(DstNId).Val1 -= xdiff * coeff * W;
