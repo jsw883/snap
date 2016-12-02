@@ -332,7 +332,7 @@ int main(int argc, char* argv[]) {
 
   // Variables
   
-  TStr Name;
+  TStr Name, LayoutString;
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   
@@ -399,18 +399,23 @@ int main(int argc, char* argv[]) {
   if (layout == "random") {
 
     TSnap::RandomLayout(NIdV, CoordH);
+    LayoutString = TStr::Fmt("");
 
   } else if (layout == "circular") {
 
     TSnap::CircularLayout(NIdV, CoordH);
+    LayoutString = TStr::Fmt("");
 
   } else if (layout == "reingold") {
 
     TSnap::ReingoldLayout(WGraph, NIdV, CoordH, iterations, cooling);
+    LayoutString = TStr::Fmt("C%3.2e", cooling);
+
 
   } else if (layout == "atlas") {
 
     TSnap::AtlasLayout(WGraph, NIdV, CoordH, iterations, cooling, scaling, gravity, weights, nohubs, linlog);
+    LayoutString = TStr::Fmt("C%3.2e.S%3.2e.G%3.2e.W%3.2e.H%d.L%d", cooling, scaling, gravity, weights, nohubs, linlog);
 
   } else if (layout == "precomputed") {
 
@@ -432,7 +437,7 @@ int main(int argc, char* argv[]) {
   
   if (layout != "precomputed") {
 
-    Name = TStr::Fmt("%s.%s.CoordH", OutFNm.CStr(), layout.CStr());
+    Name = TStr::Fmt("%s.%s.%s.CoordH", OutFNm.CStr(), LayoutString.CStr(), layout.CStr());
     printf("\nSaving %s...", Name.CStr());
     TSnap::SaveTxt(CoordH, Name.CStr(), TStr::Fmt("Layout coordinates for %s method", layout.CStr()), "NodeId", "x\ty");
     printf(" DONE\n");  
@@ -445,7 +450,7 @@ int main(int argc, char* argv[]) {
     
     #ifdef CAIRO_HAS_PDF_SURFACE
     
-      Name = TStr::Fmt("%s.%s.%dx%d.PDF", OutFNm.CStr(), layout.CStr(), w, h);
+      Name = TStr::Fmt("%s.%s.%s.%dx%d.PDF", OutFNm.CStr(), LayoutString.CStr(), layout.CStr(), w, h);
       printf("\nDrawing %s...", Name.CStr());
       Cairo::RefPtr<Cairo::PdfSurface> surface = Cairo::PdfSurface::create(Name.CStr(), w, h);
       
