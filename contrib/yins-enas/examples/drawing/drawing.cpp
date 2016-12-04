@@ -459,7 +459,7 @@ int main(int argc, char* argv[]) {
   
   if (layout != "precomputed") {
 
-    Name = TStr::Fmt("%s.%s.%s.%dx%d.CoordH", OutFNm.CStr(), LayoutString.CStr(), layout.CStr(), w, h);
+    Name = TStr::Fmt("%s.%s.%s.CoordH", OutFNm.CStr(), LayoutString.CStr(), layout.CStr());
     printf("\nSaving %s...", Name.CStr());
     TSnap::SaveTxt(CoordH, Name.CStr(), TStr::Fmt("Layout coordinates for %s method", layout.CStr()), "NodeId", "x\ty");
     printf(" DONE\n");  
