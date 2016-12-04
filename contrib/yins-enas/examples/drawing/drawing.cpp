@@ -256,7 +256,7 @@ int main(int argc, char* argv[]) {
   // Layout method
   
   const TStr layout = Env.GetIfArgPrefixStr("--layout:", "circular", "layout algorithm (random / circular / reingold / atlas / precomputed)");
-  const TStr precomputed = Env.GetIfArgPrefixStr("--precomputed:", "", "precomputed layout (*.CoordH)");
+  const TStr initial = Env.GetIfArgPrefixStr("--initial:", "", "initial precomputed layout (*.CoordH)");
 
   // Reingold
   
@@ -396,7 +396,36 @@ int main(int argc, char* argv[]) {
   
   printf("\nComputing %s layout...", layout.CStr());
   
-  if (layout == "random") {
+
+  if (initial == "random") {
+
+    TSnap::RandomLayout(NIdV, CoordH);
+    printf("\nRANDOM\n\n");
+
+  } else if (initial == "circular") {
+
+    TSnap::CircularLayout(NIdV, CoordH);
+    printf("\nCIRCULAR\n\n");
+
+  } else if (!initial.Empty()) {
+
+    CoordH = TSnap::LoadTxtIntFltPrH(initial);
+    printf("\nPRECOMPUTED\n\n");
+
+  } else {
+
+    TSnap::RandomLayout(NIdV, CoordH);
+
+  }
+
+  if (layout == "precomputed") {
+
+    if (initial.Empty()) {
+      IAssertR(false, "Precomputed must be specified.");
+    }
+    LayoutString = TStr::Fmt("");
+
+  } else if (layout == "random") {
 
     TSnap::RandomLayout(NIdV, CoordH);
     LayoutString = TStr::Fmt("");
@@ -417,13 +446,6 @@ int main(int argc, char* argv[]) {
     TSnap::AtlasLayout(WGraph, NIdV, CoordH, iterations, cooling, scaling, gravity, weights, nohubs, linlog);
     LayoutString = TStr::Fmt("C%3.2e.S%3.2e.G%3.2e.W%3.2e.H%d.L%d", cooling, scaling, gravity, weights, nohubs, linlog);
 
-  } else if (layout == "precomputed") {
-
-    if (precomputed.Empty()) {
-      IAssertR(false, "Precomputed must be specified.");
-    }
-    CoordH = TSnap::LoadTxtIntFltPrH(precomputed);
-
   } else {
 
     IAssertR(false, "Layout must be one of \"random\", \"circular\", \"reingold\", \"atlas\", or \"precomputed\".");
@@ -437,7 +459,7 @@ int main(int argc, char* argv[]) {
   
   if (layout != "precomputed") {
 
-    Name = TStr::Fmt("%s.%s.%s.CoordH", OutFNm.CStr(), LayoutString.CStr(), layout.CStr());
+    Name = TStr::Fmt("%s.%s.%s.%dx%d.CoordH", OutFNm.CStr(), LayoutString.CStr(), layout.CStr(), w, h);
     printf("\nSaving %s...", Name.CStr());
     TSnap::SaveTxt(CoordH, Name.CStr(), TStr::Fmt("Layout coordinates for %s method", layout.CStr()), "NodeId", "x\ty");
     printf(" DONE\n");  
@@ -472,7 +494,7 @@ int main(int argc, char* argv[]) {
   
     #ifdef CAIRO_HAS_PNG_FUNCTIONS
 
-      Name = TStr::Fmt("%s.%s.%dx%d.PNG", OutFNm.CStr(), layout.CStr(), w, h);
+      Name = TStr::Fmt("%s.%s.%s.%dx%d.PNG", OutFNm.CStr(), LayoutString.CStr(), layout.CStr(), w, h);
       printf("\nDrawing %s...", Name.CStr());
       Cairo::RefPtr<Cairo::ImageSurface> surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h);
       

@@ -50,7 +50,7 @@ void ReingoldLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, 
   int N = Graph->GetNodes();
   
   // Initialize positions using circular layout method
-  TSnap::CircularLayout(NIdV, CoordH);
+  // TSnap::CircularLayout(NIdV, CoordH);
   for (U = 0; U < NIdV.Len(); U++) {
     DispH.AddKey(NIdV[U]);
   }
@@ -155,7 +155,7 @@ void AtlasLayout(const PGraph& Graph, const TIntV& NIdV, TIntFltPrH& CoordH, con
   int N = Graph->GetNodes();
   
   // Initialize positions using circular layout method
-  TSnap::RandomLayout(NIdV, CoordH);
+  // TSnap::RandomLayout(NIdV, CoordH);
   for (U = 0; U < NIdV.Len(); U++) {
     DispH.AddKey(NIdV[U]);
     DegH.AddDat(NIdV[U], Graph->GetNI(NIdV[U]).GetDeg());
