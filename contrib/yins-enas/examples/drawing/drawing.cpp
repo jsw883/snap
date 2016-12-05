@@ -225,7 +225,7 @@ void GetNIdColH(
   TIntStrH NIdColH;
   if (!FNm.Empty()) {
     TStr Ext = FNm.RightOfLast('.').CStr();
-    if (Ext == "NIdHEXH") {
+    if (Ext == "NIdHexH") {
       NIdColH = TSnap::LoadTxtIntStrH(FNm);
       ConvertHexToRGB(NIdColH, NIdRGBH);
     } else if (Ext == "NIdCategoryH") {
@@ -244,7 +244,7 @@ void GetNIdColH(
         NIdRGBH.AddDat(HI.GetKey(), RGBH.GetDat(HI.GetDat()));
       }
     } else {
-      IAssertR(false, "External color vectors must have extension NIdHEXH or NIdCategoryH");
+      IAssertR(false, "External color vectors must have extension NIdHexH or NIdCategoryH");
     }
   } else {
     for (TIntV::TIter VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
