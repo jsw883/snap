@@ -220,13 +220,35 @@ void GetNIdValH(
 }
 
 void GetNIdColH(
-    const TStr& FNm, TIntStrH& NIdColH, const TIntV& NIdV,
-    const TStr DefaultCol) {
+    const TStr& FNm, TIntFltTrH& NIdRGBH, const TIntV& NIdV,
+    const TFltTr DefaultCol, const double& S = 1.0, const double& L = 0.5) {
+  TIntStrH NIdColH;
   if (!FNm.Empty()) {
-    NIdColH = TSnap::LoadTxtIntStrH(FNm);
+    TStr Ext = FNm.RightOfLast('.').CStr();
+    if (Ext == "NIdHEXH") {
+      NIdColH = TSnap::LoadTxtIntStrH(FNm);
+      ConvertHexToRGB(NIdColH, NIdRGBH);
+    } else if (Ext == "NIdCategoryH") {
+      TIntIntH::TIter HI;
+      TIntIntH NIdCategoryH = TSnap::LoadTxtIntIntH(FNm);
+      int MaxCategory;
+      for (HI = NIdCategoryH.BegI(); HI < NIdCategoryH.EndI(); HI++) {
+        const TInt& Category = HI.GetDat();
+        if (Category > MaxCategory) {
+          MaxCategory = Category;
+        }
+      }
+      TIntFltTrH RGBH;
+      GenHSLBasedRGB(MaxCategory, S, L, RGBH);
+      for (HI = NIdCategoryH.BegI(); HI < NIdCategoryH.EndI(); HI++) {
+        NIdRGBH.AddDat(HI.GetKey(), RGBH.GetDat(HI.GetDat()));
+      }
+    } else {
+      IAssertR(false, "External color vectors must have extension NIdHEXH or NIdCategoryH");
+    }
   } else {
     for (TIntV::TIter VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
-      NIdColH.AddDat(VI->Val, DefaultCol);
+      NIdRGBH.AddDat(VI->Val, DefaultCol);
     }
   }
 }
@@ -302,7 +324,6 @@ int main(int argc, char* argv[]) {
   ConvertHexToRGB(vc, vcRGB);
 
   if (vcAlpha < 0) vcAlpha = vfAlpha;
-
   
   // Edge appearance
   
@@ -349,7 +370,6 @@ int main(int argc, char* argv[]) {
   
   TIntFltH NIdvrH, NIdvwH;
   TIntV NIdV;
-  TIntStrH NIdvfH, NIdvcH;
   TIntFltTrH NIdvfRGBH, NIdvcRGBH;
 
   WGraph->GetNIdV(NIdV);
@@ -373,12 +393,10 @@ int main(int argc, char* argv[]) {
     }
     printf("\nCommunities computed (quality: %f)\n", LouvainQ);
   } else {
-    GetNIdColH(NIdvfHFNm, NIdvfH, NIdV, vf);
-    ConvertHexToRGB(NIdvfH, NIdvfRGBH);
+    GetNIdColH(NIdvfHFNm, NIdvfRGBH, NIdV, vfRGB, S, L);
   }
 
-  GetNIdColH(NIdvcHFNm, NIdvcH, NIdV, vc);
-  ConvertHexToRGB(NIdvcH, NIdvcRGBH);
+  GetNIdColH(NIdvcHFNm, NIdvcRGBH, NIdV, vcRGB, S, L);
 
   // Layout method
   
