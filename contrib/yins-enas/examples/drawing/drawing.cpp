@@ -208,10 +208,10 @@ void ScaleH(
 
 void GetNIdValH(
     const TStr& FNm, TIntFltH& NIdValH, const TIntV& NIdV,
-    const TFlt DefaultVal) {
+    const TFlt DefaultVal, const double scale = 3.0) {
   if (!FNm.Empty()) {
     NIdValH = TSnap::LoadTxtIntFltH(FNm);
-    ScaleH(NIdValH, DefaultVal, 3*DefaultVal);
+    ScaleH(NIdValH, DefaultVal, scale*DefaultVal);
   } else {
     for (TIntV::TIter VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
       NIdValH.AddDat(VI->Val, DefaultVal);
@@ -300,6 +300,10 @@ int main(int argc, char* argv[]) {
 
   double vr = Env.GetIfArgPrefixFlt("--vr:", 0.0, "vertex radius relative to minimum axis (default: 0.1*sqrt(nodes))");
   double vw = Env.GetIfArgPrefixFlt("--vw:", 1.0, "vertex border width");
+  double vrscale = Env.GetIfArgPrefixFlt("--vrscale:", 3.0, "vertex radius scale");
+  double vwscale = Env.GetIfArgPrefixFlt("--vwscale:", 3.0, "vertex border scale");
+
+
   const TStr vf = Env.GetIfArgPrefixStr("--vf:", "000000", "vertex fill (default: black)");
   const TStr vc = Env.GetIfArgPrefixStr("--vc:", "FFFFFF", "vertex border color (default: white)");
   double vfAlpha = Env.GetIfArgPrefixFlt("--vfalpha:", 1.0, "vertex fill alpha");
@@ -374,8 +378,8 @@ int main(int argc, char* argv[]) {
 
   WGraph->GetNIdV(NIdV);
 
-  GetNIdValH(NIdvrHFNm, NIdvrH, NIdV, vr);
-  GetNIdValH(NIdvwHFNm, NIdvwH, NIdV, vw);
+  GetNIdValH(NIdvrHFNm, NIdvrH, NIdV, vr, vrscale);
+  GetNIdValH(NIdvwHFNm, NIdvwH, NIdV, vw, vwscale);
 
   if (community) {
     // Compute community

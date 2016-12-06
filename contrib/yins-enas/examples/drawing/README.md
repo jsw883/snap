@@ -23,7 +23,7 @@ Options:
                         (default: circular)
     --iterations    number of iterations for reingold (default: 1500)
     --cooling       cooling coefficient for reingold (default: 1.5)
-	--shuffle       shuffle vertex order for circular layout (and reingold)
+	  --shuffle       shuffle vertex order for circular layout (and reingold)
                         (default: F)
     --scaling       repulsion scaling for force directed (atlas)
     --gravity       gravity for force directed (atlas)
@@ -33,6 +33,8 @@ Options:
     --vr            vertex radius relative to minimum axis
                         (default: 0.1*sqrt(nodes))
     --vw            vertex border width (default: 1)
+    --vrscale       vertex radius scale (default: 3)
+    --vwscale       vertex border scale (default: 3)
     --vf            vertex fill (default: 000000)
     --vc            vertex border color (default: FFFFFF)
     --vfalpha       vertex fill alpha (default: 1)
@@ -85,7 +87,7 @@ mkdir $ROOT/$EXAMPLE
            --cooling:1.5 --shuffle:T --vf:FF0000 --ecalpha:0.1 \
            --label:T \
            --vrv:$ROOT/wcentrality/$DATASET.WPgRH \
-           --vfv:$ROOT/wcommunity/$DATASET.louvain.NIdHEXH
+           --vfv:$ROOT/wcommunity/$DATASET.louvain.NIdHexH
 ```
 
 ```bash
@@ -103,5 +105,5 @@ mkdir $ROOT/$EXAMPLE
            --vf:FF0000 --ecalpha:0.1 \
            --label:T \
            --vrv:$ROOT/wcentrality/$DATASET.WPgRH \
-           --vfv:$ROOT/wcommunity/$DATASET.louvain.NIdHEXH
+           --vfv:$ROOT/wcommunity/$DATASET.louvain.NIdHexH
 ```
