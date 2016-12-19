@@ -269,7 +269,7 @@ void GetEValH(
     ScaleH(EValH, minVal, maxVal);
   } else {
     for (PFltWNGraph::TObj::TEdgeI EI = WGraph->BegEI(); EI < WGraph->EndEI(); EI++) {
-      EValH.AddDat(TIntPr(EI.GetSrcNId(), EI.GetSrcNId()), defaultVal);
+      EValH.AddDat(TIntPr(EI.GetSrcNId(), EI.GetDstNId()), defaultVal);
     }
   }
 }
@@ -303,7 +303,7 @@ void GetEColH(
     }
   } else {
     for (PFltWNGraph::TObj::TEdgeI EI = WGraph->BegEI(); EI < WGraph->EndEI(); EI++) {
-      ERGBH.AddDat(TIntPr(EI.GetSrcNId(), EI.GetSrcNId()), DefaultCol);
+      ERGBH.AddDat(TIntPr(EI.GetSrcNId(), EI.GetDstNId()), DefaultCol);
     }
   }
 }
