@@ -117,6 +117,45 @@ THash<TInt, TFltTr> TSnap::LoadTxtIntFltTrH(const TStr& FNm) {
   return GenH;
 }
 
+TIntPrIntH TSnap::LoadTxtIntPrIntH(const TStr& FNm) {
+  TSsParser Ss(FNm);
+  TIntPrIntH GenH;
+  int Key1, Key2;
+  int Val;
+  while (Ss.Next()) {
+    if (Ss.GetInt(0, Key1) && Ss.GetInt(1, Key2) && Ss.GetInt(2, Val)) {
+      GenH.AddDat(TIntPr(Key1, Key2), Val);
+    }
+  }
+  return GenH;
+}
+
+TIntPrFltH TSnap::LoadTxtIntPrFltH(const TStr& FNm) {
+  TSsParser Ss(FNm);
+  TIntPrFltH GenH;
+  int Key1, Key2;
+  double Val;
+  while (Ss.Next()) {
+    if (Ss.GetInt(0, Key1) && Ss.GetInt(1, Key2) && Ss.GetFlt(2, Val)) {
+      GenH.AddDat(TIntPr(Key1, Key2), Val);
+    }
+  }
+  return GenH;
+}
+
+TIntPrStrH TSnap::LoadTxtIntPrStrH(const TStr& FNm) {
+  TSsParser Ss(FNm);
+  TIntPrStrH GenH;
+  int Key1, Key2;
+  while (Ss.Next()) {
+    if (Ss.GetInt(0, Key1) && Ss.GetInt(1, Key2)) {
+      const char* Val = Ss.GetFld(2);
+      GenH.AddDat(TIntPr(Key1, Key2), Val);
+    }
+  }
+  return GenH;
+}
+
 // Specific SaveTxt for TIntV
 void TSnap::SaveTxtTIntV(const TIntV& NIdV, const TStr& FNm, const TStr& Desc) {
   typename TIntV::TIter VI;

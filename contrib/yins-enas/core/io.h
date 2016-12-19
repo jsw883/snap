@@ -172,6 +172,10 @@ void SaveTxt(const THash<TKey, TFltTr>& GenVH, const TStr& FNm, const TStr& Desc
 THash<TInt, TIntTr> LoadTxtIntIntTrH(const TStr& FNm);
 THash<TInt, TFltTr> LoadTxtIntFltTrH(const TStr& FNm);
 
+THash<TIntPr, TInt> LoadTxtIntPrIntH(const TStr& FNm);
+THash<TIntPr, TFlt> LoadTxtIntPrFltH(const TStr& FNm);
+THash<TIntPr, TStr> LoadTxtIntPrStrH(const TStr& FNm);
+
 } // namespace TSnap
 
 //#//////////////////////////////////////////////

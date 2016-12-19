@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+typedef THash<TIntPr, TFltTr> TIntPrFltTrH;
+
 template<class T>
 std::string toString(const T& value) {
   std::ostringstream oss;
@@ -39,9 +41,11 @@ void render(
     const TIntFltTrH& NIdvcRGBH, const double& vcAlpha,
     const bool& label,
     const TStr& direction, const double& as, const double& ew,
-    const TFltTr& ecsRGB, const TFltTr& ecdRGB,
-    const double& ecAlpha) {
+    const TIntPrFltTrH& ecRGBH,
+    const TIntPrFltH& eaH) {
   
+  // const TFltTr& ecsRGB, const TFltTr& ecdRGB,
+
   // Variables
   
   Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(surface);
@@ -86,36 +90,40 @@ void render(
   cr->set_line_cap(Cairo::LINE_CAP_BUTT);
   cr->set_line_width(ew);
   
-  if (direction != "gradient" || direction != "duotone") {
-    cr->set_source_rgba(ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ecAlpha);
-  }
+  // if (direction != "gradient" || direction != "duotone") {
+  //   cr->set_source_rgba(ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ea);
+  // }
   
   for (EI = WGraph->BegEI(); EI < WGraph->EndEI(); EI++) {
-    
+
     const TFltPr& SrcCoord = CoordH.GetDat(EI.GetSrcNId());
     const TFltPr& DstCoord = CoordH.GetDat(EI.GetDstNId());
 
-    if (direction == "gradient") {
-      Cairo::RefPtr<Cairo::LinearGradient> grad = Cairo::LinearGradient::create(SrcCoord.Val1, SrcCoord.Val2, DstCoord.Val1, DstCoord.Val2);
-      grad->add_color_stop_rgba(0.0, ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ecAlpha);
-      grad->add_color_stop_rgba(1.0 / 3, ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ecAlpha);
-      grad->add_color_stop_rgba(2.0 / 3, ecdRGB.Val1, ecdRGB.Val2, ecdRGB.Val3, ecAlpha);
-      grad->add_color_stop_rgba(1.0, ecdRGB.Val1, ecdRGB.Val2, ecdRGB.Val3, ecAlpha);
-      cr->set_source(grad);
-      cr->line_to(DstCoord.Val1, DstCoord.Val2);
-      cr->stroke();
-    }
+    const TFltTr& ECol = ecRGBH.GetDat(TIntPr(EI.GetSrcNId(), EI.GetDstNId()));
+
+    cr->set_source_rgba(ECol.Val1, ECol.Val2, ECol.Val3, eaH.GetDat(TIntPr(EI.GetSrcNId(), EI.GetDstNId())));
+
+    // if (direction == "gradient") {
+    //   Cairo::RefPtr<Cairo::LinearGradient> grad = Cairo::LinearGradient::create(SrcCoord.Val1, SrcCoord.Val2, DstCoord.Val1, DstCoord.Val2);
+    //   grad->add_color_stop_rgba(0.0, ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ea);
+    //   grad->add_color_stop_rgba(1.0 / 3, ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ea);
+    //   grad->add_color_stop_rgba(2.0 / 3, ecdRGB.Val1, ecdRGB.Val2, ecdRGB.Val3, ea);
+    //   grad->add_color_stop_rgba(1.0, ecdRGB.Val1, ecdRGB.Val2, ecdRGB.Val3, ea);
+    //   cr->set_source(grad);
+    //   cr->line_to(DstCoord.Val1, DstCoord.Val2);
+    //   cr->stroke();
+    // }
 
     cr->move_to(SrcCoord.Val1, SrcCoord.Val2);
 
-    if (direction == "duotone") {
-      cr->set_source_rgba(ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ecAlpha);
-      cr->line_to((SrcCoord.Val1 + DstCoord.Val1) / 2, (SrcCoord.Val2 + DstCoord.Val2) / 2);
-      cr->stroke_preserve();
-      cr->set_source_rgba(ecdRGB.Val1, ecdRGB.Val2, ecdRGB.Val3, ecAlpha);
-      cr->line_to(DstCoord.Val1, DstCoord.Val2);
-      cr->stroke();
-    }
+    // if (direction == "duotone") {
+    //   cr->set_source_rgba(ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ea);
+    //   cr->line_to((SrcCoord.Val1 + DstCoord.Val1) / 2, (SrcCoord.Val2 + DstCoord.Val2) / 2);
+    //   cr->stroke_preserve();
+    //   cr->set_source_rgba(ecdRGB.Val1, ecdRGB.Val2, ecdRGB.Val3, ea);
+    //   cr->line_to(DstCoord.Val1, DstCoord.Val2);
+    //   cr->stroke();
+    // }
 
     if (direction == "arrow") {
       double xdiff = DstCoord.Val1 - SrcCoord.Val1;
@@ -208,13 +216,13 @@ void ScaleH(
 
 void GetNIdValH(
     const TStr& FNm, TIntFltH& NIdValH, const TIntV& NIdV,
-    const TFlt DefaultVal, const double scale = 3.0) {
+    const double defaultVal, const double minVal, const double maxVal) {
   if (!FNm.Empty()) {
     NIdValH = TSnap::LoadTxtIntFltH(FNm);
-    ScaleH(NIdValH, DefaultVal, scale*DefaultVal);
+    ScaleH(NIdValH, minVal, maxVal);
   } else {
     for (TIntV::TIter VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
-      NIdValH.AddDat(VI->Val, DefaultVal);
+      NIdValH.AddDat(VI->Val, defaultVal);
     }
   }
 }
@@ -244,11 +252,58 @@ void GetNIdColH(
         NIdRGBH.AddDat(HI.GetKey(), RGBH.GetDat(HI.GetDat()));
       }
     } else {
-      IAssertR(false, "External color vectors must have extension NIdHexH or NIdCategoryH");
+      IAssertR(false, "External node color vectors must have extension NIdHexH or NIdCategoryH");
     }
   } else {
     for (TIntV::TIter VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
       NIdRGBH.AddDat(VI->Val, DefaultCol);
+    }
+  }
+}
+
+void GetEValH(
+    const TStr& FNm, TIntPrFltH& EValH, const PFltWNGraph& WGraph,
+    const double defaultVal, const double minVal, const double maxVal) {
+  if (!FNm.Empty()) {
+    EValH = TSnap::LoadTxtIntPrFltH(FNm);
+    ScaleH(EValH, minVal, maxVal);
+  } else {
+    for (PFltWNGraph::TObj::TEdgeI EI = WGraph->BegEI(); EI < WGraph->EndEI(); EI++) {
+      EValH.AddDat(TIntPr(EI.GetSrcNId(), EI.GetSrcNId()), defaultVal);
+    }
+  }
+}
+
+void GetEColH(
+    const TStr& FNm, TIntPrFltTrH& ERGBH, const PFltWNGraph& WGraph,
+    const TFltTr DefaultCol, const double& S = 1.0, const double& L = 0.5) {
+  TIntPrStrH EColH;
+  if (!FNm.Empty()) {
+    TStr Ext = FNm.RightOfLast('.').CStr();
+    if (Ext == "EHexH") {
+      EColH = TSnap::LoadTxtIntPrStrH(FNm);
+      ConvertHexToRGB(EColH, ERGBH);
+    } else if (Ext == "ECategoryH") {
+      TIntPrIntH::TIter HI;
+      TIntPrIntH ECategoryH = TSnap::LoadTxtIntPrIntH(FNm);
+      int MaxCategory;
+      for (HI = ECategoryH.BegI(); HI < ECategoryH.EndI(); HI++) {
+        const TInt& Category = HI.GetDat();
+        if (Category > MaxCategory) {
+          MaxCategory = Category;
+        }
+      }
+      TIntFltTrH RGBH;
+      GenHSLBasedRGB(MaxCategory, S, L, RGBH);
+      for (HI = ECategoryH.BegI(); HI < ECategoryH.EndI(); HI++) {
+        ERGBH.AddDat(HI.GetKey(), RGBH.GetDat(HI.GetDat()));
+      }
+    } else {
+      IAssertR(false, "External edge color vectors must have extension EHexH or ECategoryH");
+    }
+  } else {
+    for (PFltWNGraph::TObj::TEdgeI EI = WGraph->BegEI(); EI < WGraph->EndEI(); EI++) {
+      ERGBH.AddDat(TIntPr(EI.GetSrcNId(), EI.GetSrcNId()), DefaultCol);
     }
   }
 }
@@ -334,26 +389,29 @@ int main(int argc, char* argv[]) {
   double ew = Env.GetIfArgPrefixFlt("--ew:", 1.0, "edge width");
   
   const TStr ec = Env.GetIfArgPrefixStr("--ec:", "000000", "edge color (default: black)");
-  TStr ecs = Env.GetIfArgPrefixStr("--ecs:", "FF0000", "source edge color (default: red)");
-  TStr ecd = Env.GetIfArgPrefixStr("--ecd:", "0000FF", "destination edge color (default: blue)");
+  // TStr ecs = Env.GetIfArgPrefixStr("--ecs:", "FF0000", "source edge color (default: red)");
+  // TStr ecd = Env.GetIfArgPrefixStr("--ecd:", "0000FF", "destination edge color (default: blue)");
 
-  double ecAlpha = Env.GetIfArgPrefixFlt("--ecalpha:", 0.25, "edge color alpha");
+  double ea = Env.GetIfArgPrefixFlt("--ea:", 0.25, "edge color alpha");
+  double eamin = Env.GetIfArgPrefixFlt("--eamin:", 0.10, "min edge color alpha");
+  double eamax = Env.GetIfArgPrefixFlt("--eamax:", 0.40, "max edge color alpha");
+
+  const TStr ecHFNm = Env.GetIfArgPrefixStr("--ecv:", "", "edge color mapping (overrides --ec)");
+  const TStr eaHFNm = Env.GetIfArgPrefixStr("--eav:", "", "relative edge alpha mapping (overrides --ea)");
   
   const TStr direction = Env.GetIfArgPrefixStr("--direction:", "", "how to show directionality (arrow / gradient / duotone)");
   double as = Env.GetIfArgPrefixFlt("--as:", 0.0, "arrow size relative to minimum axis (default: 0.05*sqrt(nodes))");
 
-  TFltTr ecsRGB, ecdRGB;
+  TFltTr ecRGB;  // , ecsRGB, ecdRGB;
   
-  if (direction != "gradient" || direction != "duotone") {
-    ecs = ec;
-    ecd = ec;
-  }
+  // if (direction != "gradient" || direction != "duotone") {
+  //   ecs = ec;
+  //   ecd = ec;
+  // }
 
-  ConvertHexToRGB(ecs, ecsRGB);
-  ConvertHexToRGB(ecd, ecdRGB);
-
-  printf("ecsRGB: (%f, %f, %f)\n", (double) ecsRGB.Val1, (double) ecsRGB.Val2, (double) ecsRGB.Val3);
-  printf("ecdRGB: (%f, %f, %f)\n", (double) ecdRGB.Val1, (double) ecdRGB.Val2, (double) ecdRGB.Val3);
+  ConvertHexToRGB(ec, ecRGB);
+  // ConvertHexToRGB(ecs, ecsRGB);
+  // ConvertHexToRGB(ecd, ecdRGB);
 
   // Variables
   
@@ -375,11 +433,14 @@ int main(int argc, char* argv[]) {
   TIntFltH NIdvrH, NIdvwH;
   TIntV NIdV;
   TIntFltTrH NIdvfRGBH, NIdvcRGBH;
+  
+  TIntPrFltTrH ecRGBH;
+  TIntPrFltH eaH;
 
   WGraph->GetNIdV(NIdV);
 
-  GetNIdValH(NIdvrHFNm, NIdvrH, NIdV, vr, vrscale);
-  GetNIdValH(NIdvwHFNm, NIdvwH, NIdV, vw, vwscale);
+  GetNIdValH(NIdvrHFNm, NIdvrH, NIdV, vr, vr, vr*vrscale);
+  GetNIdValH(NIdvwHFNm, NIdvwH, NIdV, vw, vw, vw*vwscale);
 
   if (community) {
     // Compute community
@@ -401,6 +462,8 @@ int main(int argc, char* argv[]) {
   }
 
   GetNIdColH(NIdvcHFNm, NIdvcRGBH, NIdV, vcRGB, S, L);
+  GetEColH(ecHFNm, ecRGBH, WGraph, ecRGB, S, L);
+  GetEValH(eaHFNm, eaH, WGraph, ea, eamin, eamax);
 
   // Layout method
   
@@ -498,7 +561,7 @@ int main(int argc, char* argv[]) {
       printf("\nDrawing %s...", Name.CStr());
       Cairo::RefPtr<Cairo::PdfSurface> surface = Cairo::PdfSurface::create(Name.CStr(), w, h);
       
-      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, label, direction, as, ew, ecsRGB, ecdRGB, ecAlpha);
+      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, label, direction, as, ew, ecRGBH, eaH);
       
       printf("DONE\n");
       
@@ -520,7 +583,7 @@ int main(int argc, char* argv[]) {
       printf("\nDrawing %s...", Name.CStr());
       Cairo::RefPtr<Cairo::ImageSurface> surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h);
       
-      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, label, direction, as, ew, ecsRGB, ecdRGB, ecAlpha);
+      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, label, direction, as, ew, ecRGBH, eaH);
 
       surface->write_to_png(Name.CStr());
       
