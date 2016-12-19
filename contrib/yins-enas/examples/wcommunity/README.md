@@ -38,6 +38,7 @@ Options:
     --eps       minimum quality improvement threshold (default: 1.0e-5)
     --moves     minimum number of moves (relative) (default: 1.0e-2)
     --iters     maximum number of iterations (default: 1.0e+4)
+    --subgraphs output community subgraphs: T / F (default: F)
 ```
 
 ### Example ###
