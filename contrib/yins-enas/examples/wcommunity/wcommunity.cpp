@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
       const int& CmtyId = HI.GetKey();
       const TIntV& NIdV = HI.GetDat();
       WSubGraph = TSnap::GetSubGraph(WGraph, NIdV);
-      TSnap::SaveFltWEdgeList(WSubGraph, TStr::Fmt("%s/%04d.snap", OutDir.CStr(), CmtyId), TStr::Fmt("Wcommunity: %04d", CmtyId));
+      TSnap::SaveFltWEdgeList(WSubGraph, TStr::Fmt("%s/%04d/data.snap", OutDir.CStr(), CmtyId), TStr::Fmt("Wcommunity: %04d", CmtyId));
     }
 
     printf("2\n");
