@@ -107,3 +107,21 @@ mkdir $ROOT/$EXAMPLE
            --vrv:$ROOT/wcentrality/$DATASET.WPgRH \
            --vfv:$ROOT/wcommunity/$DATASET.louvain.NIdHexH
 ```
+
+```bash
+DATASET=USairport2010
+EXT=snap
+EXAMPLE=drawing
+ROOT=../../datasets/$DATASET
+rm -rf $ROOT/$EXAMPLE
+mkdir $ROOT/$EXAMPLE
+./$EXAMPLE -i:$ROOT/vespignani/$DATASET-3.727594e-04.$EXT \
+           -o:$ROOT/$EXAMPLE/$DATASET \
+           -w:2500 -h:2500 -b:50 --layout:atlas --iterations:1500 \
+           --cooling:1.5 --shuffle:T \
+           --scaling:5e-3 --gravity:5 --weights:0.5 --nohubs:F --linlog:T \
+           --vf:FF0000 --ecalpha:0.1 \
+           --label:T \
+           --vrv:$ROOT/wcentrality/$DATASET.WPgRH \
+           --vfv:$ROOT/NodeCol.NIdCategoryH
+```

@@ -230,7 +230,7 @@ void GetNIdValH(
 void GetNIdColH(
     const TStr& FNm, TIntFltTrH& NIdRGBH, const TIntV& NIdV,
     const TFltTr DefaultCol, const double& S = 1.0, const double& L = 0.5) {
-  TIntStrH NIdColH;
+  TIntStrH NIdColH, CategoryColH;
   if (!FNm.Empty()) {
     TStr Ext = FNm.RightOfLast('.').CStr();
     if (Ext == "NIdHexH") {
@@ -247,7 +247,13 @@ void GetNIdColH(
         }
       }
       TIntFltTrH RGBH;
-      GenHSLBasedRGB(MaxCategory, S, L, RGBH);
+      try {
+        TStr CategoryHexFNm = TStr::Fmt("%s.%s", FNm.LeftOfLast('.').CStr(), "CategoryHexH");
+        CategoryColH = TSnap::LoadTxtIntStrH(CategoryHexFNm);
+        ConvertHexToRGB(CategoryColH, RGBH);
+      } catch (...) {
+        GenHSLBasedRGB(MaxCategory, S, L, RGBH);
+      }
       for (HI = NIdCategoryH.BegI(); HI < NIdCategoryH.EndI(); HI++) {
         NIdRGBH.AddDat(HI.GetKey(), RGBH.GetDat(HI.GetDat()));
       }
