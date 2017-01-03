@@ -12,6 +12,7 @@ make-examples:
 	$(MAKE) -C generators
 	$(MAKE) -C statistics
 	$(MAKE) -C structures
+	$(MAKE) -C subgraphs
 	$(MAKE) -C subsets
 	$(MAKE) -C vespignani
 	$(MAKE) -C wcentrality
@@ -27,6 +28,7 @@ clean:
 	$(MAKE) clean -C generators
 	$(MAKE) clean -C statistics
 	$(MAKE) clean -C structures
+	$(MAKE) clean -C subgraphs
 	$(MAKE) clean -C subsets
 	$(MAKE) clean -C vespignani
 	$(MAKE) clean -C wcentrality
