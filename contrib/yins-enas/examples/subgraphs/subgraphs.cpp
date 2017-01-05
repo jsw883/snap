@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
       for (int i = 0; i < n; i++) {
         NIdV.Add(WDegH.GetKey(i));
       }
-      Name = "degree";
+      Name = "wdegree";
     } else {
       IAssertR(false, "Measure must be one of degree or wdegree.");
     }
