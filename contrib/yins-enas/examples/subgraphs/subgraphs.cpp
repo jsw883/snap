@@ -12,9 +12,7 @@ int main(int argc, char* argv[]) {
   Try
   
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", "input network (tab separated list of edges with edge weights)");
-  const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
-  const TStr OutDir = OutFNm.LeftOfLast('/');
-  const TStr BseFNm = OutFNm.RightOfLast('/');
+  const TStr OutDir = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const int n = Env.GetIfArgPrefixInt("-n:", 10, "number of egos to traverse");
   const int k = Env.GetIfArgPrefixInt("-k:", 1, "depth of ego traversal");
   const TEdgeDir d = (TEdgeDir) Env.GetIfArgPrefixInt("-d:", 3, "direction of ego traversal: in = 1, out = 2, undirected = 3");
