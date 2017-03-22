@@ -94,12 +94,12 @@ void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir, const T
     U = Top.Val1; depth = Top.Val2; path = Top.Val3; WD = Top.Val4;
 
     printf("U: %d, depth: %d, path: %d, WD: %f", U, depth, path, WD);
-    printf("IsNode: %d", Graph->IsNode(U));
+    printf(", IsNode: %d", Graph->IsNode(U));
 
     UI = Graph->GetNI(U);
     Deg = UI.GetDeg(dir);
 
-    printf("Deg: %d", Deg);
+    printf(", Deg: %d", Deg);
 
     edge = 0;
     Queue.Pop(); // deletes memory
@@ -116,41 +116,41 @@ void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir, const T
         // WEIGHTED DISTANCE
         if (WD == 0) {
 
-          printf("WD: ");
+          printf(", WD: ");
           
           VWD = UI.GetNbrEW(edge, dir);
 
-          printf("%f, ", VWD);
+          printf("%f", VWD);
           
           if (!preNormalized) { VWD /= UI.GetWDeg(dir); }
         } else {
           
-          printf("WD: ");
+          printf(", WD: ");
           
           VWD = WD * UI.GetNbrEW(edge, dir);
           if (!preNormalized) { VWD /= UI.GetWDeg(dir); }
 
-          printf("%f, ", VWD);
+          printf("%f", VWD);
           
         }
         // STORE
 
-        printf("store: ");
+        printf(", store: ");
         
         if (NIdVWDH.IsKey(V) && VWD > tol) {
           NIdVWDH.GetDat(V) += VWD;
           
-          printf("stored, ");
+          printf("stored");
           
         } else {
 
-          printf("ignored, ");
+          printf("ignored");
           
         }
         
         // CONTINUE
 
-        printf("continue: ");
+        printf(", continue: ");
           
         if (depth + 1 < k && VWD > tol) {
           temp++;
@@ -165,7 +165,7 @@ void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir, const T
 
           Queue.Push(TQueueQuad(V, depth + 1, temp, VWD));
 
-          printf("updated,  ");
+          printf("updated");
 
         } else {
 
@@ -175,9 +175,11 @@ void TFixedMemoryWD<PGraph>::GetBFS(const int& NId, const TEdgeDir& dir, const T
       
         printf(")\n");
 
-      }
+      } else {
 
-      printf("\n");
+        printf("skipped)\n");
+
+      }
 
       ++edge;
     }
