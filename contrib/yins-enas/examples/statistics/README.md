@@ -42,10 +42,13 @@ This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
 which is included in this repository. 
 
 ```bash
-DATASET=../../datasets/USairport2010
-rm -rf $DATASET/statistics
-mkdir $DATASET/statistics
-./statistics -i:$DATASET/USairport2010.snap \
-             -o:$DATASET/statistics/USairport2010 \
-             --exact:T
+DATASET=USairport2010
+EXT=snap
+EXAMPLE=statistics
+ROOT=../../datasets/$DATASET
+rm -rf $ROOT/$EXAMPLE
+mkdir $ROOT/$EXAMPLE
+./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
+           -o:$ROOT/$EXAMPLE/$DATASET \
+           --exact:T
 ```

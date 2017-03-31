@@ -52,13 +52,26 @@ TIntFltH TSnap::LoadTxtIntFltH(const TStr& FNm) {
   return GenH;
 }
 
+TIntStrH TSnap::LoadTxtIntStrH(const TStr& FNm) {
+  TSsParser Ss(FNm);
+  TIntStrH GenH;
+  int Key;
+  while (Ss.Next()) {
+    if (Ss.GetInt(0, Key)) {
+      const char* Val = Ss.GetFld(1);
+      GenH.AddDat(Key, Val);
+    }
+  }
+  return GenH;
+}
+
 TIntIntPrH TSnap::LoadTxtIntIntPrH(const TStr& FNm) {
   TSsParser Ss(FNm);
   TIntIntPrH GenH;
   int Key;
   int Val1, Val2;
   while (Ss.Next()) {
-    if (Ss.GetInt(0, Key) && Ss.GetInt(1, Val1) && Ss.GetInt(1, Val2)) {
+    if (Ss.GetInt(0, Key) && Ss.GetInt(1, Val1) && Ss.GetInt(2, Val2)) {
       GenH.AddDat(Key, TIntPr(Val1, Val2));
     }
   }
@@ -71,8 +84,73 @@ TIntFltPrH TSnap::LoadTxtIntFltPrH(const TStr& FNm) {
   int Key;
   double Val1, Val2;
   while (Ss.Next()) {
-    if (Ss.GetInt(0, Key) && Ss.GetFlt(1, Val1) && Ss.GetFlt(1, Val2)) {
+    if (Ss.GetInt(0, Key) && Ss.GetFlt(1, Val1) && Ss.GetFlt(2, Val2)) {
       GenH.AddDat(Key, TFltPr(Val1, Val2));
+    }
+  }
+  return GenH;
+}
+
+THash<TInt, TIntTr> TSnap::LoadTxtIntIntTrH(const TStr& FNm) {
+  TSsParser Ss(FNm);
+  THash<TInt, TIntTr> GenH;
+  int Key;
+  int Val1, Val2, Val3;
+  while (Ss.Next()) {
+    if (Ss.GetInt(0, Key) && Ss.GetInt(1, Val1) && Ss.GetInt(2, Val2) && Ss.GetInt(3, Val3)) {
+      GenH.AddDat(Key, TIntTr(Val1, Val2, Val3));
+    }
+  }
+  return GenH;
+}
+
+THash<TInt, TFltTr> TSnap::LoadTxtIntFltTrH(const TStr& FNm) {
+  TSsParser Ss(FNm);
+  THash<TInt, TFltTr> GenH;
+  int Key;
+  double Val1, Val2, Val3;
+  while (Ss.Next()) {
+    if (Ss.GetInt(0, Key) && Ss.GetFlt(1, Val1) && Ss.GetFlt(2, Val2) && Ss.GetFlt(3, Val3)) {
+      GenH.AddDat(Key, TFltTr(Val1, Val2, Val3));
+    }
+  }
+  return GenH;
+}
+
+TIntPrIntH TSnap::LoadTxtIntPrIntH(const TStr& FNm) {
+  TSsParser Ss(FNm);
+  TIntPrIntH GenH;
+  int Key1, Key2;
+  int Val;
+  while (Ss.Next()) {
+    if (Ss.GetInt(0, Key1) && Ss.GetInt(1, Key2) && Ss.GetInt(2, Val)) {
+      GenH.AddDat(TIntPr(Key1, Key2), Val);
+    }
+  }
+  return GenH;
+}
+
+TIntPrFltH TSnap::LoadTxtIntPrFltH(const TStr& FNm) {
+  TSsParser Ss(FNm);
+  TIntPrFltH GenH;
+  int Key1, Key2;
+  double Val;
+  while (Ss.Next()) {
+    if (Ss.GetInt(0, Key1) && Ss.GetInt(1, Key2) && Ss.GetFlt(2, Val)) {
+      GenH.AddDat(TIntPr(Key1, Key2), Val);
+    }
+  }
+  return GenH;
+}
+
+TIntPrStrH TSnap::LoadTxtIntPrStrH(const TStr& FNm) {
+  TSsParser Ss(FNm);
+  TIntPrStrH GenH;
+  int Key1, Key2;
+  while (Ss.Next()) {
+    if (Ss.GetInt(0, Key1) && Ss.GetInt(1, Key2)) {
+      const char* Val = Ss.GetFld(2);
+      GenH.AddDat(TIntPr(Key1, Key2), Val);
     }
   }
   return GenH;

@@ -12,7 +12,6 @@ from the ego), and egonet dominant eigenvalues (in / out / undirected).
   - edge density
   - GINI coefficient (concentration)
   - weight of edges (bag of money / horizontal / vertical)
-  - egonet dominant eigenvalues (in / out / undirected)
 
 Here horizontal edges are defined as edges between nodes that are the same
 distance from the ego, and vertical edges are defined as edges that are on
@@ -25,11 +24,6 @@ to enable / disable this (which avoids numerous subgraph invocations).
 Note that the GINI coefficient is computed on the egonet as a child of the
 parent graph, such that edges into and out of the egonet are considered in
 the calculation of "income" or weighted in degree.
-
-For now, dominant eigenvalues are computed using the in / out / undirected
-egonets (using in / out / undirected edge traversal for each node) however
-this is almost certainly duplicate as it is equivalent to transposing the
-weighted adjacency matrix (or symmetrising).
 
 Makefiles are provided for compilation under Windows with Cygwin and gcc,
 and under Mac OS X, Linux, and other Unix operating systems with gcc as
@@ -54,10 +48,13 @@ This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
 which is included in this repository. 
 
 ```bash
-DATASET=../../datasets/USairport2010
-rm -rf $DATASET/egonets
-mkdir $DATASET/egonets
-./egonets -i:$DATASET/USairport2010.snap \
-          -o:$DATASET/egonets/USairport2010 \
-          -k:3 --collate:T
+DATASET=USairport2010
+EXT=snap
+EXAMPLE=egonets
+ROOT=../../datasets/$DATASET
+rm -rf $ROOT/$EXAMPLE
+mkdir $ROOT/$EXAMPLE
+./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
+           -o:$ROOT/$EXAMPLE/$DATASET \
+           -d:3 -k:3 --collate:T
 ```

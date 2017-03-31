@@ -19,38 +19,109 @@ Options:
     -b              output border (default: 10)
     --png           output PNG (default: T)
     --pdf           output PDF (default: T)
-    --layout        layout algorithm (random / circular / reingold)
+    --layout        layout algorithm (random / circular / reingold / atlas)
                         (default: circular)
     --iterations    number of iterations for reingold (default: 1500)
     --cooling       cooling coefficient for reingold (default: 1.5)
-	--shuffle       shuffle vertex order for circular layout (and reingold)
+	  --shuffle       shuffle vertex order for circular layout (and reingold)
                         (default: F)
+    --scaling       repulsion scaling for force directed (atlas)
+    --gravity       gravity for force directed (atlas)
+    --weights       weight influence exponent for force directed (atlas)
+    --nohubs        dissuade hubs for force directed (atlas)
+    --linlog        switch linlog mode for force directed (atlas)
     --vr            vertex radius relative to minimum axis
                         (default: 0.1*sqrt(nodes))
     --vw            vertex border width (default: 1)
-    --vfstr         vertex fill (default: 000000)
-    --vcstr         vertex border color (default: FFFFFF)
+    --vrscale       vertex radius scale (default: 3)
+    --vwscale       vertex border scale (default: 3)
+    --vf            vertex fill (default: 000000)
+    --vc            vertex border color (default: FFFFFF)
     --vfalpha       vertex fill alpha (default: 1)
     --vcalpha       vertex color alpha (default: --vfalpha)
+    --label         label vertices by NId (default: F)
+    --vrv           vertex radius mapping relative to vertex radius
+                        (overrides --vr)
+    --vwv           vertex border width mapping (overrides --vw)
+    --vfv           vertex fill mapping (overrides --vf)
+                        (extension must be either NIdHEXH or NIdCategoryH)
+    --vcv           vertex border color mapping (overrides -- vcstr)
+                        (extension must be either NIdHEXH or NIdCategoryH)
+    --vfcommunity   color vertices by community (overrides --vf and --vfv)
+                        (default: F)
+    --eps           minimum quality improvement threshold
+    --moves         minimum number of moves (relative)
+    --iters         maximum number of iterations
+    -s              community vertex color saturation value (0.0 - 1.0)
+    -l              community vertex lightness value (0.0 - 1.0)
     --ew            edge width (default: 1)
-    --ecstr         edge color (default: black)
+    --ec            edge color (default: black)
+    --ecs           source edge color for gradient and duotone coloring
+                        (default: red)
+    --ecd           destination edge color for gradient and duotone coloring
+                        (default: blue)
     --ecalpha       edge color alpha (default: 0.5)
+    --direction     how to show directionality (arrow / gradient / duotone)
+                        (default: none)
+    --as            arrow size relative to minimum axis
+                        (default: 0.05*sqrt(nodes))
 ```
 
 ### Example ###
 
-This example generates graphs for testing.
+This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
+which is included in this repository.
+
+Run filtering and wcentrality examples before drawing.
 
 ```bash
 DATASET=USairport2010
 EXT=snap
-SCRIPT=drawing
+EXAMPLE=drawing
 ROOT=../../datasets/$DATASET
-rm -rf $DATASET/$SCRIPT
-mkdir $DATASET/$SCRIPT
-./$SCRIPT -i:$ROOT/filtering/$DATASET-3.727594e-04.$EXT \
-          -o:$ROOT/$SCRIPT/$DATASET \
-          --vrv:$ROOT/centrality/$DATASET.pgr \
-          -w:2500 -h:2500 -b:50 --layout:reingold --iterations:1500 \
-          --cooling:1.5 --shuffle:T --vfstr:FF0000 --ecalpha:0.1
+rm -rf $ROOT/$EXAMPLE
+mkdir $ROOT/$EXAMPLE
+./$EXAMPLE -i:$ROOT/vespignani/$DATASET-3.727594e-04.$EXT \
+           -o:$ROOT/$EXAMPLE/$DATASET \
+           -w:2500 -h:2500 -b:50 --layout:reingold --iterations:1500 \
+           --cooling:1.5 --shuffle:T --vf:FF0000 --ecalpha:0.1 \
+           --label:T \
+           --vrv:$ROOT/wcentrality/$DATASET.WPgRH \
+           --vfv:$ROOT/wcommunity/$DATASET.louvain.NIdHexH
+```
+
+```bash
+DATASET=USairport2010
+EXT=snap
+EXAMPLE=drawing
+ROOT=../../datasets/$DATASET
+rm -rf $ROOT/$EXAMPLE
+mkdir $ROOT/$EXAMPLE
+./$EXAMPLE -i:$ROOT/vespignani/$DATASET-3.727594e-04.$EXT \
+           -o:$ROOT/$EXAMPLE/$DATASET \
+           -w:2500 -h:2500 -b:50 --layout:atlas --iterations:1500 \
+           --cooling:1.5 --shuffle:T \
+           --scaling:5e-3 --gravity:5 --weights:0.5 --nohubs:F --linlog:T \
+           --vf:FF0000 --ecalpha:0.1 \
+           --label:T \
+           --vrv:$ROOT/wcentrality/$DATASET.WPgRH \
+           --vfv:$ROOT/wcommunity/$DATASET.louvain.NIdHexH
+```
+
+```bash
+DATASET=USairport2010
+EXT=snap
+EXAMPLE=drawing
+ROOT=../../datasets/$DATASET
+rm -rf $ROOT/$EXAMPLE
+mkdir $ROOT/$EXAMPLE
+./$EXAMPLE -i:$ROOT/vespignani/$DATASET-3.727594e-04.$EXT \
+           -o:$ROOT/$EXAMPLE/$DATASET \
+           -w:2500 -h:2500 -b:50 --layout:atlas --iterations:1500 \
+           --cooling:1.5 --shuffle:T \
+           --scaling:5e-3 --gravity:5 --weights:0.5 --nohubs:F --linlog:T \
+           --vf:FF0000 --ecalpha:0.1 \
+           --label:T \
+           --vrv:$ROOT/wcentrality/$DATASET.WPgRH \
+           --vfv:$ROOT/NodeCol.NIdCategoryH
 ```

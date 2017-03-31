@@ -29,17 +29,15 @@ well. For makefiles, compile the code with `make all`.
 ```
 Usage: ./structures -i:<input network> -o:<output prefix> [Options]
 Options:
-    -i              input network (tab separated list of edges)
-    -o              output prefix (filename extensions added)
-    -d              direction of traversal: in = 1, out = 2, undirected = 3
-                        (default: 3)
-    -p              percolation probability (default: -1)
-    --lowerbound    lower bound for percolation threshold (default: 0.0)
-    --upperbound    upper bound for percolation threshold (default: 1.0)
-    --tolerance     tolerance for percolation threshold (default: 1e-4)
-    --smoothing     repetitions for binary search for percolation threshold 
-                        (default: 100)
-    --iters         number of iterations to average results (default: 10)
+    -i                  input network (tab separated list of edges)
+    -o                  output prefix (filename extensions added)
+    -d                  direction of traversal: in = 1, out = 2, undirected = 3
+                            (default: 3)
+    --loweralphabound   lower bound for alpha (default: 0.0)
+    --upperalphabound   upper bound for alpha (default: 1.0)
+    --step              alpha step size (default: 1e-4)
+    --lowersizebound    lower bound for weakly connected component sizes
+    --uppersizeratio    upper bound for weakly connected component sizes
 ```
 
 ### Example ###
@@ -48,10 +46,14 @@ This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
 which is included in this repository. 
 
 ```bash
-DATASET=../../datasets/USairport2010
-rm -rf $DATASET/structures
-mkdir $DATASET/structures
-./structures -i:$DATASET/USairport2010.snap \
-             -o:$DATASET/structures/USairport2010 \
-             --iters:100
+DATASET=USairport2010
+EXT=snap
+EXAMPLE=structures
+ROOT=../../datasets/$DATASET
+rm -rf $ROOT/$EXAMPLE
+mkdir $ROOT/$EXAMPLE
+./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
+           -o:$ROOT/$EXAMPLE/$DATASET \
+           --loweralphabound:0.0 --upperalphabound:1.0 --step:0.5 \
+           --lowersizebound:3 --uppersizeratio:0.5
 ```

@@ -102,6 +102,7 @@ double FindPercolationThreshold(const PGraph& Graph, const double& tol, const do
   
   printf("----------------------------------------\n");
   printf("Threshold (p: %f)\n", p);
+  printf("----------------------------------------\n");
   printf("\n");
   
   GraphCopy.Clr();
@@ -127,6 +128,7 @@ double FindPercolationThreshold(const PGraph& Graph, const double& tol, const do
   printf("  log(mxWccSz) - log(nextWccSz) = %f\n", log(mxWccSz) - log(nextWccSz));
   
   return p;
+
 }
 
 } // namespace TSnap

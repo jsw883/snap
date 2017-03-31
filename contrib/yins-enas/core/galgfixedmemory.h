@@ -64,6 +64,11 @@ void TFixedMemoryBFS<PGraph>::GetBfsVisitor(const PGraph& SubGraph, TVisitor& Vi
         const TIntTr& Top = Queue.Top();
         U = Top.Val1; depth = Top.Val2; Deg = Top.Val3;
         UI = Graph->GetNI(U);
+
+        if (U < 0) {
+          printf("U: %d, depth: %d, deg: %d", U, depth, Deg);
+        }
+
         edge = 0;
         Queue.Pop();
         while (edge != Deg) { // for all edges
@@ -72,6 +77,11 @@ void TFixedMemoryBFS<PGraph>::GetBfsVisitor(const PGraph& SubGraph, TVisitor& Vi
             case edOutDirected: V = UI.GetOutNId(edge); break;
             case edUnDirected: V = UI.GetNbrNId(edge); break;
           }
+  
+          if (V < 0) {
+            printf(" -> %d: V: %d", edge, V);
+          }
+
           if (SubGraph->IsNode(V)) { // ensures SubGraph node depth = 0
             peekdepth = 0;
           } else {

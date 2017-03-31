@@ -67,13 +67,16 @@ This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
 which is included in this repository. 
 
 ```bash
-DATASET=../../datasets/USairport2010
-rm -rf $DATASET/centrality
-mkdir $DATASET/centrality
-./centrality -i:$DATASET/USairport2010.snap \
-             -e:$DATASET/exogenous.status.TIntFltH \
-             -o:$DATASET/centrality/USairport2010 \
-             -k:3 -c:0.85 -r:0.5 \
-             --eps:1.0e-5 --iters:1e+4 \
-             --collate:T
+DATASET=USairport2010
+EXT=snap
+EXAMPLE=centrality
+ROOT=../../datasets/$DATASET
+rm -rf $ROOT/$EXAMPLE
+mkdir $ROOT/$EXAMPLE
+./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
+           -e:$ROOT/exogenous.status.TIntFltH \
+           -o:$ROOT/$EXAMPLE/$DATASET \
+           -k:3 -c:0.85 -r:0.5 \
+           --eps:1.0e-5 --iters:1e+4 \
+           --collate:F
 ```

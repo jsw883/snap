@@ -50,10 +50,6 @@ Options:
     -i          input network (tab separated list of edges with edge weights)
     -o          output prefix (filename extensions added)
     -g          generator or algorithm to apply (default: 4)
-                    ExpWRGM: Weighted random graph model (exponential weights)
-                           (parameters: w, threshold)
-                    GeoWRGM: Weighted random graph model (geometric weights)
-                           (parameters: w)
                     WPrefAttach: Weighted preferential attachment model
                            (parameters: k)
                     GWShuffling: Global weight reshuffling
@@ -76,10 +72,13 @@ This example uses [USairport2010](/contrib/yins-enas/datasets/USairport2010),
 which is included in this repository. 
 
 ```bash
-DATASET=../../datasets/USairport2010
-rm -rf $DATASET/generators
-mkdir $DATASET/generators
-./generators -i:$DATASET/USairport2010.snap \
-             -o:$DATASET/generators/USairport2010 \
-             -g:GWShuffling
+DATASET=USairport2010
+EXT=snap
+EXAMPLE=generators
+ROOT=../../datasets/$DATASET
+rm -rf $ROOT/$EXAMPLE
+mkdir $ROOT/$EXAMPLE
+./$EXAMPLE -i:$ROOT/$DATASET.$EXT \
+           -o:$ROOT/$EXAMPLE/$DATASET \
+           -g:GWShuffling
 ```

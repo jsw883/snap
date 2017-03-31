@@ -1,8 +1,51 @@
 #include "stdafx.h"
 
+typedef THash<TIntPr, TFltTr> TIntPrFltTrH;
+
+template<class T>
+std::string toString(const T& value) {
+  std::ostringstream oss;
+  oss << value;
+  return oss.str();
+}
+
+template <class T>
+int numDigits(T i) {
+  int d = 0;
+  if (i < 0) d = 1;
+  while (i) {
+    i /= 10;
+    d++;
+  }
+  return d;
+}
+
+void arrowCoords(
+    const TFltPr& SrcCoord, const TFltPr& DstCoord,
+    TFltPr& ACoord, TFltPr& BCoord,
+    const double& arrowSize, const double& arrowAngle = PI * 45.0 / 180) {
+  double angle = atan2 (
+    DstCoord.Val2 - SrcCoord.Val2, DstCoord.Val1 - SrcCoord.Val1) + PI;
+  ACoord.Val1 = DstCoord.Val1 + arrowSize * cos(angle - arrowAngle);
+  ACoord.Val2 = DstCoord.Val2 + arrowSize * sin(angle - arrowAngle);
+  BCoord.Val1 = DstCoord.Val1 + arrowSize * cos(angle + arrowAngle);
+  BCoord.Val2 = DstCoord.Val2 + arrowSize * sin(angle + arrowAngle);
+}
+
 template <class Surface>
-void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<Surface> surface, const double& w, const double& h, const TIntFltH& NIdvrH, const TIntFltH& NIdvwH, const TFltTr& vfRGB, const double& vfAlpha, const TFltTr& vcRGB, const double& vcAlpha, const double& ew, const TFltTr& ecRGB, const double& ecAlpha) {
+void render(
+    const PFltWNGraph& WGraph, const TIntFltPrH& CoordH,
+    Cairo::RefPtr<Surface> surface, const double& w, const double& h,
+    const TIntFltH& NIdvrH, const TIntFltH& NIdvwH,
+    const TIntFltTrH& NIdvfRGBH, const double& vfAlpha,
+    const TIntFltTrH& NIdvcRGBH, const double& vcAlpha,
+    const bool& label,
+    const TStr& direction, const double& as, const double& ew,
+    const TIntPrFltTrH& ecRGBH,
+    const TIntPrFltH& eaH) {
   
+  // const TFltTr& ecsRGB, const TFltTr& ecdRGB,
+
   // Variables
   
   Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(surface);
@@ -16,56 +59,147 @@ void render(const PFltWNGraph& WGraph, const TIntFltPrH& CoordH, Cairo::RefPtr<S
   
   // printf("Transformed\n");
   // printf("-----------\n");
-  // for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
+  // for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {a
   //   TFltPr& UCoord = CoordH.GetDat(VI->Val);
   //   printf("%d: (%f, %f)\n", VI->Val, (double) UCoord.Val1, (double) UCoord.Val2);
   // }
   
   // Config
+
+  // const Cairo::Matrix matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
   
+  Cairo::RefPtr<Cairo::ToyFontFace> font = Cairo::ToyFontFace::create(
+    "", Cairo::FONT_SLANT_ITALIC, Cairo::FONT_WEIGHT_BOLD);
+  cr->set_font_face(font);
+
+  Cairo::TextExtents extents;
+
   // Background
   
   cr->save();
+
   cr->set_source_rgb(1.00, 1.00, 1.00);
   cr->paint();
+
   cr->restore();
   
   // Edges
   
+  cr->save();
+
+  cr->set_line_cap(Cairo::LINE_CAP_BUTT);
   cr->set_line_width(ew);
   
-  cr->set_source_rgba(ecRGB.Val1, ecRGB.Val2, ecRGB.Val3, ecAlpha);
+  // if (direction != "gradient" || direction != "duotone") {
+  //   cr->set_source_rgba(ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ea);
+  // }
+  
   for (EI = WGraph->BegEI(); EI < WGraph->EndEI(); EI++) {
+
     const TFltPr& SrcCoord = CoordH.GetDat(EI.GetSrcNId());
     const TFltPr& DstCoord = CoordH.GetDat(EI.GetDstNId());
+
+    const TFltTr& ECol = ecRGBH.GetDat(TIntPr(EI.GetSrcNId(), EI.GetDstNId()));
+
+    cr->set_source_rgba(ECol.Val1, ECol.Val2, ECol.Val3, eaH.GetDat(TIntPr(EI.GetSrcNId(), EI.GetDstNId())));
+
+    // if (direction == "gradient") {
+    //   Cairo::RefPtr<Cairo::LinearGradient> grad = Cairo::LinearGradient::create(SrcCoord.Val1, SrcCoord.Val2, DstCoord.Val1, DstCoord.Val2);
+    //   grad->add_color_stop_rgba(0.0, ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ea);
+    //   grad->add_color_stop_rgba(1.0 / 3, ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ea);
+    //   grad->add_color_stop_rgba(2.0 / 3, ecdRGB.Val1, ecdRGB.Val2, ecdRGB.Val3, ea);
+    //   grad->add_color_stop_rgba(1.0, ecdRGB.Val1, ecdRGB.Val2, ecdRGB.Val3, ea);
+    //   cr->set_source(grad);
+    //   cr->line_to(DstCoord.Val1, DstCoord.Val2);
+    //   cr->stroke();
+    // }
+
     cr->move_to(SrcCoord.Val1, SrcCoord.Val2);
-    cr->line_to(DstCoord.Val1, DstCoord.Val2);
-    cr->stroke();
+
+    // if (direction == "duotone") {
+    //   cr->set_source_rgba(ecsRGB.Val1, ecsRGB.Val2, ecsRGB.Val3, ea);
+    //   cr->line_to((SrcCoord.Val1 + DstCoord.Val1) / 2, (SrcCoord.Val2 + DstCoord.Val2) / 2);
+    //   cr->stroke_preserve();
+    //   cr->set_source_rgba(ecdRGB.Val1, ecdRGB.Val2, ecdRGB.Val3, ea);
+    //   cr->line_to(DstCoord.Val1, DstCoord.Val2);
+    //   cr->stroke();
+    // }
+
+    if (direction == "arrow") {
+      double xdiff = DstCoord.Val1 - SrcCoord.Val1;
+      double ydiff = DstCoord.Val2 - SrcCoord.Val2;
+      double ratio = (NIdvwH.GetDat(EI.GetDstNId()) / 2 + s * NIdvrH.GetDat(EI.GetDstNId())) / sqrt(xdiff * xdiff + ydiff * ydiff);
+      TFltPr NewDstCoord(DstCoord.Val1 - ratio * xdiff, DstCoord.Val2 - ratio * ydiff);
+      TFltPr ACoord;
+      TFltPr BCoord;
+      arrowCoords(SrcCoord, NewDstCoord, ACoord, BCoord, s *  as);
+      cr->line_to((ACoord.Val1 + BCoord.Val1) / 2, (ACoord.Val2 + BCoord.Val2) / 2);
+      cr->stroke();
+      cr->move_to(NewDstCoord.Val1, NewDstCoord.Val2);
+      cr->line_to(ACoord.Val1, ACoord.Val2);
+      cr->line_to(BCoord.Val1, BCoord.Val2);
+      cr->close_path();
+      cr->fill();
+    }
+
+    if (direction != "gradient" || direction != "duotone" || direction != "arrow") {
+      cr->line_to(DstCoord.Val1, DstCoord.Val2);
+      cr->stroke();
+    }
+
   }
+
+  cr->restore();
   
   // Nodes
-  
+
+  double scale = 2.0 / numDigits(WGraph->GetMxNId());
+
   for (NI = WGraph->BegNI(); NI < WGraph->EndNI(); NI++) {
     
-    const int& NId = NI.GetId(); 
+    cr->save();
+
+    const int& NId = NI.GetId();
     const TFltPr& Coord = CoordH.GetDat(NId);
+    const TFltTr& vfRGB = NIdvfRGBH.GetDat(NId);
+    const TFltTr& vcRGB = NIdvcRGBH.GetDat(NId);
     
+    std::string text = toString(NId);
+
+    cr->translate(Coord.Val1, Coord.Val2);
     cr->set_line_width(NIdvwH.GetDat(NId));
-    
-    cr->arc(Coord.Val1, Coord.Val2, s*NIdvrH.GetDat(NId), 0, 2.0 * PI);
+
+    cr->begin_new_path();
+    cr->arc(0.0, 0.0, s * NIdvrH.GetDat(NId), 0, 2.0 * PI);
+
     cr->set_source_rgba(vfRGB.Val1, vfRGB.Val2, vfRGB.Val3, vfAlpha);
     cr->fill_preserve();
     cr->set_source_rgba(vcRGB.Val1, vcRGB.Val2, vcRGB.Val3, vcAlpha);
     cr->stroke();
+
+    if (label) {
     
+      cr->set_font_size(scale * s * NIdvrH.GetDat(NId));
+      cr->get_text_extents(text, extents);
+      cr->translate(
+        - extents.x_bearing - 0.5 * extents.width,
+        - extents.y_bearing - 0.5 * extents.height);
+      
+      cr->show_text(text);
+
+    }
+
+    cr->restore();
+
   }
-  
+
   cr->show_page();
 
 }
 
 template <class TKey, class TVal>
-void ScaleH(THash<TKey, TVal>& GenH, const double& minVal, const double& maxVal) {
+void ScaleH(
+    THash<TKey, TVal>& GenH, const double& minVal, const double& maxVal) {
   typename THash<TKey, TVal>::TIter HI;
   double minActual = GenH[0], maxActual = GenH[0];
   for (HI = GenH.BegI(); HI < GenH.EndI(); HI++) {
@@ -77,6 +211,106 @@ void ScaleH(THash<TKey, TVal>& GenH, const double& minVal, const double& maxVal)
   for (HI = GenH.BegI(); HI < GenH.EndI(); HI++) {
     TVal& Val = HI.GetDat();
     Val = minVal + scale*(Val - minActual);
+  }
+}
+
+void GetNIdValH(
+    const TStr& FNm, TIntFltH& NIdValH, const TIntV& NIdV,
+    const double defaultVal, const double minVal, const double maxVal) {
+  if (!FNm.Empty()) {
+    NIdValH = TSnap::LoadTxtIntFltH(FNm);
+    ScaleH(NIdValH, minVal, maxVal);
+  } else {
+    for (TIntV::TIter VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
+      NIdValH.AddDat(VI->Val, defaultVal);
+    }
+  }
+}
+
+void GetNIdColH(
+    const TStr& FNm, TIntFltTrH& NIdRGBH, const TIntV& NIdV,
+    const TFltTr DefaultCol, const double& S = 1.0, const double& L = 0.5) {
+  TIntStrH NIdColH, CategoryColH;
+  if (!FNm.Empty()) {
+    TStr Ext = FNm.RightOfLast('.').CStr();
+    if (Ext == "NIdHexH") {
+      NIdColH = TSnap::LoadTxtIntStrH(FNm);
+      ConvertHexToRGB(NIdColH, NIdRGBH);
+    } else if (Ext == "NIdCategoryH") {
+      TIntIntH::TIter HI;
+      TIntIntH NIdCategoryH = TSnap::LoadTxtIntIntH(FNm);
+      int MaxCategory;
+      for (HI = NIdCategoryH.BegI(); HI < NIdCategoryH.EndI(); HI++) {
+        const TInt& Category = HI.GetDat();
+        if (Category > MaxCategory) {
+          MaxCategory = Category;
+        }
+      }
+      TIntFltTrH RGBH;
+      try {
+        TStr CategoryHexFNm = TStr::Fmt("%s.%s", FNm.LeftOfLast('.').CStr(), "CategoryHexH");
+        CategoryColH = TSnap::LoadTxtIntStrH(CategoryHexFNm);
+        ConvertHexToRGB(CategoryColH, RGBH);
+      } catch (...) {
+        GenHSLBasedRGB(MaxCategory, S, L, RGBH);
+      }
+      for (HI = NIdCategoryH.BegI(); HI < NIdCategoryH.EndI(); HI++) {
+        NIdRGBH.AddDat(HI.GetKey(), RGBH.GetDat(HI.GetDat()));
+      }
+    } else {
+      IAssertR(false, "External node color vectors must have extension NIdHexH or NIdCategoryH");
+    }
+  } else {
+    for (TIntV::TIter VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
+      NIdRGBH.AddDat(VI->Val, DefaultCol);
+    }
+  }
+}
+
+void GetEValH(
+    const TStr& FNm, TIntPrFltH& EValH, const PFltWNGraph& WGraph,
+    const double defaultVal, const double minVal, const double maxVal) {
+  if (!FNm.Empty()) {
+    EValH = TSnap::LoadTxtIntPrFltH(FNm);
+    ScaleH(EValH, minVal, maxVal);
+  } else {
+    for (PFltWNGraph::TObj::TEdgeI EI = WGraph->BegEI(); EI < WGraph->EndEI(); EI++) {
+      EValH.AddDat(TIntPr(EI.GetSrcNId(), EI.GetDstNId()), defaultVal);
+    }
+  }
+}
+
+void GetEColH(
+    const TStr& FNm, TIntPrFltTrH& ERGBH, const PFltWNGraph& WGraph,
+    const TFltTr DefaultCol, const double& S = 1.0, const double& L = 0.5) {
+  TIntPrStrH EColH;
+  if (!FNm.Empty()) {
+    TStr Ext = FNm.RightOfLast('.').CStr();
+    if (Ext == "EHexH") {
+      EColH = TSnap::LoadTxtIntPrStrH(FNm);
+      ConvertHexToRGB(EColH, ERGBH);
+    } else if (Ext == "ECategoryH") {
+      TIntPrIntH::TIter HI;
+      TIntPrIntH ECategoryH = TSnap::LoadTxtIntPrIntH(FNm);
+      int MaxCategory;
+      for (HI = ECategoryH.BegI(); HI < ECategoryH.EndI(); HI++) {
+        const TInt& Category = HI.GetDat();
+        if (Category > MaxCategory) {
+          MaxCategory = Category;
+        }
+      }
+      TIntFltTrH RGBH;
+      GenHSLBasedRGB(MaxCategory, S, L, RGBH);
+      for (HI = ECategoryH.BegI(); HI < ECategoryH.EndI(); HI++) {
+        ERGBH.AddDat(HI.GetKey(), RGBH.GetDat(HI.GetDat()));
+      }
+    } else {
+      IAssertR(false, "External edge color vectors must have extension EHexH or ECategoryH");
+    }
+  } else {
+    for (PFltWNGraph::TObj::TEdgeI EI = WGraph->BegEI(); EI < WGraph->EndEI(); EI++) {
+      ERGBH.AddDat(TIntPr(EI.GetSrcNId(), EI.GetDstNId()), DefaultCol);
+    }
   }
 }
 
@@ -104,47 +338,90 @@ int main(int argc, char* argv[]) {
   
   // Layout method
   
-  const TStr layout = Env.GetIfArgPrefixStr("--layout:", "circular", "layout algorithm (random / circular / reingold)");
-  
+  const TStr layout = Env.GetIfArgPrefixStr("--layout:", "circular", "layout algorithm (random / circular / reingold / atlas / precomputed)");
+  const TStr initial = Env.GetIfArgPrefixStr("--initial:", "", "initial precomputed layout (*.CoordH)");
+
   // Reingold
   
-  const int iterations = Env.GetIfArgPrefixInt("--iterations:", 1500, "number of iterations for reingold");
-  const double cooling = Env.GetIfArgPrefixFlt("--cooling:", 1.5, "cooling coefficient for reingold");
-  const bool shuffle = Env.GetIfArgPrefixBool("--shuffle:", false, "shuffle vertex order for circular layout (and reingold)");
+  const int iterations = Env.GetIfArgPrefixInt("--iterations:", 1500, "number of iterations for force directed");
+  const double cooling = Env.GetIfArgPrefixFlt("--cooling:", 1.5, "cooling coefficient for force directed");
+  const bool shuffle = Env.GetIfArgPrefixBool("--shuffle:", false, "shuffle vertex order for circular, reingold, and atlas layouts");
   
+  // Atlas
+
+  const double scaling = Env.GetIfArgPrefixFlt("--scaling:", 1, "repulsion scaling for force directed");
+  const double gravity = Env.GetIfArgPrefixFlt("--gravity:", 1, "gravity for force directed");
+  const double weights = Env.GetIfArgPrefixFlt("--weights:", 0, "weight influence exponent for force directed");
+  const bool nohubs = Env.GetIfArgPrefixBool("--nohubs:", false, "dissuade hubs for force directed");
+  const bool linlog = Env.GetIfArgPrefixBool("--linlog:", false, "switch linlog mode for force directed");
+
   // Node appearance
   
+  const bool label = Env.GetIfArgPrefixBool("--label:", false, "label vertices by NId (default: F)");
+
   double vr = Env.GetIfArgPrefixFlt("--vr:", 0.0, "vertex radius relative to minimum axis (default: 0.1*sqrt(nodes))");
   double vw = Env.GetIfArgPrefixFlt("--vw:", 1.0, "vertex border width");
-  const TStr vfHex = Env.GetIfArgPrefixStr("--vfstr:", "000000", "vertex fill (default: black)");
-  const TStr vcHex = Env.GetIfArgPrefixStr("--vcstr:", "FFFFFF", "vertex border color (default: white)");
+  double vrscale = Env.GetIfArgPrefixFlt("--vrscale:", 3.0, "vertex radius scale");
+  double vwscale = Env.GetIfArgPrefixFlt("--vwscale:", 3.0, "vertex border scale");
+
+
+  const TStr vf = Env.GetIfArgPrefixStr("--vf:", "000000", "vertex fill (default: black)");
+  const TStr vc = Env.GetIfArgPrefixStr("--vc:", "FFFFFF", "vertex border color (default: white)");
   double vfAlpha = Env.GetIfArgPrefixFlt("--vfalpha:", 1.0, "vertex fill alpha");
   double vcAlpha = Env.GetIfArgPrefixFlt("--vcalpha:", -1.0, "vertex color alpha (default: --vfalpha)");
   
-  const TStr NIdvrHFNm = Env.GetIfArgPrefixStr("--vrv:", "", "vertex radius mapping relative to vertex radius (--vr)");
+  const TStr NIdvrHFNm = Env.GetIfArgPrefixStr("--vrv:", "", "vertex radius mapping relative to vertex radius (overrides --vr)");
   const TStr NIdvwHFNm = Env.GetIfArgPrefixStr("--vwv:", "", "vertex border width mapping (overrides --vw)");
-  // const TStr NIdvfHexVFNm = Env.GetIfArgPrefixStr("--vfstrv:", "", "vertex fill mapping (overrides --vfstr)");
-  // const TStr NIdvcHexVFNm = Env.GetIfArgPrefixStr("--vcstrv:", "", "vertex border color mapping (overrides --vcstr)");
+  const TStr NIdvfHFNm = Env.GetIfArgPrefixStr("--vfv:", "", "vertex fill mapping (overrides --vf)");
+  const TStr NIdvcHFNm = Env.GetIfArgPrefixStr("--vcv:", "", "vertex border color mapping (overrides --vcstr)");
+  
+  const bool community = Env.GetIfArgPrefixBool("--vfcommunity:", false, "color vertices by community (overrides --vf and --vfv) (default: F)");
+  const double eps = Env.GetIfArgPrefixFlt("--eps:", 1.0e-5, "minimum quality improvement threshold");
+  const double moves = Env.GetIfArgPrefixFlt("--moves:", 1.0e-2, "minimum number of moves (relative)");
+  const int iters = Env.GetIfArgPrefixInt("--iters:", 1.0e+4, "maximum number of iterations");
+
+  const double S = Env.GetIfArgPrefixFlt("-s:", 1.0, "community vertex color saturation value (0.0 - 1.0)");
+  const double L = Env.GetIfArgPrefixFlt("-l:", 0.5, "community vertex lightness value (0.0 - 1.0)");
+  
+  TFltTr vfRGB, vcRGB;
+  
+  ConvertHexToRGB(vf, vfRGB);
+  ConvertHexToRGB(vc, vcRGB);
+
+  if (vcAlpha < 0) vcAlpha = vfAlpha;
   
   // Edge appearance
   
   double ew = Env.GetIfArgPrefixFlt("--ew:", 1.0, "edge width");
-  const TStr ecHex = Env.GetIfArgPrefixStr("--ecstr:", "000000", "edge color (default: black)");
-  double ecAlpha = Env.GetIfArgPrefixFlt("--ecalpha:", 0.25, "edge color alpha");
   
+  const TStr ec = Env.GetIfArgPrefixStr("--ec:", "000000", "edge color (default: black)");
+  // TStr ecs = Env.GetIfArgPrefixStr("--ecs:", "FF0000", "source edge color (default: red)");
+  // TStr ecd = Env.GetIfArgPrefixStr("--ecd:", "0000FF", "destination edge color (default: blue)");
+
+  double ea = Env.GetIfArgPrefixFlt("--ea:", 0.25, "edge color alpha");
+  double eamin = Env.GetIfArgPrefixFlt("--eamin:", 0.10, "min edge color alpha");
+  double eamax = Env.GetIfArgPrefixFlt("--eamax:", 0.40, "max edge color alpha");
+
+  const TStr ecHFNm = Env.GetIfArgPrefixStr("--ecv:", "", "edge color mapping (overrides --ec)");
+  const TStr eaHFNm = Env.GetIfArgPrefixStr("--eav:", "", "relative edge alpha mapping (overrides --ea)");
+  
+  const TStr direction = Env.GetIfArgPrefixStr("--direction:", "", "how to show directionality (arrow / gradient / duotone)");
+  double as = Env.GetIfArgPrefixFlt("--as:", 0.0, "arrow size relative to minimum axis (default: 0.05*sqrt(nodes))");
+
+  TFltTr ecRGB;  // , ecsRGB, ecdRGB;
+  
+  // if (direction != "gradient" || direction != "duotone") {
+  //   ecs = ec;
+  //   ecd = ec;
+  // }
+
+  ConvertHexToRGB(ec, ecRGB);
+  // ConvertHexToRGB(ecs, ecsRGB);
+  // ConvertHexToRGB(ecd, ecdRGB);
+
   // Variables
   
-  TStr Name;
-  
-  TFltTr vfRGB, vcRGB, ecRGB;
-  
-  ConvertHexToRGB(vfHex, vfRGB);
-  ConvertHexToRGB(vcHex, vcRGB);
-  ConvertHexToRGB(ecHex, ecRGB);
-  
-  if (vcAlpha < 0) {
-    vcAlpha = vfAlpha;
-  }
+  TStr Name, LayoutString;
   
   // Load graph and create directed and undirected graphs (pointer to the same memory)
   
@@ -154,52 +431,46 @@ int main(int argc, char* argv[]) {
   
   TSnap::printFltWGraphSummary(WGraph, true, "\nWGraph\n------");
   
-  if (vr == 0.0) {
-    vr = std::min(0.01, 0.1 / sqrt(WGraph->GetNodes()));
-  }
+  // Node appearance
   
-  // Load node appearance array
+  if (vr == 0.0) vr = std::min(0.01, 0.1 / sqrt(WGraph->GetNodes()));
+  if (as == 0.0) as = std::min(0.01, 0.05 / sqrt(WGraph->GetNodes()));
   
   TIntFltH NIdvrH, NIdvwH;
   TIntV NIdV;
-  TIntV::TIter VI;
+  TIntFltTrH NIdvfRGBH, NIdvcRGBH;
   
+  TIntPrFltTrH ecRGBH;
+  TIntPrFltH eaH;
+
   WGraph->GetNIdV(NIdV);
-  
-  if (!NIdvrHFNm.Empty()) {
-    NIdvrH = TSnap::LoadTxtIntFltH(NIdvrHFNm);
-    ScaleH(NIdvrH, vr, 2*vr);
-  } else {
-    for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
-      NIdvrH.AddDat(VI->Val, vr);
+
+  GetNIdValH(NIdvrHFNm, NIdvrH, NIdV, vr, vr, vr*vrscale);
+  GetNIdValH(NIdvwHFNm, NIdvwH, NIdV, vw, vw, vw*vwscale);
+
+  if (community) {
+    // Compute community
+    TIntIntVH NIdCmtyVH;
+    int NCmty;
+    double LouvainQ;
+    LouvainQ = TSnap::LouvainMethod<TSnap::ModularityCommunity<TFlt>, TFlt>(WGraph, NIdCmtyVH, NCmty, edUnDirected, eps, moves, iters);
+    // Get colors
+    TIntFltTrH RGBH;
+    GenHSLBasedRGB(NCmty, S, L, RGBH);
+    // NId
+    TIntIntVH::TIter HI;
+    for (HI = NIdCmtyVH.BegI(); HI < NIdCmtyVH.EndI(); HI++) {
+      NIdvfRGBH.AddDat(HI.GetKey(), RGBH.GetDat(HI.GetDat().Last()));
     }
-  }
-  
-  if (!NIdvwHFNm.Empty()) {
-    NIdvwH = TSnap::LoadTxtIntFltH(NIdvwHFNm);
-    ScaleH(NIdvwH, vw, 2*vw);
+    printf("\nCommunities computed (quality: %f)\n", LouvainQ);
   } else {
-    for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
-      NIdvwH.AddDat(VI->Val, vw);
-    }
+    GetNIdColH(NIdvfHFNm, NIdvfRGBH, NIdV, vfRGB, S, L);
   }
-  
-  // if (!NIdvfHexHFNm.Empty()) {
-    // NIdvfHexH = TSnap::LoadTxtIntFltH(NIdvfHexHFNm);
-  // } else {
-    // for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
-      // NIdvfHexH.AddDat(VI->Val, vw);
-    // }
-  // }
-  
-  // if (!NIdvcHexHFNm.Empty()) {
-    // NIdvcHexH = TSnap::LoadTxtIntFltH(NIdvcHexHFNm);
-  // } else {
-    // for (VI = NIdV.BegI(); VI < NIdV.EndI(); VI++) {
-      // NIdvcHexH.AddDat(VI->Val, vw);
-    // }
-  // }
-  
+
+  GetNIdColH(NIdvcHFNm, NIdvcRGBH, NIdV, vcRGB, S, L);
+  GetEColH(ecHFNm, ecRGBH, WGraph, ecRGB, S, L);
+  GetEValH(eaHFNm, eaH, WGraph, ea, eamin, eamax);
+
   // Layout method
   
   TIntFltPrH CoordH;
@@ -214,18 +485,62 @@ int main(int argc, char* argv[]) {
     NIdDegH.GetKeyV(NIdV); // Circular layout sorted by degree preferentially
   }
   
-  // Layouts
-  
   printf("\nComputing %s layout...", layout.CStr());
   
-  if (layout == "random") {
+
+  if (initial == "random") {
+
     TSnap::RandomLayout(NIdV, CoordH);
-  } else if (layout == "circular") {
+    printf("\nRANDOM\n\n");
+
+  } else if (initial == "circular") {
+
     TSnap::CircularLayout(NIdV, CoordH);
-  } else if (layout == "reingold") {
-    TSnap::ReingoldLayout(WGraph, NIdV, CoordH, iterations, cooling);
+    printf("\nCIRCULAR\n\n");
+
+  } else if (!initial.Empty()) {
+
+    CoordH = TSnap::LoadTxtIntFltPrH(initial);
+    printf("\nPRECOMPUTED\n\n");
+
   } else {
-    IAssertR(false, "Layout must be one of \"random\", \"circular\", \"reingold\".");
+
+    TSnap::RandomLayout(NIdV, CoordH);
+
+  }
+
+  if (layout == "precomputed") {
+
+    if (initial.Empty()) {
+      IAssertR(false, "Precomputed must be specified.");
+    }
+    LayoutString = TStr::Fmt("");
+
+  } else if (layout == "random") {
+
+    TSnap::RandomLayout(NIdV, CoordH);
+    LayoutString = TStr::Fmt("");
+
+  } else if (layout == "circular") {
+
+    TSnap::CircularLayout(NIdV, CoordH);
+    LayoutString = TStr::Fmt("");
+
+  } else if (layout == "reingold") {
+
+    TSnap::ReingoldLayout(WGraph, NIdV, CoordH, iterations, cooling);
+    LayoutString = TStr::Fmt("C%3.2e", cooling);
+
+
+  } else if (layout == "atlas") {
+
+    TSnap::AtlasLayout(WGraph, NIdV, CoordH, iterations, cooling, scaling, gravity, weights, nohubs, linlog);
+    LayoutString = TStr::Fmt("C%3.2e.S%3.2e.G%3.2e.W%3.2e.H%d.L%d", cooling, scaling, gravity, weights, nohubs, linlog);
+
+  } else {
+
+    IAssertR(false, "Layout must be one of \"random\", \"circular\", \"reingold\", \"atlas\", or \"precomputed\".");
+
   }
   TSnap::TransformLayout(CoordH, TFltPr(b, w - b), TFltPr(b, h - b), true);
   
@@ -233,22 +548,26 @@ int main(int argc, char* argv[]) {
   
   // Saving
   
-  Name = TStr::Fmt("%s.%s.CoordH", OutFNm.CStr(), layout.CStr());
-  printf("\nSaving %s...", Name.CStr());
-  TSnap::SaveTxt(CoordH, Name.CStr(), "Degree centrality (in / out / undirected)", "NodeId", "InDegCentr\tOutDegCentr\tDegCentr");
-  printf(" DONE\n");  
-  
+  if (layout != "precomputed") {
+
+    Name = TStr::Fmt("%s.%s.%s.CoordH", OutFNm.CStr(), LayoutString.CStr(), layout.CStr());
+    printf("\nSaving %s...", Name.CStr());
+    TSnap::SaveTxt(CoordH, Name.CStr(), TStr::Fmt("Layout coordinates for %s method", layout.CStr()), "NodeId", "x\ty");
+    printf(" DONE\n");  
+    
+  }
+
   // Drawing
 
   if (pdf) {
     
     #ifdef CAIRO_HAS_PDF_SURFACE
     
-      Name = TStr::Fmt("%s.%s.PDF", OutFNm.CStr(), layout.CStr());
+      Name = TStr::Fmt("%s.%s.%s.%dx%d.PDF", OutFNm.CStr(), LayoutString.CStr(), layout.CStr(), w, h);
       printf("\nDrawing %s...", Name.CStr());
       Cairo::RefPtr<Cairo::PdfSurface> surface = Cairo::PdfSurface::create(Name.CStr(), w, h);
       
-      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, vfRGB, vfAlpha, vcRGB, vcAlpha, ew, ecRGB, ecAlpha);
+      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, label, direction, as, ew, ecRGBH, eaH);
       
       printf("DONE\n");
       
@@ -266,11 +585,11 @@ int main(int argc, char* argv[]) {
   
     #ifdef CAIRO_HAS_PNG_FUNCTIONS
 
-      Name = TStr::Fmt("%s.%s.PNG", OutFNm.CStr(), layout.CStr());
+      Name = TStr::Fmt("%s.%s.%s.%dx%d.PNG", OutFNm.CStr(), LayoutString.CStr(), layout.CStr(), w, h);
       printf("\nDrawing %s...", Name.CStr());
       Cairo::RefPtr<Cairo::ImageSurface> surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h);
       
-      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, vfRGB, vfAlpha, vcRGB, vcAlpha, ew, ecRGB, ecAlpha);
+      render(WGraph, CoordH, surface, w, h, NIdvrH, NIdvwH, NIdvfRGBH, vfAlpha, NIdvcRGBH, vcAlpha, label, direction, as, ew, ecRGBH, eaH);
 
       surface->write_to_png(Name.CStr());
       
@@ -291,4 +610,4 @@ int main(int argc, char* argv[]) {
   printf("\nTotal run time: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   return 0;
   
-}
+} 

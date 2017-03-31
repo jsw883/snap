@@ -11,6 +11,8 @@
 namespace TSnap {
 
 template <class Community, class TEdgeW>
+double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, int& NCmty, const TEdgeDir& dir, const double& eps = 1e-5, const double& delta = 1e-2, const int& MaxIter = 1000, TRnd& Rnd = TInt::Rnd);
+template <class Community, class TEdgeW>
 double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, const TEdgeDir& dir, const double& eps = 1e-5, const double& delta = 1e-2, const int& MaxIter = 1000, TRnd& Rnd = TInt::Rnd);
 
 /// Base community class to be inherited and specialized.
@@ -60,8 +62,14 @@ public:
     int DstNId, SrcNId, NSize = NIdSizeH.GetDat(NId);
     TEdgeW W, NW = NIdWH.GetDat(NId);
     // Update community sizes
+    // printf("\n");
+    // printf("CmtySizeV[%d] (= %d) -= %d\n", (int) OldCmtyId, (int) CmtySizeV[OldCmtyId], (int) NSize);
+    // printf("CmtySizeV[%d] (= %d) += %d\n", (int) NewCmtyId, (int) CmtySizeV[NewCmtyId], (int) NSize);
     CmtySizeV[OldCmtyId] -= NSize;
     CmtySizeV[NewCmtyId] += NSize;
+    // printf("CmtySizeV[%d] (= %d) -= %d\n", (int) OldCmtyId, (int) CmtySizeV[OldCmtyId], (int) NSize);
+    // printf("CmtySizeV[%d] (= %d) += %d\n", (int) NewCmtyId, (int) CmtySizeV[NewCmtyId], (int) NSize);
+    // printf("\n");
     // Update community weights
     CmtyInWV[OldCmtyId] -= NW; CmtyOutWV[OldCmtyId] -= NW; CmtyWV[OldCmtyId] -= NW;
     CmtyInWV[NewCmtyId] += NW; CmtyOutWV[NewCmtyId] += NW; CmtyWV[NewCmtyId] += NW;
@@ -113,9 +121,14 @@ public:
       }
     }
     OldNewCmtyH.SortByDat(false); // sort communities by size (descending)
+    // printf("SIZE\n");
+    int sum = 0;
     for (HI = OldNewCmtyH.BegI(), NewCmtyId = 0; HI < OldNewCmtyH.EndI(); HI++, NewCmtyId++) {
+      // printf("%d: %d (old: %d)\n", NewCmtyId, (int) HI.GetDat(), (int) HI.GetKey());
+      sum += HI.GetDat();
       HI.GetDat() = NewCmtyId; // renumber community
     }
+    // printf("SUM = %d\n\n", sum);
     NCmty = NewCmtyId;
     // Renumber communities
     for (HI = NIdCmtyIdH.BegI(); HI < NIdCmtyIdH.EndI(); HI++) {
@@ -262,7 +275,7 @@ double ModularityCommunity<TEdgeW>::GetQuality() {
 namespace TSnap {
 
 template <class Community, class TEdgeW>
-double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, const TEdgeDir& dir, const double& eps, const double& delta, const int& MaxIter, TRnd& Rnd) {
+double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, int& NCmty, const TEdgeDir& dir, const double& eps, const double& delta, const int& MaxIter, TRnd& Rnd) {
   
   // Variables
   TPt<TWNGraph<TEdgeW> > GraphCopy = Graph; // smart pointer working graph copy
@@ -276,18 +289,29 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, 
   double phaseImprov = 0.0;
   // Setup community and output community hierarchy 
   NIdCmtyVH.Clr();
-  int i = 0;
-  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+  int i;
+  for (NI = GraphCopy->BegNI(), i = 0; NI < GraphCopy->EndNI(); NI++, i++) {
     int NId = NI.GetId();
     NIdCmtyVH.AddKey(NId);
     NIdCmtyVH.GetDat(NId).Add(i);
-    i++;
   }
+
   Community Cmty(GraphCopy);
-  
+
   // Louvain greedy optimization method
   while (phase == 0 || phaseImprov > eps) { // while quality improving
     
+    TIntV::TIter VI;
+    int count, sum;
+  
+    // printf("\nCMTSIZEV\n");
+    sum = 0;
+    for (VI = Cmty.CmtySizeV.BegI(), count = 0; VI < Cmty.CmtySizeV.EndI(); VI++, count++) {
+      // printf("%d: %d\n", (int) count, (int) VI->Val);
+      sum += VI->Val;
+    }
+    // printf("SUM = %d\n\n", sum);
+
     // Reset phase improvement in modularity
     phaseImprov = 0.0;
     // Iter variables
@@ -349,14 +373,32 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, 
       break; // break if not improved (communities have not changed)
     }
     
+    // TIntIntH::TIter HHI;
+    // printf("MAPPING\n");
+    // for (HHI = Cmty.NIdCmtyIdH.BegI(); HHI < Cmty.NIdCmtyIdH.EndI(); HHI++) {
+    //   printf("%d: %d\n", (int) HHI.GetKey(), (int) HHI.GetDat());
+    // }
+    // printf("\n");
+
     // Remove empty communities and renumber communities by size (descending)
     Cmty.CleanCmty();
-    
+
     // Update output community hierarchy
+    // printf("OUTPUT (phase: %d)\n", phase);
     for (HI = NIdCmtyVH.BegI(); HI < NIdCmtyVH.EndI(); HI++) {
       TIntV& CmtyV = HI.GetDat();
-      CmtyV.Add(Cmty.NIdCmtyIdH.GetDat(CmtyV[phase]));
+      if (phase == 0) {
+        // printf("%d: (%d, %d)\n", (int) HI.GetKey(), (int) HI.GetKey(), (int) Cmty.NIdCmtyIdH.GetDat(CmtyV[phase]));
+        CmtyV.Add(Cmty.NIdCmtyIdH.GetDat(HI.GetKey()));
+      } else {
+        // printf("%d: (%d, %d)\n", (int) HI.GetKey(), (int) CmtyV[phase], (int) Cmty.NIdCmtyIdH.GetDat(CmtyV[phase]));
+        CmtyV.Add(Cmty.NIdCmtyIdH.GetDat(CmtyV[phase]));
+      }
     }
+    // printf("\n");    
+    
+    // Update number of communities dynamically
+    NCmty = Cmty.NCmty;
     
     // -------
     
@@ -375,6 +417,12 @@ double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, 
   
   return Cmty.GetQuality(); // return modularity
   
+}
+
+template <class Community, class TEdgeW>
+double LouvainMethod(const TPt<TWNGraph<TEdgeW> >& Graph, TIntIntVH& NIdCmtyVH, const TEdgeDir& dir, const double& eps, const double& delta, const int& MaxIter, TRnd& Rnd) {
+  int NCmty;
+  return LouvainMethod(Graph, NIdCmtyVH, NCmty, dir, eps, delta, MaxIter, Rnd);
 }
 
 } // namespace TSnap

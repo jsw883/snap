@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "", " input network (tab separated list of edges with edge weights)");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "output prefix (filename extensions added)");
   const TStr BseFNm = OutFNm.RightOfLast('/');
-  const TStr Method = Env.GetIfArgPrefixStr("-g:", "GWShuffling", "generator or algorithm to apply (default: 3)");
+  const TStr Method = Env.GetIfArgPrefixStr("-g:", "GWShuffling", "generator or algorithm to apply (default: GWShuffling)");
   const int k = Env.GetIfArgPrefixInt("-k:", -1, "edges (default: Graph->GetEdges())");
   const double Threshold = Env.GetIfArgPrefixFlt("--threshold:", -1, "lower threshold for exponentially weighted random graph model");
   double Scale = Env.GetIfArgPrefixFlt("--scale:", -1, "Pareto scale for preferential attachment model (default: FitParetoWeights(Graph, Scale, Shape))");
@@ -25,6 +25,8 @@ int main(int argc, char* argv[]) {
   double TotalW = Env.GetIfArgPrefixFlt("-w:", -1, "sum of weights (default: Graph->GetTotalW())");
 
   PFltWNGraph WGraph, WRGraph;
+
+  TStr Name;
 
   if (InFNm == "") {
 
@@ -41,7 +43,6 @@ int main(int argc, char* argv[]) {
     TSnap::printFltWGraphSummary(WGraph, true, "\nWGraph\n------");
     
     nodes = WGraph->GetNodes();
-    // edges = WGraph->GetEdges();
     TotalW = WGraph->GetTotalW();
 
     TSnap::FitParetoWeights<TFlt, TWNGraph>(WGraph, Scale, Shape);
@@ -85,8 +86,9 @@ int main(int argc, char* argv[]) {
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
-  printf("\nSaving %s-%s.snap...", OutFNm.CStr(), Method.CStr());
-  TSnap::SaveFltWEdgeList(WRGraph, TStr::Fmt("%s-%s.snap", OutFNm.CStr(), Method.CStr()), "");
+  Name = TStr::Fmt("%s-%s.snap", OutFNm.CStr(), Method.CStr());
+  printf("\nSaving %s...", Name.CStr());
+  TSnap::SaveFltWEdgeList(WRGraph, Name.CStr(), "");
   printf(" DONE\n");
 
   Catch

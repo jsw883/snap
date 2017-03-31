@@ -47,6 +47,7 @@ void SaveTxt(const THash<TKey, TVal>& GenH, const TStr& FNm, const TStr& Desc = 
 
 TIntIntH LoadTxtIntIntH(const TStr& FNm);
 TIntFltH LoadTxtIntFltH(const TStr& FNm);
+TIntStrH LoadTxtIntStrH(const TStr& FNm);
 
 /// Generic SaveTxt for THash template class with TVec data using GetStr()
 template <class TKey, class TVal>
@@ -147,6 +148,33 @@ void SaveTxt(const THash<TKey, TFltPr>& GenVH, const TStr& FNm, const TStr& Desc
 
 TIntIntPrH LoadTxtIntIntPrH(const TStr& FNm);
 TIntFltPrH LoadTxtIntFltPrH(const TStr& FNm);
+
+/// Generic SaveTxt for THash template class with TFltTr values using GetStr()
+template <class TKey>
+void SaveTxt(const THash<TKey, TFltTr>& GenVH, const TStr& FNm, const TStr& Desc = TStr(), const TStr& KeyNm = "Key", const TStr& ValNm = "Val", const int& Width = -1, const int& Prec = -1) {
+  typename THash<TKey, TFltTr>::TIter GenVI;
+  FILE *F = fopen(FNm.CStr(), "wt");
+  if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
+  fprintf(F, "# %ss:\t%d\n", KeyNm.CStr(), GenVH.Len());
+  fprintf(F, "# %s\t%s\n", KeyNm.CStr(), ValNm.CStr());
+  for (GenVI = GenVH.BegI(); GenVI < GenVH.EndI(); GenVI++) {
+    const TKey Key = GenVI.GetKey();
+    fprintf(F, "%s", Key.GetStr().CStr());
+    const TFltTr ValPr = GenVI.GetDat();
+    fprintf(F, "\t%s", TFlt::GetStr(ValPr.Val1, Width, Prec).CStr());
+    fprintf(F, "\t%s", TFlt::GetStr(ValPr.Val2, Width, Prec).CStr());
+    fprintf(F, "\t%s", TFlt::GetStr(ValPr.Val3, Width, Prec).CStr());
+    fprintf(F, "\n");
+  }
+  fclose(F);
+}
+
+THash<TInt, TIntTr> LoadTxtIntIntTrH(const TStr& FNm);
+THash<TInt, TFltTr> LoadTxtIntFltTrH(const TStr& FNm);
+
+THash<TIntPr, TInt> LoadTxtIntPrIntH(const TStr& FNm);
+THash<TIntPr, TFlt> LoadTxtIntPrFltH(const TStr& FNm);
+THash<TIntPr, TStr> LoadTxtIntPrStrH(const TStr& FNm);
 
 } // namespace TSnap
 

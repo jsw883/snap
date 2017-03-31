@@ -2,16 +2,16 @@
 #	configuration variables for the example
 #
 
-MAIN = nullmodels
+MAIN = wcommunity
 DEPH = \
     $(EXCORE)/wgraph.h \
-    $(EXCORE)/wgen.h \
-    $(EXCORE)/galg.h \
     $(EXCORE)/wgio.h \
-    $(EXCORE)/io.h
+    $(EXCORE)/wcmty.h \
+    $(EXCORE)/io.h \
+    $(EXCORE)/utils.h
 DEPCPP = \
     $(EXCORE)/wgraph.cpp \
-    $(EXCORE)/wgen.cpp \
-    $(EXCORE)/galg.cpp \
     $(EXCORE)/wgio.cpp \
-    $(EXCORE)/io.cpp
+    $(EXCORE)/wcmty.cpp \
+    $(EXCORE)/io.cpp \
+    $(EXCORE)/utils.cpp

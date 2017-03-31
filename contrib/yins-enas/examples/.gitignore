@@ -1,30 +1,18 @@
 # Example executables (need to be specified manually or manually cleaned)
 */centrality
-*/centrality.exe
-*/community
-*/community.exe
 */connectivity
-*/connectivity.exe
 */drawing
-*/drawing.exe
 */egonets
-*/egonets.exe
-*/filtering
-*/filtering.exe
-*/nullmodels
-*/nullmodels.exe
+*/generators
 */statistics
-*/statistics.exe
 */structures
-*/structures.exe
 */subsets
-*/subsets.exe
+*/vespignani
 */wcentrality
-*/wcentrality.exe
+*/wcommunity
+*/wconnectivity
 */wdistance
-*/wdistance.exe
 */wstatistics
-*/wstatistics.exe
 
 # Custom bash scripts for running on datasets
 */run.DIAN

@@ -9,6 +9,7 @@ EXCXXFLAGS = -std=c++11
 DEPH = \
     $(EXCORE)/wgraph.h \
     $(EXCORE)/wgio.h \
+    $(EXCORE)/wcmty.h \
     $(EXCORE)/deg.h \
     $(EXCORE)/utils.h \
     $(EXCORE)/io.h \
@@ -18,6 +19,7 @@ DEPH = \
 DEPCPP = \
     $(EXCORE)/wgraph.cpp \
     $(EXCORE)/wgio.cpp \
+    $(EXCORE)/wcmty.cpp \
     $(EXCORE)/deg.cpp \
     $(EXCORE)/utils.cpp \
     $(EXCORE)/io.cpp \
