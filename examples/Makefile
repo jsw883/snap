@@ -9,6 +9,7 @@ MakeAll:
 	$(MAKE) -C agmgen
 	$(MAKE) -C bigclam
 	$(MAKE) -C cascades
+	$(MAKE) -C cascadegen
 	$(MAKE) -C centrality
 	$(MAKE) -C cesna
 	$(MAKE) -C circles
@@ -28,12 +29,17 @@ MakeAll:
 	$(MAKE) -C magfit
 	$(MAKE) -C maggen
 	$(MAKE) -C mkdatasets
+	# 'motifcluster' compilation skipped by default, it requires ARPACK
+	#$(MAKE) -C motifcluster
 	$(MAKE) -C motifs
 	$(MAKE) -C ncpplot
 	$(MAKE) -C netevol
 	$(MAKE) -C netinf
 	$(MAKE) -C netstat
+	$(MAKE) -C node2vec
+	$(MAKE) -C randwalk
 	$(MAKE) -C rolx
+	$(MAKE) -C temporalmotifs
 	$(MAKE) -C testgraph
 
 clean:
@@ -41,6 +47,7 @@ clean:
 	$(MAKE) clean -C agmfit
 	$(MAKE) clean -C bigclam
 	$(MAKE) clean -C cascades
+	$(MAKE) clean -C cascadegen
 	$(MAKE) clean -C centrality
 	$(MAKE) clean -C cesna
 	$(MAKE) clean -C circles
@@ -60,11 +67,15 @@ clean:
 	$(MAKE) clean -C magfit
 	$(MAKE) clean -C maggen
 	$(MAKE) clean -C mkdatasets
+	$(MAKE) clean -C motifcluster
 	$(MAKE) clean -C motifs
 	$(MAKE) clean -C ncpplot
 	$(MAKE) clean -C netevol
 	$(MAKE) clean -C netinf
 	$(MAKE) clean -C netstat
+	$(MAKE) clean -C node2vec
+	$(MAKE) clean -C randwalk
 	$(MAKE) clean -C rolx
+	$(MAKE) clean -C temporalmotifs
 	$(MAKE) clean -C testgraph
 	rm -rf Debug Release ipch
