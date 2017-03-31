@@ -28,17 +28,17 @@ int main(int argc, char* argv[]) {
 #endif
   PUNGraph G;
   TIntStrH NIDNameH;
-  if (InFNm.IsStrIn(".ungraph")) {
+  if (InFNm.IsSuffix(".ungraph")) {
     TFIn GFIn(InFNm);
     G = TUNGraph::Load(GFIn);
-  } else {
-    G = TAGMUtil::LoadEdgeListStr<PUNGraph>(InFNm, NIDNameH);
-  }
-  if (LabelFNm.Len() > 0) {
+  } else if (LabelFNm.Len() > 0) {
+    G = TSnap::LoadEdgeList<PUNGraph>(InFNm);
     TSsParser Ss(LabelFNm, ssfTabSep);
     while (Ss.Next()) {
       if (Ss.Len() > 0) { NIDNameH.AddDat(Ss.GetInt(0), Ss.GetFld(1)); }
     }
+  } else {
+    G = TAGMUtil::LoadEdgeListStr<PUNGraph>(InFNm, NIDNameH);
   }
   printf("Graph: %d Nodes %d Edges\n", G->GetNodes(), G->GetEdges());
   
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
     RAGM.MLEGradAscentParallel(0.0001, 1000, NumThreads, "", StepAlpha, StepBeta);
   }
   RAGM.GetCmtyVV(EstCmtyVV);
-   TAGMUtil::DumpCmtyVV(OutFPrx + "cmtyvv.txt", EstCmtyVV, NIDNameH);
+  TAGMUtil::DumpCmtyVV(OutFPrx + "cmtyvv.txt", EstCmtyVV, NIDNameH);
   TAGMUtil::SaveGephi(OutFPrx + "graph.gexf", G, EstCmtyVV, 1.5, 1.5, NIDNameH);
 
   Catch
