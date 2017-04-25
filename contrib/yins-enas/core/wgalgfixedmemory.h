@@ -46,13 +46,6 @@ public:
     GetBFS(NId, Visitor, dir, SkipNIdS);
   }
   
-  // // Get weighted distances using the direction specified
-  // void ComputeWDV(const int& NId, const TEdgeDir& dir, const TIntSet& SkipNIdS, TFltV& WDV);
-  // void ComputeWDV(const int& NId, const TEdgeDir& dir, TFltV& WDV) { TIntSet SkipNIdS; ComputeWDV(NId, dir, SkipNIdS, WDV); }
-  // // Get weighted distances for the subset of nodes using the direction specified
-  // void ComputeSubsetWDVH(const TIntV& NIdV, const TEdgeDir& dir, const TIntSet& SkipNIdS, TIntFltVH& WDVH);
-  // void ComputeSubsetWDVH(const TIntV& NIdV, const TEdgeDir& dir, TIntFltVH& WDVH) { TIntSet SkipNIdS; ComputeSubsetWDVH(NIdV, dir, SkipNIdS, WDVH); }
-  
   void Clr(const bool& DoDel = false);
 };
 
@@ -86,14 +79,9 @@ void TFixedMemoryWeightedDistanceBFS<PGraph>::GetBfsVisitor(const int& NId, TVis
     Deg = UI.GetDeg(dir);
     edge = 0;
     Queue.Pop(); // deletes memory
-
-    // printf("U: %d, depth: %d, path: %d, WD: %f, IsNode: %d, Deg: %d)\n", U, depth, path, WD, Graph->IsNode(U), Deg);
-  
     while (edge != Deg) {
       V = UI.GetNbrNId(edge, dir);
       Visitor.ExamineEdge(U, depth, edge, path, V); // examine edge
-
-      // printf(" -> %d: (V: %d", edge, V);
 
       if (!SkipNIdS.IsKey(V) && !PSetH.GetDat(path).IsKey(V)) {
         // WEIGHTED DISTANCE
@@ -104,15 +92,13 @@ void TFixedMemoryWeightedDistanceBFS<PGraph>::GetBfsVisitor(const int& NId, TVis
           VWD = WD * UI.GetNbrEW(edge, dir);
           if (!preNormalized) { VWD /= UI.GetWDeg(dir); }
         }
-        // STORE        
+        // STORE
         if (NIdVWDH.IsKey(V) && VWD > tol) {
           NIdVWDH.GetDat(V) += VWD;
+          Visitor.DiscoverNode(V, depth + 1, NIdVWDH.GetDat(V)); // discover node
         }
-        Visitor.DiscoverNode(V, depth + 1, NIdVWDH.GetDat(V)); // discover node
+        
         Visitor.TreeEdge(U, depth, edge, path, V); // tree edge
-
-        // printf(", VWD: %f, VWDTotal: %f", VWD, (double) NIdVWDH.GetDat(V));
-
         // CONTINUE
         if (depth + 1 < k) { // || VWD > tol) {  // Changed AND to OR to allow depth past tolerance (counting)
           temp++;
@@ -120,22 +106,9 @@ void TFixedMemoryWeightedDistanceBFS<PGraph>::GetBfsVisitor(const int& NId, TVis
           TIntSet& PS = PSetH.AddDat(temp, PSCopy);
           PS.AddKey(V);
           Queue.Push(TQueueQuad(V, depth + 1, temp, VWD));
-
-          // printf(", continue: yes");
-
-        } else {
-
-          // printf(", continue: no");
-
         }
-
-        // printf(")\n");
-
       } else {
         Visitor.ExcludedEdge(U, depth, edge, path, V); // excluded edge
-
-        // printf(", excluded)\n");
-
       }
       ++edge;
     }
@@ -146,34 +119,6 @@ void TFixedMemoryWeightedDistanceBFS<PGraph>::GetBfsVisitor(const int& NId, TVis
   NIdVWDH.GetDatV(WDV);
   Visitor.Finish(WDV);
 }
-
-
-// // Compute neighborhood depth counts using the direction specified
-// template <class PGraph>
-// void TFixedMemoryWeightedDistanceBFS<PGraph>::ComputeWDV(const int& NId, const TEdgeDir& dir, const TIntSet& SkipNIdS, TFltV& WDV) {
-//   GetBFS(NId, dir, SkipNIdS);
-//   NIdVWDH.GetDatV(WDV);
-// }
-
-// // Compute subset INFH using the direction specified
-// template <class PGraph>
-// void TFixedMemoryWeightedDistanceBFS<PGraph>::ComputeSubsetWDVH(const TIntV& NIdV, const TEdgeDir& dir, const TIntSet& SkipNIdS, TIntFltVH& WDVH) {
-//   // Variables
-//   TIntV::TIter VI;
-//   TFltV WDV;
-//   int NId;
-//   // Clear outputs
-//   WDVH.Clr();
-//   // For each node in NIdV
-//   for (VI = NIdV.BegI(); VI < NIdV.EndI();  VI++) {
-//     NId = VI->Val;
-//     // Compute the INFH
-//     // // printf("ComputeWDV\n----------\n");
-//     ComputeWDV(NId, dir, WDV);
-//     // Add INFH
-//     WDVH.AddDat(NId, WDV);
-//   }
-// }
 
 template <class PGraph>
 void TFixedMemoryWeightedDistanceBFS<PGraph>::Clr(const bool& DoDel) {
@@ -196,7 +141,7 @@ namespace TSnap {
 
 
 
-
+typedef THash<TInt, THash<TInt, TFlt> > TIntFltHH;
 
 /// Fixed memory 
 template <class PGraph>
@@ -205,9 +150,8 @@ public:
   // Backward / forward visitor (degree only)
   class TWeightedNeighborhoodVisitor {
   public:
-    typedef THash<TInt, THash<TInt, TFlt> > TIntFltHH;
-  public:
     TIntIntHH PathsHH;
+    TIntFltHH WDHH;
     int k;
   public:
     TWeightedNeighborhoodVisitor(const PGraph& Graph, const int& k) : PathsHH(Graph->GetNodes()), k(k) { }
@@ -215,17 +159,31 @@ public:
     void DiscoverNode(const int& NId, const int& depth, const double& WD) {
       // Only store path counts for paths of length <= k (weighted distance will keep going)
       if (depth > 0 && depth <= k) {
+        // Paths
         if (PathsHH.IsKey(NId)) {
-          TIntH& PathVH = PathsHH.GetDat(NId);
-          if (PathVH.IsKey(depth)) {
-            PathVH.GetDat(depth) ++;
+          TIntIntH& PathH = PathsHH.GetDat(NId);
+          if (PathH.IsKey(depth)) {
+            PathH.GetDat(depth) ++;
           } else {
-            PathVH.AddDat(depth, 1);
+            PathH.AddDat(depth, 1);
           }
         } else {
-          TIntH PathVH;
-          PathVH.AddDat(depth, 1);
-          PathsHH.AddDat(NId, PathVH);
+          TIntIntH PathH;
+          PathH.AddDat(depth, 1);
+          PathsHH.AddDat(NId, PathH);
+        }
+        // WD
+        if (WDHH.IsKey(NId)) {
+          TIntFltH& WDH = WDHH.GetDat(NId);
+          if (WDH.IsKey(depth)) {
+            WDH.GetDat(depth) = WD;
+          } else {
+            WDH.AddDat(depth, WD);
+          }
+        } else {
+          TIntFltH WDH;
+          WDH.AddDat(depth, WD);
+          WDHH.AddDat(NId, WDH);
         }
       }
     }
@@ -236,6 +194,7 @@ public:
     void Finish(const TFltV& WDV) { }
     void Clr() {
       PathsHH.Clr(false);
+      WDHH.Clr(false);
     }
   };
 private:
@@ -243,38 +202,77 @@ private:
 public:
   TFixedMemoryWeightedNeighborhood(const PGraph& Graph, const TIntV& DstNIdV, const int& k, const double& tol, const bool& preNormalized) : TFixedMemoryWeightedDistanceBFS<PGraph>(Graph, DstNIdV, k, tol, preNormalized), Visitor(TWeightedNeighborhoodVisitor(Graph, k)) { }
 
+  // // Compute neighborhood connectivity using the direction specified
+  // void ComputeConnectivity(const int& NId, const TEdgeDir& Dir, const TIntSet& SkipNIdS, TIntIntHH& PathsHH);
+  // // Compute subset neighborhood connectivity using the direction specified
+  // void ComputeSubsetConnectivity(const TIntV& NIdV, const TEdgeDir& dir, const TIntSet& SkipNIdS, THash<TIntPr, TIntH>& PathsHH);
+
   // Compute neighborhood connectivity using the direction specified
-  void ComputeConnectivity(const int& NId, const TEdgeDir& Dir, const TIntSet& SkipNIdS, TIntIntHH& PathsHH);
+  void ComputeConnectivity(const int& NId, const TEdgeDir& Dir, const TIntSet& SkipNIdS, TIntIntHH& PathsHH, TIntFltHH& WDHH);
   // Compute subset neighborhood connectivity using the direction specified
-  void ComputeSubsetConnectivity(const TIntV& NIdV, const TEdgeDir& dir, const TIntSet& SkipNIdS, THash<TIntPr, TIntH>& PathsHH);
+  void ComputeSubsetConnectivity(const TIntV& NIdV, const TEdgeDir& dir, const TIntSet& SkipNIdS, THash<TIntPr, TIntIntH>& PathsHH, THash<TIntPr, TIntFltH>& WDHH);
 
   void Clr(const bool& DoDel = false);
 };
 
+// // Compute neighborhood connectivity using the direction specified
+// template <class PGraph>
+// void TFixedMemoryWeightedNeighborhood<PGraph>::ComputeConnectivity(const int& NId, const TEdgeDir& Dir, const TIntSet& SkipNIdS, TIntIntHH& PathsHH) {
+//   Visitor.Clr();
+//   this->GetBfsVisitor(NId, Visitor, Dir, SkipNIdS);
+//   PathsHH = Visitor.PathsHH;
+// }
+
+
+// // Compute subset neighborhood connectivity using the direction specified
+// template <class PGraph>
+// void TFixedMemoryWeightedNeighborhood<PGraph>::ComputeSubsetConnectivity(const TIntV& NIdV, const TEdgeDir& dir, const TIntSet& SkipNIdS, THash<TIntPr, TIntH>& PathsHH) {
+//   // Variables
+//   TIntV::TIter VI;
+//   int NId;
+//   TIntIntHH NIdPathsHH;
+//   TIntIntHH::TIter HI;
+//   // For each node in NIdV
+//   for (VI = NIdV.BegI(); VI < NIdV.EndI();  VI++) {
+//     NIdPathsHH.Clr(false);
+//     NId = VI->Val;
+//     ComputeConnectivity(NId, dir, SkipNIdS, NIdPathsHH);
+//     for (HI = NIdPathsHH.BegI(); HI < NIdPathsHH.EndI(); HI++) {
+//       PathsHH.AddDat(TIntPr(NId, HI.GetKey()), HI.GetDat());
+//     }
+//   }
+// }
+
 // Compute neighborhood connectivity using the direction specified
 template <class PGraph>
-void TFixedMemoryWeightedNeighborhood<PGraph>::ComputeConnectivity(const int& NId, const TEdgeDir& Dir, const TIntSet& SkipNIdS, TIntIntHH& PathsHH) {
+void TFixedMemoryWeightedNeighborhood<PGraph>::ComputeConnectivity(const int& NId, const TEdgeDir& Dir, const TIntSet& SkipNIdS, TIntIntHH& PathsHH, TIntFltHH& WDHH) {
   Visitor.Clr();
   this->GetBfsVisitor(NId, Visitor, Dir, SkipNIdS);
   PathsHH = Visitor.PathsHH;
+  WDHH = Visitor.WDHH;
 }
-
 
 // Compute subset neighborhood connectivity using the direction specified
 template <class PGraph>
-void TFixedMemoryWeightedNeighborhood<PGraph>::ComputeSubsetConnectivity(const TIntV& NIdV, const TEdgeDir& dir, const TIntSet& SkipNIdS, THash<TIntPr, TIntH>& PathsHH) {
+void TFixedMemoryWeightedNeighborhood<PGraph>::ComputeSubsetConnectivity(const TIntV& NIdV, const TEdgeDir& dir, const TIntSet& SkipNIdS, THash<TIntPr, TIntH>& PathsHH, THash<TIntPr, TIntFltH>& WDHH) {
   // Variables
   TIntV::TIter VI;
   int NId;
-  TIntIntHH NIdPathsVH;
-  TIntIntHH::TIter HI;
+  TIntIntHH NIdPathsHH;
+  TIntFltHH NIdWDHH;
+  TIntIntHH::TIter NIdPathsHI;
+  TIntFltHH::TIter WDHI;
   // For each node in NIdV
   for (VI = NIdV.BegI(); VI < NIdV.EndI();  VI++) {
-    NIdPathsVH.Clr(false);
+    NIdPathsHH.Clr(false);
+    NIdWDHH.Clr(false);
     NId = VI->Val;
-    ComputeConnectivity(NId, dir, SkipNIdS, NIdPathsVH);
-    for (HI = NIdPathsVH.BegI(); HI < NIdPathsVH.EndI(); HI++) {
-      PathsHH.AddDat(TIntPr(NId, HI.GetKey()), HI.GetDat());
+    ComputeConnectivity(NId, dir, SkipNIdS, NIdPathsHH, NIdWDHH);
+    for (NIdPathsHI = NIdPathsHH.BegI(); NIdPathsHI < NIdPathsHH.EndI(); NIdPathsHI++) {
+      PathsHH.AddDat(TIntPr(NId, NIdPathsHI.GetKey()), NIdPathsHI.GetDat());
+    }
+    for (WDHI = NIdWDHH.BegI(); WDHI < NIdWDHH.EndI(); WDHI++) {
+      WDHH.AddDat(TIntPr(NId, WDHI.GetKey()), WDHI.GetDat());
     }
   }
 }

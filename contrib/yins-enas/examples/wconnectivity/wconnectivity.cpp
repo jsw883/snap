@@ -5,31 +5,88 @@ void ComputeWD(const PFltWNGraph& WGraph, const TIntV& SrcNIdV, const TIntV& Dst
   // Declare variables
   TIntV::TIter VI;
   TStr Name;
-  THash<TIntPr, TIntH> PathsHH;
+  THash<TIntPr, TIntIntH> PathsHH;
+  THash<TIntPr, TIntFltH> WDHH;
   
   // SUBSET NEIGHBORHOOD FUNCTION
   
   printf("\nComputing weighted distances from %s to %s ...", SrcNm.CStr(), DstNm.CStr());
   TSnap::TFixedMemoryWeightedNeighborhood<PFltWNGraph> FixedMemoryWeightedNeighborhood(WGraph, DstNIdV, k, tol, preNormalized);
-  FixedMemoryWeightedNeighborhood.ComputeSubsetConnectivity(SrcNIdV, dir, SkipNIdS, PathsHH);
+  FixedMemoryWeightedNeighborhood.ComputeSubsetConnectivity(SrcNIdV, dir, SkipNIdS, PathsHH, WDHH);
   printf(" DONE: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   
   // OUTPUTTING (mostly verbose printing statements, don't get scared)
   
-  THash<TIntPr, TIntH>::TIter HI;
-  TIntH::TIter PI;
+  THash<TIntPr, TIntIntH>::TIter PathsHI;
+  THash<TIntPr, TIntFltH>::TIter WDHI;
+  TIntIntH::TIter PI;
+  TIntFltH::TIter WI;
+
+  // Name = TStr::Fmt("%s.%s.%s.PathsHH", OutFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
+  // printf("\nSaving %s...", Name.CStr());
+  // FILE *F = fopen(Name.CStr(), "wt");
+  // fprintf(F, "# Path connectivity from %s to %s (dir: %d, k: %d, tol: %f)\n", SrcNm.CStr(), DstNm.CStr(), dir, k, tol);
+  // fprintf(F, "# SrcNIdV.Len(): %d\tDstNIdV.Len(): %d\t\n", SrcNIdV.Len(), DstNIdV.Len());
+  // fprintf(F, "# SrcNId\tDstNId\tk\tN\n");
+  // for (PathsHI = PathsHH.BegI(); PathsHI < PathsHH.EndI(); PathsHI++) {
+  //   const TIntIntH& PathsH = PathsHI.GetDat();
+  //   for (PI = PathsH.BegI(); PI < PathsH.EndI(); PI++) {
+  //     fprintf(F, "%d\t%d\t%d\t%d\n", (int) PathsHI.GetKey().Val1, (int) PathsHI.GetKey().Val2, (int) PI.GetKey(), (int) PI.GetDat());
+  //   }
+  // }
+  // printf(" DONE\n");
 
   Name = TStr::Fmt("%s.%s.%s.PathsHH", OutFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
   printf("\nSaving %s...", Name.CStr());
-  FILE *F = fopen(Name.CStr(), "wt");
-  fprintf(F, "# Weighted connectivity from %s to %s (dir: %d, k: %d, tol: %f)\n", SrcNm.CStr(), DstNm.CStr(), dir, k, tol);
-  fprintf(F, "# SrcNIdV.Len(): %d\tDstNIdV.Len(): %d\t\n", SrcNIdV.Len(), DstNIdV.Len());
-  fprintf(F, "# SrcNId\tDstNId\tk\tN\n");
-  for (HI = PathsHH.BegI(); HI < PathsHH.EndI(); HI++) {
-    const TIntH& PathsH = HI.GetDat();
-    for (PI = PathsH.BegI(); PI < PathsH.EndI(); PI++) {
-      fprintf(F, "%d\t%d\t%d\t%d\n", (int) HI.GetKey().Val1, (int) HI.GetKey().Val2, (int) PI.GetKey(), (int) PI.GetDat());
+  FILE *G = fopen(Name.CStr(), "wt");
+  fprintf(G, "# Path connectivity from %s to %s (dir: %d, k: %d, tol: %f)\n", SrcNm.CStr(), DstNm.CStr(), dir, k, tol);
+  fprintf(G, "# SrcNIdV.Len(): %d\tDstNIdV.Len(): %d\t\n", SrcNIdV.Len(), DstNIdV.Len());
+  fprintf(G, "# SrcNId\tDstNId\t[N for each k < p]\n");
+  for (PathsHI = PathsHH.BegI(); PathsHI < PathsHH.EndI(); PathsHI++) {
+    fprintf(G, "%d\t%d", (int) PathsHI.GetKey().Val1, (int) PathsHI.GetKey().Val2);
+    const TIntIntH& PathsH = PathsHI.GetDat();
+    for (int i = 0; i < k; i++) {
+      if (PathsH.IsKey(i + 1)) {
+        fprintf(G, "\t%d", (int) PathsH.GetDat(i + 1));
+      } else {
+        fprintf(G, "\t%d", (int) 0);
+      }
     }
+    fprintf(G, "\n");
+  }
+  printf(" DONE\n");
+
+  // Name = TStr::Fmt("%s.%s.%s.WDHH", OutFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
+  // printf("\nSaving %s...", Name.CStr());
+  // FILE *H = fopen(Name.CStr(), "wt");
+  // fprintf(H, "# Weighted distance from %s to %s (dir: %d, k: %d, tol: %f)\n", SrcNm.CStr(), DstNm.CStr(), dir, k, tol);
+  // fprintf(H, "# SrcNIdV.Len(): %d\tDstNIdV.Len(): %d\t\n", SrcNIdV.Len(), DstNIdV.Len());
+  // fprintf(H, "# SrcNId\tDstNId\tk\tWD\n");
+  // for (WDHI = WDHH.BegI(); WDHI < WDHH.EndI(); WDHI++) {
+  //   const TIntFltH& WDH = WDHI.GetDat();
+  //   for (WI = WDH.BegI(); WI < WDH.EndI(); WI++) {
+  //     fprintf(H, "%d\t%d\t%d\t%s\n", (int) WDHI.GetKey().Val1, (int) WDHI.GetKey().Val2, (int) WI.GetKey(), TFlt::GetStr(WI.GetDat(), 10, 10).CStr());
+  //   }
+  // }
+  // printf(" DONE\n");
+
+  Name = TStr::Fmt("%s.%s.%s.WDHH", OutFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
+  printf("\nSaving %s...", Name.CStr());
+  FILE *I = fopen(Name.CStr(), "wt");
+  fprintf(I, "# Path connectivity from %s to %s (dir: %d, k: %d, tol: %f)\n", SrcNm.CStr(), DstNm.CStr(), dir, k, tol);
+  fprintf(I, "# SrcNIdV.Len(): %d\tDstNIdV.Len(): %d\t\n", SrcNIdV.Len(), DstNIdV.Len());
+  fprintf(I, "# SrcNId\tDstNId\t[N for each k < p]\n");
+  for (WDHI = WDHH.BegI(); WDHI < WDHH.EndI(); WDHI++) {
+    fprintf(I, "%d\t%d", (int) WDHI.GetKey().Val1, (int) WDHI.GetKey().Val2);
+    const TIntFltH& WDH = WDHI.GetDat();
+    for (int i = 0; i < k; i++) {
+      if (WDH.IsKey(i + 1)) {
+        fprintf(I, "\t%s", TFlt::GetStr(WDH.GetDat(i + 1), 10, 10).CStr());
+      } else {
+        fprintf(I, "\t%s", TFlt::GetStr(0, 1, 1).CStr());
+      }
+    }
+    fprintf(I, "\n");
   }
   printf(" DONE\n");
 
