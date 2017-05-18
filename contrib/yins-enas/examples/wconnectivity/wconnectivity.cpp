@@ -22,20 +22,6 @@ void ComputeWD(const PFltWNGraph& WGraph, const TIntV& SrcNIdV, const TIntV& Dst
   TIntIntH::TIter PI;
   TIntFltH::TIter WI;
 
-  // Name = TStr::Fmt("%s.%s.%s.PathsHH", OutFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
-  // printf("\nSaving %s...", Name.CStr());
-  // FILE *F = fopen(Name.CStr(), "wt");
-  // fprintf(F, "# Path connectivity from %s to %s (dir: %d, k: %d, tol: %f)\n", SrcNm.CStr(), DstNm.CStr(), dir, k, tol);
-  // fprintf(F, "# SrcNIdV.Len(): %d\tDstNIdV.Len(): %d\t\n", SrcNIdV.Len(), DstNIdV.Len());
-  // fprintf(F, "# SrcNId\tDstNId\tk\tN\n");
-  // for (PathsHI = PathsHH.BegI(); PathsHI < PathsHH.EndI(); PathsHI++) {
-  //   const TIntIntH& PathsH = PathsHI.GetDat();
-  //   for (PI = PathsH.BegI(); PI < PathsH.EndI(); PI++) {
-  //     fprintf(F, "%d\t%d\t%d\t%d\n", (int) PathsHI.GetKey().Val1, (int) PathsHI.GetKey().Val2, (int) PI.GetKey(), (int) PI.GetDat());
-  //   }
-  // }
-  // printf(" DONE\n");
-
   Name = TStr::Fmt("%s.%s.%s.PathsHH", OutFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
   printf("\nSaving %s...", Name.CStr());
   FILE *G = fopen(Name.CStr(), "wt");
@@ -55,20 +41,6 @@ void ComputeWD(const PFltWNGraph& WGraph, const TIntV& SrcNIdV, const TIntV& Dst
     fprintf(G, "\n");
   }
   printf(" DONE\n");
-
-  // Name = TStr::Fmt("%s.%s.%s.WDHH", OutFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
-  // printf("\nSaving %s...", Name.CStr());
-  // FILE *H = fopen(Name.CStr(), "wt");
-  // fprintf(H, "# Weighted distance from %s to %s (dir: %d, k: %d, tol: %f)\n", SrcNm.CStr(), DstNm.CStr(), dir, k, tol);
-  // fprintf(H, "# SrcNIdV.Len(): %d\tDstNIdV.Len(): %d\t\n", SrcNIdV.Len(), DstNIdV.Len());
-  // fprintf(H, "# SrcNId\tDstNId\tk\tWD\n");
-  // for (WDHI = WDHH.BegI(); WDHI < WDHH.EndI(); WDHI++) {
-  //   const TIntFltH& WDH = WDHI.GetDat();
-  //   for (WI = WDH.BegI(); WI < WDH.EndI(); WI++) {
-  //     fprintf(H, "%d\t%d\t%d\t%s\n", (int) WDHI.GetKey().Val1, (int) WDHI.GetKey().Val2, (int) WI.GetKey(), TFlt::GetStr(WI.GetDat(), 10, 10).CStr());
-  //   }
-  // }
-  // printf(" DONE\n");
 
   Name = TStr::Fmt("%s.%s.%s.WDHH", OutFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
   printf("\nSaving %s...", Name.CStr());
@@ -90,11 +62,6 @@ void ComputeWD(const PFltWNGraph& WGraph, const TIntV& SrcNIdV, const TIntV& Dst
   }
   printf(" DONE\n");
 
-  // Name = TStr::Fmt("%s.%s.%s.WDVH...", BseFNm.CStr(), SrcNm.CStr(), DstNm.CStr());
-  // printf("\nSaving %s...", Name.CStr());
-  // TSnap::SaveTxt(WBVH, Name, TStr::Fmt("# Weighted distance from %s to %s (%d depth limited, %f tolerance limited)\n", SrcNm.CStr(), DstNm.CStr(), k, tol));
-  // printf(" DONE\n");
-  
 }
 
 int main(int argc, char* argv[]) {

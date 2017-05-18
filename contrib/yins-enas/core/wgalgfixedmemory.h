@@ -95,7 +95,7 @@ void TFixedMemoryWeightedDistanceBFS<PGraph>::GetBfsVisitor(const int& NId, TVis
         // STORE
         if (NIdVWDH.IsKey(V) && VWD > tol) {
           NIdVWDH.GetDat(V) += VWD;
-          Visitor.DiscoverNode(V, depth + 1, NIdVWDH.GetDat(V)); // discover node
+          Visitor.DiscoverNode(V, depth + 1, VWD); // discover node
         }
         
         Visitor.TreeEdge(U, depth, edge, path, V); // tree edge
@@ -176,7 +176,7 @@ public:
         if (WDHH.IsKey(NId)) {
           TIntFltH& WDH = WDHH.GetDat(NId);
           if (WDH.IsKey(depth)) {
-            WDH.GetDat(depth) = WD;
+            WDH.GetDat(depth) += WD;
           } else {
             WDH.AddDat(depth, WD);
           }
